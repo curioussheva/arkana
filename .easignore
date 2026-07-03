@@ -1,0 +1,32 @@
+# .easignore controls what gets uploaded to EAS Build servers.
+# By default EAS uses .gitignore, but tracked files you still don't
+# want uploaded (docs, tests, local dbs that snuck into git) go here.
+
+# ─── Docs & non-build files ───────────────────────────────────────
+README.md
+docs/
+*.md
+
+# ─── Tests ─────────────────────────────────────────────────────
+__tests__/
+**/*.test.ts
+**/*.test.tsx
+jest.config.js
+
+# ─── Local dev artifacts (in case they were committed) ──────────
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# ─── Editor / OS junk ──────────────────────────────────────────
+.vscode/
+.idea/
+.DS_Store
+
+# ─── Scripts not needed for the build itself ─────────────────────
+generate-assets.js
+
+# ─── Git metadata (EAS excludes this by default, listed for clarity) ─
+.git/
+.github/
