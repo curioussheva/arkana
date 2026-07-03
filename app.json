@@ -58,8 +58,9 @@
     "newArchEnabled": true,
     "extra": {
       "eas": {
-        "projectId": "your-project-id"
+        "projectId": "171484c6-8d04-415f-a2a2-e12afc4e013b"
       }
-    }
+    },
+    "owner": "curioussheva"
   }
 }
