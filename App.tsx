@@ -7,7 +7,6 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { AppNavigator } from '@navigation/AppNavigator';
 import { ErrorBoundary } from '@components/ui/ErrorBoundary';
 import { getDatabase } from '@db/index';
-import { getAI } from '@ai/onnx-engine';
 
 // Prevent splash screen from auto-hiding
 SplashScreen.preventAutoHideAsync();
@@ -18,16 +17,11 @@ export default function App() {
   useEffect(() => {
     async function prepare() {
       try {
-        // 1. Initialize database
+        // Initialize database (Destiny Matrix cache tables)
         await getDatabase();
         console.log('[App] Database initialized');
 
-        // 2. Initialize AI engine (lazy load, just prepare)
-        const ai = getAI();
-        await ai.initialize();
-        console.log('[App] AI engine initialized');
-
-        // 3. Simulate minimum splash time for UX
+        // Simulate minimum splash time for UX
         await new Promise(resolve => setTimeout(resolve, 800));
       } catch (e) {
         console.warn('[App] Initialization error:', e);
@@ -68,4 +62,3 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 });
- 

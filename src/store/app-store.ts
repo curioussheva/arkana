@@ -1,91 +1,62 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import type { EnergyMatrix, AIInsight, CalculationOptions } from '@core/numerology/types';
+import type { DestinyMatrix } from '@core/destiny-matrix/types';
 
-// ─── State Interface ────────────────────────────────────────────
+type AppLanguage = 'id' | 'en';
 
 interface AppState {
   // Current data
-  currentMatrix: EnergyMatrix | null;
-  currentInsight: AIInsight | null;
-  
+  currentMatrix: DestinyMatrix | null;
+
   // UI State
   isCalculating: boolean;
-  isGeneratingInsight: boolean;
   error: string | null;
-  
+
   // Settings
-  options: CalculationOptions;
-  
+  language: AppLanguage;
+
   // Actions
-  setMatrix: (matrix: EnergyMatrix | null) => void;
-  setInsight: (insight: AIInsight | null) => void;
+  setMatrix: (matrix: DestinyMatrix | null) => void;
   setCalculating: (isCalculating: boolean) => void;
-  setGeneratingInsight: (isGenerating: boolean) => void;
   setError: (error: string | null) => void;
-  setOptions: (options: Partial<CalculationOptions>) => void;
   clearError: () => void;
+  setLanguage: (language: AppLanguage) => void;
   reset: () => void;
 }
-
-// ─── Default Options ────────────────────────────────────────────
-
-const defaultOptions: CalculationOptions = {
-  system: 'pythagorean',
-  includeMasterNumbers: true,
-  includeKarmicDebt: true,
-  language: 'id',
-};
-
-// ─── Store ──────────────────────────────────────────────────────
 
 export const useAppStore = create<AppState>()(
   persist(
     (set) => ({
-      // Initial state
       currentMatrix: null,
-      currentInsight: null,
       isCalculating: false,
-      isGeneratingInsight: false,
       error: null,
-      options: defaultOptions,
-      
-      // Actions
+      language: 'id',
+
       setMatrix: (matrix) => set({ currentMatrix: matrix, error: null }),
-      setInsight: (insight) => set({ currentInsight: insight, error: null }),
       setCalculating: (isCalculating) => set({ isCalculating }),
-      setGeneratingInsight: (isGeneratingInsight) => set({ isGeneratingInsight }),
-      setError: (error) => set({ error, isCalculating: false, isGeneratingInsight: false }),
-      setOptions: (newOptions) =>
-        set((state) => ({
-          options: { ...state.options, ...newOptions },
-        })),
+      setError: (error) => set({ error, isCalculating: false }),
       clearError: () => set({ error: null }),
+      setLanguage: (language) => set({ language }),
       reset: () =>
         set({
           currentMatrix: null,
-          currentInsight: null,
           isCalculating: false,
-          isGeneratingInsight: false,
           error: null,
         }),
     }),
     {
-      name: 'numerology-app-storage',
+      name: 'destiny-matrix-app-storage',
       storage: createJSONStorage(() => AsyncStorage),
       partialize: (state) => ({
-        options: state.options,
+        currentMatrix: state.currentMatrix,
+        language: state.language,
       }),
     }
   )
 );
 
-// ─── Selectors ──────────────────────────────────────────────────
-
 export const selectMatrix = (state: AppState) => state.currentMatrix;
-export const selectInsight = (state: AppState) => state.currentInsight;
-export const selectIsLoading = (state: AppState) =>
-  state.isCalculating || state.isGeneratingInsight;
+export const selectIsLoading = (state: AppState) => state.isCalculating;
 export const selectError = (state: AppState) => state.error;
-export const selectOptions = (state: AppState) => state.options;
+export const selectLanguage = (state: AppState) => state.language;

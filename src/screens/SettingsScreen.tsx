@@ -1,48 +1,60 @@
 import React from 'react';
-import { View, Text, StyleSheet, Switch, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS, FONT_SIZE, SPACING, BORDER_RADIUS } from '@constants/theme';
 import { useAppStore } from '@store/app-store';
+import { destinyCacheManager } from '@db/destiny-cache-manager';
 
 export function SettingsScreen() {
-  const { options, setOptions } = useAppStore();
+  const language = useAppStore((state) => state.language);
+  const setLanguage = useAppStore((state) => state.setLanguage);
+  const resetStore = useAppStore((state) => state.reset);
+
+  const handleClearCache = () => {
+    Alert.alert(
+      'Hapus Cache?',
+      'Semua hasil Destiny Matrix yang tersimpan akan dihapus. Anda perlu menghitung ulang.',
+      [
+        { text: 'Batal', style: 'cancel' },
+        {
+          text: 'Hapus',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await destinyCacheManager.clearAllCache();
+              resetStore();
+              Alert.alert('Berhasil', 'Cache telah dihapus.');
+            } catch (err) {
+              const message = err instanceof Error ? err.message : 'Terjadi kesalahan';
+              Alert.alert('Gagal', message);
+            }
+          },
+        },
+      ]
+    );
+  };
 
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.content}>
         <Text style={styles.title}>Pengaturan</Text>
-        
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Perhitungan</Text>
-          
-          <View style={styles.row}>
-            <Text style={styles.label}>Master Numbers</Text>
-            <Switch
-              value={options.includeMasterNumbers}
-              onValueChange={(v) => setOptions({ includeMasterNumbers: v })}
-              trackColor={{ false: COLORS.backgroundLight, true: COLORS.primary }}
-            />
-          </View>
-          
-          <View style={styles.row}>
-            <Text style={styles.label}>Karmic Debt</Text>
-            <Switch
-              value={options.includeKarmicDebt}
-              onValueChange={(v) => setOptions({ includeKarmicDebt: v })}
-              trackColor={{ false: COLORS.backgroundLight, true: COLORS.primary }}
-            />
-          </View>
-        </View>
-        
+
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Bahasa</Text>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.button}
-            onPress={() => setOptions({ language: options.language === 'id' ? 'en' : 'id' })}
+            onPress={() => setLanguage(language === 'id' ? 'en' : 'id')}
           >
             <Text style={styles.buttonText}>
-              {options.language === 'id' ? '🇮🇩 Indonesia' : '🇬🇧 English'}
+              {language === 'id' ? '🇮🇩 Indonesia' : '🇬🇧 English'}
             </Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Data</Text>
+          <TouchableOpacity style={styles.dangerButton} onPress={handleClearCache}>
+            <Text style={styles.dangerButtonText}>Hapus Cache</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -56,8 +68,8 @@ const styles = StyleSheet.create({
   title: { fontSize: FONT_SIZE.xxl, fontWeight: 'bold', color: COLORS.text, marginBottom: SPACING.lg },
   section: { backgroundColor: COLORS.surface, borderRadius: BORDER_RADIUS.xl, padding: SPACING.lg, marginBottom: SPACING.md },
   sectionTitle: { fontSize: FONT_SIZE.lg, fontWeight: '600', color: COLORS.text, marginBottom: SPACING.md },
-  row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: SPACING.sm },
-  label: { fontSize: FONT_SIZE.md, color: COLORS.text },
   button: { backgroundColor: COLORS.backgroundLight, borderRadius: BORDER_RADIUS.md, padding: SPACING.md, alignItems: 'center' },
   buttonText: { fontSize: FONT_SIZE.md, color: COLORS.text, fontWeight: '500' },
+  dangerButton: { backgroundColor: COLORS.error + '20', borderRadius: BORDER_RADIUS.md, padding: SPACING.md, alignItems: 'center', borderWidth: 1, borderColor: COLORS.error },
+  dangerButtonText: { fontSize: FONT_SIZE.md, color: COLORS.error, fontWeight: '600' },
 });

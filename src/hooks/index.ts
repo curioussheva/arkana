@@ -1,2 +1,1 @@
-export * from './use-numerology';
-export * from './use-timeline';
+export * from './use-destiny-matrix';

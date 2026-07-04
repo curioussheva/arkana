@@ -12,23 +12,19 @@ import {
   Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNumerology } from '@hooks/use-numerology';
+import { useDestinyMatrix } from '@hooks/use-destiny-matrix';
 import { COLORS, FONT_SIZE, SPACING, BORDER_RADIUS, SHADOWS } from '@constants/theme';
 import { formatDate, parseDate, DATE_FORMAT } from '@core/utils/date-utils';
-import { MatrixGrid } from '@components/charts/MatrixGrid';
 import { ArkanaCard } from '@components/ui/ArkanaCard';
-import type { NumerologyInput } from '@core/numerology/types';
+import type { DestinyMatrixInput, DestinyPoint } from '@core/destiny-matrix/types';
 
 const ID_DATE_FORMAT = 'dd/MM/yyyy';
 
 export function HomeScreen() {
-  const [name, setName] = useState('');
-  const [birthDateInput, setBirthDateInput] = useState(''); // DD/MM/YYYY as typed
-  const { calculateWithInsight, isLoading, matrix, insight, error } = useNumerology();
+  const [birthDateInput, setBirthDateInput] = useState('');
+  const { calculate, isLoading, matrix, error } = useDestinyMatrix();
 
   const handleBirthDateChange = (text: string) => {
-    // Strip everything but digits, cap at 8 (ddmmyyyy), then auto-insert
-    // slashes as the user types — standard Indonesian dd/mm/yyyy UX.
     const digits = text.replace(/\D/g, '').slice(0, 8);
     let formatted = digits;
     if (digits.length > 4) {
@@ -40,8 +36,8 @@ export function HomeScreen() {
   };
 
   const handleCalculate = async () => {
-    if (!name.trim() || !birthDateInput.trim()) {
-      Alert.alert('Input Required', 'Mohon isi nama dan tanggal lahir');
+    if (!birthDateInput.trim()) {
+      Alert.alert('Input Required', 'Mohon isi tanggal lahir');
       return;
     }
 
@@ -58,11 +54,10 @@ export function HomeScreen() {
     }
 
     try {
-      const input: NumerologyInput = {
-        birthDate: formatDate(parsedDate, DATE_FORMAT), // convert to ISO YYYY-MM-DD internally
-        name: name.trim(),
+      const input: DestinyMatrixInput = {
+        birthDate: formatDate(parsedDate, DATE_FORMAT),
       };
-      await calculateWithInsight(input);
+      await calculate(input);
     } catch {
       Alert.alert('Error', error || 'Terjadi kesalahan');
     }
@@ -78,25 +73,12 @@ export function HomeScreen() {
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
         >
-          {/* Header */}
           <View style={styles.header}>
-            <Text style={styles.title}>Numerology Engine</Text>
-            <Text style={styles.subtitle}>Jelajahi energi numerologi Anda</Text>
+            <Text style={styles.title}>Destiny Matrix</Text>
+            <Text style={styles.subtitle}>Jelajahi peta takdir Anda</Text>
           </View>
 
-          {/* Input Form */}
           <View style={styles.formCard}>
-            <Text style={styles.label}>Nama Lengkap</Text>
-            <TextInput
-              style={styles.input}
-              value={name}
-              onChangeText={setName}
-              placeholder="Masukkan nama lengkap"
-              placeholderTextColor={COLORS.textMuted}
-              autoCapitalize="words"
-              editable={!isLoading}
-            />
-
             <Text style={styles.label}>Tanggal Lahir (DD/MM/YYYY)</Text>
             <TextInput
               style={styles.input}
@@ -118,78 +100,38 @@ export function HomeScreen() {
               {isLoading ? (
                 <ActivityIndicator color={COLORS.text} />
               ) : (
-                <Text style={styles.buttonText}>Hitung Matriks Energi</Text>
+                <Text style={styles.buttonText}>Hitung Matriks Takdir</Text>
               )}
             </TouchableOpacity>
           </View>
 
-          {/* Results */}
           {matrix && (
             <View style={styles.resultsContainer}>
-              {/* Core Numbers */}
+              {/* TODO: replace this list with DestinyDiamond.tsx octagram
+                  visualization once built. Listing points for now so the
+                  calculation is verifiable end-to-end. */}
               <View style={styles.sectionCard}>
-                <Text style={styles.sectionTitle}>Angka Utama</Text>
-                <View style={styles.numbersGrid}>
-                  <NumberCard label="Life Path" value={matrix.matrix.lifePath} />
-                  <NumberCard label="Destiny" value={matrix.matrix.destiny} />
-                  <NumberCard label="Soul Urge" value={matrix.matrix.soulUrge} />
-                  <NumberCard label="Personality" value={matrix.matrix.personality} />
-                  <NumberCard label="Expression" value={matrix.matrix.expression} />
-                  <NumberCard label="Birthday" value={matrix.matrix.birthday} />
-                </View>
-              </View>
-
-              {/* Personal Cycle */}
-              <View style={styles.sectionCard}>
-                <Text style={styles.sectionTitle}>Siklus Personal</Text>
-                <View style={styles.cycleRow}>
-                  <CycleCard label="Personal Year" value={matrix.matrix.personalYear} />
-                  <CycleCard label="Personal Month" value={matrix.matrix.personalMonth} />
-                  <CycleCard label="Personal Day" value={matrix.matrix.personalDay} />
-                </View>
-              </View>
-
-              {/* Energy Grid */}
-              <View style={styles.sectionCard}>
-                <Text style={styles.sectionTitle}>Grid Energi</Text>
-                <MatrixGrid matrix={matrix} />
-              </View>
-
-              {/* Arkana */}
-              <View style={styles.sectionCard}>
-                <Text style={styles.sectionTitle}>Kartu Arkana</Text>
-                <ArkanaCard arkana={matrix.arkana} />
-              </View>
-
-              {/* AI Insight */}
-              {insight && (
-                <View style={styles.sectionCard}>
-                  <Text style={styles.sectionTitle}>Insight AI</Text>
-                  <View style={styles.insightCard}>
-                    <Text style={styles.insightText}>{insight.narrative}</Text>
-                    <View style={styles.confidenceBadge}>
-                      <Text style={styles.confidenceText}>
-                        Confidence: {Math.round(insight.confidence * 100)}%
+                <Text style={styles.sectionTitle}>13 Titik Matriks</Text>
+                {Object.values(matrix.points).map((point: DestinyPoint) => (
+                  <View key={point.key} style={styles.pointRow}>
+                    <View style={styles.pointKeyBadge}>
+                      <Text style={styles.pointKeyText}>{point.key}</Text>
+                    </View>
+                    <View style={styles.pointInfo}>
+                      <Text style={styles.pointLabel}>{point.label}</Text>
+                      <Text style={styles.pointValue}>
+                        {point.value} — {point.arcana.card}
                       </Text>
                     </View>
                   </View>
+                ))}
+              </View>
 
-                  <Text style={styles.subSectionTitle}>Rekomendasi Hari Ini</Text>
-                  {insight.recommendations.map((task) => (
-                    <View key={task.id} style={styles.taskCard}>
-                      <View style={styles.taskHeader}>
-                        <Text style={styles.taskType}>{task.type.toUpperCase()}</Text>
-                        <Text style={styles.taskPriority}>{task.priority}</Text>
-                      </View>
-                      <Text style={styles.taskAction}>{task.action}</Text>
-                      <Text style={styles.taskDescription}>{task.description}</Text>
-                      <Text style={styles.taskDuration}>⏱ {task.duration}</Text>
-                    </View>
-                  ))}
-                </View>
-              )}
+              <View style={styles.sectionCard}>
+                <Text style={styles.sectionTitle}>Esensi Jiwa (Titik E)</Text>
+                <ArkanaCard arkana={matrix.points.E.arcana} />
+              </View>
 
-              {/* Calculated At */}
               <Text style={styles.timestamp}>
                 Dihitung: {formatDate(matrix.calculatedAt)}
               </Text>
@@ -200,28 +142,6 @@ export function HomeScreen() {
     </SafeAreaView>
   );
 }
-
-// ─── Sub Components ─────────────────────────────────────────────
-
-function NumberCard({ label, value }: { label: string; value: number }) {
-  return (
-    <View style={styles.numberCard}>
-      <Text style={styles.numberValue}>{value}</Text>
-      <Text style={styles.numberLabel}>{label}</Text>
-    </View>
-  );
-}
-
-function CycleCard({ label, value }: { label: string; value: number }) {
-  return (
-    <View style={styles.cycleCard}>
-      <Text style={styles.cycleValue}>{value}</Text>
-      <Text style={styles.cycleLabel}>{label}</Text>
-    </View>
-  );
-}
-
-// ─── Styles ─────────────────────────────────────────────────────
 
 const styles = StyleSheet.create({
   container: {
@@ -301,116 +221,38 @@ const styles = StyleSheet.create({
     color: COLORS.text,
     marginBottom: SPACING.md,
   },
-  subSectionTitle: {
-    fontSize: FONT_SIZE.lg,
-    fontWeight: '600',
-    color: COLORS.text,
-    marginTop: SPACING.lg,
-    marginBottom: SPACING.sm,
-  },
-  numbersGrid: {
+  pointRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: SPACING.sm,
-  },
-  numberCard: {
-    backgroundColor: COLORS.backgroundLight,
-    borderRadius: BORDER_RADIUS.lg,
-    padding: SPACING.md,
     alignItems: 'center',
-    minWidth: 80,
-    flex: 1,
+    paddingVertical: SPACING.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
   },
-  numberValue: {
-    fontSize: FONT_SIZE.xxxl,
-    fontWeight: 'bold',
+  pointKeyBadge: {
+    width: 36,
+    height: 36,
+    borderRadius: BORDER_RADIUS.md,
+    backgroundColor: COLORS.backgroundLight,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: SPACING.md,
+  },
+  pointKeyText: {
+    fontSize: FONT_SIZE.md,
+    fontWeight: '700',
     color: COLORS.primary,
   },
-  numberLabel: {
-    fontSize: FONT_SIZE.xs,
-    color: COLORS.textSecondary,
-    marginTop: SPACING.xs,
-  },
-  cycleRow: {
-    flexDirection: 'row',
-    gap: SPACING.md,
-  },
-  cycleCard: {
-    backgroundColor: COLORS.backgroundLight,
-    borderRadius: BORDER_RADIUS.lg,
-    padding: SPACING.md,
-    alignItems: 'center',
+  pointInfo: {
     flex: 1,
   },
-  cycleValue: {
-    fontSize: FONT_SIZE.xxl,
-    fontWeight: 'bold',
-    color: COLORS.secondary,
-  },
-  cycleLabel: {
-    fontSize: FONT_SIZE.xs,
-    color: COLORS.textSecondary,
-    marginTop: SPACING.xs,
-  },
-  insightCard: {
-    backgroundColor: COLORS.backgroundLight,
-    borderRadius: BORDER_RADIUS.lg,
-    padding: SPACING.md,
-    borderLeftWidth: 4,
-    borderLeftColor: COLORS.primary,
-  },
-  insightText: {
-    fontSize: FONT_SIZE.md,
-    color: COLORS.text,
-    lineHeight: 24,
-  },
-  confidenceBadge: {
-    marginTop: SPACING.sm,
-    alignSelf: 'flex-start',
-  },
-  confidenceText: {
-    fontSize: FONT_SIZE.xs,
-    color: COLORS.primaryLight,
-    fontWeight: '500',
-  },
-  taskCard: {
-    backgroundColor: COLORS.backgroundLight,
-    borderRadius: BORDER_RADIUS.lg,
-    padding: SPACING.md,
-    marginBottom: SPACING.sm,
-    borderLeftWidth: 3,
-    borderLeftColor: COLORS.accent,
-  },
-  taskHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: SPACING.xs,
-  },
-  taskType: {
-    fontSize: FONT_SIZE.xs,
-    color: COLORS.primaryLight,
-    fontWeight: '600',
-  },
-  taskPriority: {
-    fontSize: FONT_SIZE.xs,
-    color: COLORS.accent,
-    fontWeight: '500',
-  },
-  taskAction: {
-    fontSize: FONT_SIZE.md,
-    color: COLORS.text,
-    fontWeight: '600',
-    marginBottom: SPACING.xs,
-  },
-  taskDescription: {
+  pointLabel: {
     fontSize: FONT_SIZE.sm,
     color: COLORS.textSecondary,
-    marginBottom: SPACING.xs,
-    lineHeight: 20,
   },
-  taskDuration: {
-    fontSize: FONT_SIZE.xs,
-    color: COLORS.textMuted,
+  pointValue: {
+    fontSize: FONT_SIZE.md,
+    color: COLORS.text,
+    fontWeight: '600',
   },
   timestamp: {
     fontSize: FONT_SIZE.xs,
@@ -419,4 +261,3 @@ const styles = StyleSheet.create({
     marginTop: SPACING.md,
   },
 });
- 
