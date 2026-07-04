@@ -5,6 +5,7 @@ import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { AppNavigator } from '@navigation/AppNavigator';
+import { ErrorBoundary } from '@components/ui/ErrorBoundary';
 import { getDatabase } from '@db/index';
 import { getAI } from '@ai/onnx-engine';
 
@@ -52,7 +53,9 @@ export default function App() {
     <GestureHandlerRootView style={styles.container}>
       <SafeAreaProvider>
         <View style={styles.container} onLayout={onLayoutRootView}>
-          <AppNavigator />
+          <ErrorBoundary>
+            <AppNavigator />
+          </ErrorBoundary>
           <StatusBar style="light" />
         </View>
       </SafeAreaProvider>
@@ -65,3 +68,4 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 });
+ 

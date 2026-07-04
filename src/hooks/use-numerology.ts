@@ -53,7 +53,9 @@ export function useNumerology() {
   );
 
   const generateInsight = useCallback(
-    async (matrix: EnergyMatrix, userId: string = 'default'): Promise<AIInsight> => {
+    // TODO: userId will be needed once cacheInsight() is wired up below
+    // with a real matrixId lookup. Prefixed with `_` until then.
+    async (matrix: EnergyMatrix, _userId: string = 'default'): Promise<AIInsight> => {
       store.setGeneratingInsight(true);
       store.clearError();
 
@@ -105,3 +107,4 @@ export function useNumerology() {
     setOptions: store.setOptions,
   };
 }
+ 

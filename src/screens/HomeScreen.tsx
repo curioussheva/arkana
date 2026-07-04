@@ -12,38 +12,58 @@ import {
   Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useAppStore } from '@store/app-store';
 import { useNumerology } from '@hooks/use-numerology';
 import { COLORS, FONT_SIZE, SPACING, BORDER_RADIUS, SHADOWS } from '@constants/theme';
-import { formatDate } from '@core/utils/date-utils';
+import { formatDate, parseDate, DATE_FORMAT } from '@core/utils/date-utils';
 import { MatrixGrid } from '@components/charts/MatrixGrid';
 import { ArkanaCard } from '@components/ui/ArkanaCard';
 import type { NumerologyInput } from '@core/numerology/types';
 
+const ID_DATE_FORMAT = 'dd/MM/yyyy';
+
 export function HomeScreen() {
   const [name, setName] = useState('');
-  const [birthDate, setBirthDate] = useState('');
+  const [birthDateInput, setBirthDateInput] = useState(''); // DD/MM/YYYY as typed
   const { calculateWithInsight, isLoading, matrix, insight, error } = useNumerology();
 
+  const handleBirthDateChange = (text: string) => {
+    // Strip everything but digits, cap at 8 (ddmmyyyy), then auto-insert
+    // slashes as the user types — standard Indonesian dd/mm/yyyy UX.
+    const digits = text.replace(/\D/g, '').slice(0, 8);
+    let formatted = digits;
+    if (digits.length > 4) {
+      formatted = `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
+    } else if (digits.length > 2) {
+      formatted = `${digits.slice(0, 2)}/${digits.slice(2)}`;
+    }
+    setBirthDateInput(formatted);
+  };
+
   const handleCalculate = async () => {
-    if (!name.trim() || !birthDate.trim()) {
+    if (!name.trim() || !birthDateInput.trim()) {
       Alert.alert('Input Required', 'Mohon isi nama dan tanggal lahir');
       return;
     }
 
-    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-    if (!dateRegex.test(birthDate)) {
-      Alert.alert('Format Salah', 'Tanggal lahir harus format YYYY-MM-DD');
+    const dateRegex = /^\d{2}\/\d{2}\/\d{4}$/;
+    if (!dateRegex.test(birthDateInput)) {
+      Alert.alert('Format Salah', 'Tanggal lahir harus format DD/MM/YYYY, contoh: 15/08/1995');
+      return;
+    }
+
+    const parsedDate = parseDate(birthDateInput, ID_DATE_FORMAT);
+    if (!parsedDate) {
+      Alert.alert('Tanggal Tidak Valid', 'Periksa kembali tanggal lahir yang dimasukkan');
       return;
     }
 
     try {
       const input: NumerologyInput = {
-        birthDate,
+        birthDate: formatDate(parsedDate, DATE_FORMAT), // convert to ISO YYYY-MM-DD internally
         name: name.trim(),
       };
       await calculateWithInsight(input);
-    } catch (err) {
+    } catch {
       Alert.alert('Error', error || 'Terjadi kesalahan');
     }
   };
@@ -77,14 +97,14 @@ export function HomeScreen() {
               editable={!isLoading}
             />
 
-            <Text style={styles.label}>Tanggal Lahir (YYYY-MM-DD)</Text>
+            <Text style={styles.label}>Tanggal Lahir (DD/MM/YYYY)</Text>
             <TextInput
               style={styles.input}
-              value={birthDate}
-              onChangeText={setBirthDate}
-              placeholder="Contoh: 1995-08-15"
+              value={birthDateInput}
+              onChangeText={handleBirthDateChange}
+              placeholder="Contoh: 15/08/1995"
               placeholderTextColor={COLORS.textMuted}
-              keyboardType="numbers-and-punctuation"
+              keyboardType="number-pad"
               maxLength={10}
               editable={!isLoading}
             />
@@ -399,3 +419,4 @@ const styles = StyleSheet.create({
     marginTop: SPACING.md,
   },
 });
+ 

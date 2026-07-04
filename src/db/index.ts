@@ -5,6 +5,12 @@ import * as schema from './schema';
 let sqliteInstance: SQLiteDatabase | null = null;
 let drizzleInstance: ExpoSQLiteDatabase<typeof schema> | null = null;
 
+// Bump this whenever a change to the tables below requires a one-time
+// backfill/cleanup for users who already have the app installed (e.g.
+// when arkana_readings was added, old cached rows had no matching entry).
+const CURRENT_SCHEMA_VERSION = '2';
+const SCHEMA_VERSION_KEY = 'schema_version';
+
 async function initDatabase(db: SQLiteDatabase): Promise<void> {
   await db.execAsync(`
     PRAGMA journal_mode = WAL;
@@ -88,7 +94,57 @@ async function initDatabase(db: SQLiteDatabase): Promise<void> {
       cache_duration_days INTEGER NOT NULL DEFAULT 30,
       updated_at INTEGER NOT NULL DEFAULT (unixepoch())
     );
+
+    CREATE TABLE IF NOT EXISTS schema_meta (
+      key TEXT PRIMARY KEY,
+      value TEXT NOT NULL
+    );
   `);
+
+  await runMigrations(db);
+}
+
+/**
+ * One-time migration/backfill logic, gated by a version stamp stored in
+ * schema_meta. Add a new `if (fromVersion < 'N')` block whenever a schema
+ * change needs to backfill or clean up data for existing installs —
+ * don't just bump CURRENT_SCHEMA_VERSION without a migration step, or
+ * old users get silently stuck on stale data.
+ */
+async function runMigrations(db: SQLiteDatabase): Promise<void> {
+  const row = await db.getFirstAsync<{ value: string }>(
+    'SELECT value FROM schema_meta WHERE key = ?',
+    [SCHEMA_VERSION_KEY]
+  );
+  const fromVersion = row?.value ?? '0';
+
+  if (fromVersion === CURRENT_SCHEMA_VERSION) {
+    return; // already up to date
+  }
+
+  // v0/v1 -> v2: arkana_readings table was added after matrix_results
+  // already existed for some installs. Any matrix_results row without a
+  // matching arkana_readings row is "legacy" — cache-manager.ts already
+  // has a safe fallback for this (element defaults to 'Fire', etc.), so
+  // no destructive backfill is required. We just clear the *expired*
+  // cache to force fresh recalculation (which will populate
+  // arkana_readings correctly going forward) instead of leaving stale
+  // incomplete rows around indefinitely.
+  if (fromVersion < '2') {
+    await db.execAsync(`
+      DELETE FROM matrix_results
+      WHERE id NOT IN (SELECT matrix_id FROM arkana_readings)
+        AND expires_at < unixepoch();
+    `);
+  }
+
+  // Add future migration blocks here, e.g.:
+  // if (fromVersion < '3') { ... }
+
+  await db.runAsync(
+    'INSERT OR REPLACE INTO schema_meta (key, value) VALUES (?, ?)',
+    [SCHEMA_VERSION_KEY, CURRENT_SCHEMA_VERSION]
+  );
 }
 
 /**

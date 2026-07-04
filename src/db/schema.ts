@@ -1,5 +1,4 @@
 import { sqliteTable, integer, text, real, index } from 'drizzle-orm/sqlite-core';
-import { sql } from 'drizzle-orm';
 
 // ─── Matrix Results ─────────────────────────────────────────────
 export const matrixResults = sqliteTable('matrix_results', {
@@ -88,6 +87,12 @@ export const userPreferences = sqliteTable('user_preferences', {
   updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
 });
 
+// ─── Schema Metadata (for migration tracking) ────────────────────
+export const schemaMeta = sqliteTable('schema_meta', {
+  key: text('key').primaryKey(),
+  value: text('value').notNull(),
+});
+
 // ─── Types for TypeScript ───────────────────────────────────────
 export type MatrixResult = typeof matrixResults.$inferSelect;
 export type NewMatrixResult = typeof matrixResults.$inferInsert;
@@ -99,3 +104,6 @@ export type UserHistory = typeof userHistory.$inferSelect;
 export type NewUserHistory = typeof userHistory.$inferInsert;
 export type UserPreference = typeof userPreferences.$inferSelect;
 export type NewUserPreference = typeof userPreferences.$inferInsert;
+export type SchemaMeta = typeof schemaMeta.$inferSelect;
+export type NewSchemaMeta = typeof schemaMeta.$inferInsert;
+ 

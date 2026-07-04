@@ -12,7 +12,11 @@ import { ARKANA_CARDS } from './arkana';
 // ─── Constants ──────────────────────────────────────────────────
 
 const MASTER_NUMBERS = [11, 22, 33];
-const KARMIC_DEBT_NUMBERS = [13, 14, 16, 19];
+
+// NOTE: karmic debt numbers (13, 14, 16, 19) + CalculationOptions.includeKarmicDebt
+// are not implemented yet — the toggle exists but currently does nothing.
+// Tracked as a follow-up; removed the unused constant to keep lint clean
+// until the feature is actually built.
 
 const PYTHAGOREAN_MAP: Record<string, number> = {
   A: 1, B: 2, C: 3, D: 4, E: 5, F: 6, G: 7, H: 8, I: 9,
@@ -37,14 +41,14 @@ function sumDigits(n: number): number {
 
 function reduceDigits(n: number, options: CalculationOptions): number {
   if (n === 0) return 0;
-  
+
   let num = Math.abs(n);
-  
+
   // Keep master numbers if enabled
   if (options.includeMasterNumbers && MASTER_NUMBERS.includes(num)) {
     return num;
   }
-  
+
   // Reduce to single digit
   while (num >= 10) {
     num = sumDigits(num);
@@ -52,7 +56,7 @@ function reduceDigits(n: number, options: CalculationOptions): number {
       return num;
     }
   }
-  
+
   return num;
 }
 
@@ -112,7 +116,7 @@ function calculateChallenges(date: BirthDateInput, options: CalculationOptions):
   const day = reduceDigits(date.day, { ...options, includeMasterNumbers: false });
   const month = reduceDigits(date.month, { ...options, includeMasterNumbers: false });
   const year = reduceDigits(date.year, { ...options, includeMasterNumbers: false });
-  
+
   return [
     Math.abs(month - day),      // First challenge (0-30)
     Math.abs(day - year),       // Second challenge (0-30)
@@ -125,7 +129,7 @@ function calculatePinnacles(date: BirthDateInput, options: CalculationOptions): 
   const day = reduceDigits(date.day, { ...options, includeMasterNumbers: false });
   const month = reduceDigits(date.month, { ...options, includeMasterNumbers: false });
   const year = reduceDigits(date.year, { ...options, includeMasterNumbers: false });
-  
+
   return [
     reduceDigits(month + day, options),           // First pinnacle (0-36)
     reduceDigits(day + year, options),            // Second pinnacle (36-45)
@@ -155,7 +159,7 @@ function calculatePersonalDay(personalMonth: number, options: CalculationOptions
 function generateEnergyGrid(core: CoreMatrix): EnergyGrid {
   const size = 9;
   const cells: EnergyGrid['cells'] = [];
-  
+
   // Generate 9x9 grid based on numerological patterns
   const baseNumbers = [
     core.lifePath,
@@ -168,7 +172,7 @@ function generateEnergyGrid(core: CoreMatrix): EnergyGrid {
     core.personalYear,
     core.personalMonth,
   ];
-  
+
   for (let row = 0; row < size; row++) {
     const rowCells: EnergyGrid['cells'][number] = [];
     for (let col = 0; col < size; col++) {
@@ -181,18 +185,18 @@ function generateEnergyGrid(core: CoreMatrix): EnergyGrid {
         includeKarmicDebt: false,
         language: 'id',
       });
-      
+
       // Calculate intensity based on position and core numbers
       const isAligned = baseNumbers.includes(value);
-      const intensity = isAligned 
-        ? 0.7 + Math.random() * 0.3 
+      const intensity = isAligned
+        ? 0.7 + Math.random() * 0.3
         : 0.1 + Math.random() * 0.5;
-      
+
       // Color based on intensity
       const hue = isAligned ? 200 + (value * 20) % 60 : 0;
       const saturation = Math.round(intensity * 100);
       const lightness = Math.round(30 + intensity * 40);
-      
+
       rowCells.push({
         value,
         intensity: Math.round(intensity * 100) / 100,
@@ -202,27 +206,27 @@ function generateEnergyGrid(core: CoreMatrix): EnergyGrid {
     }
     cells.push(rowCells);
   }
-  
+
   // Calculate summary
   const allValues = cells.flat().map((c) => c.value);
   const valueCounts = allValues.reduce((acc, v) => {
     acc[v] = (acc[v] || 0) + 1;
     return acc;
   }, {} as Record<number, number>);
-  
+
   const dominantNumber = Object.entries(valueCounts)
-    .sort((a, b) => b[1] - a[1])[0]?.[0] 
+    .sort((a, b) => b[1] - a[1])[0]?.[0]
     ? parseInt(Object.entries(valueCounts).sort((a, b) => b[1] - a[1])[0][0])
     : 1;
-  
+
   const weakestNumber = Object.entries(valueCounts)
     .sort((a, b) => a[1] - b[1])[0]?.[0]
     ? parseInt(Object.entries(valueCounts).sort((a, b) => a[1] - b[1])[0][0])
     : 9;
-  
+
   const avgIntensity = cells.flat().reduce((sum, c) => sum + c.intensity, 0) / (size * size);
   const balance = 1 - (Math.max(...allValues) - Math.min(...allValues)) / 9;
-  
+
   return {
     dimensions: [size, size],
     cells,
@@ -238,15 +242,12 @@ function generateEnergyGrid(core: CoreMatrix): EnergyGrid {
 // ─── Arkana Mapping ─────────────────────────────────────────────
 
 function mapToArkana(lifePath: number, destiny: number): ArkanaInfo {
-  // Map combined energy to Major Arcana (0-21)
-  const combined = reduceDigits(lifePath + destiny, {
-    system: 'pythagorean',
-    includeMasterNumbers: false,
-    includeKarmicDebt: false,
-    language: 'id',
-  });
-  
-  const arkanaNumber = combined % 22;
+  // FIXED (was: reduceDigits(...) with includeMasterNumbers:false before
+  // the modulo, which always collapsed the sum to a single digit 0-9,
+  // making cards 10-21 unreachable). Now the raw sum is modulo'd directly
+  // against the full 22-card range, so every Arkana card is reachable.
+  const combined = lifePath + destiny;
+  const arkanaNumber = ((combined % 22) + 22) % 22; // safe against negative sums
   return ARKANA_CARDS[arkanaNumber];
 }
 
@@ -267,7 +268,7 @@ export class NumerologyEngine {
 
   calculate(input: NumerologyInput): EnergyMatrix {
     const date = parseBirthDate(input.birthDate);
-    
+
     // Core calculations
     const lifePath = calculateLifePath(date, this.options);
     const destiny = calculateDestiny(date, this.options);
@@ -281,7 +282,7 @@ export class NumerologyEngine {
     const personalYear = calculatePersonalYear(date, this.options);
     const personalMonth = calculatePersonalMonth(personalYear, this.options);
     const personalDay = calculatePersonalDay(personalMonth, this.options);
-    
+
     const core: CoreMatrix = {
       lifePath,
       destiny,
@@ -296,13 +297,13 @@ export class NumerologyEngine {
       personalMonth,
       personalDay,
     };
-    
+
     // Energy grid
     const energyGrid = generateEnergyGrid(core);
-    
+
     // Arkana
     const arkana = mapToArkana(lifePath, destiny);
-    
+
     return {
       version: '1.0.0',
       calculatedAt: new Date().toISOString(),
@@ -335,3 +336,4 @@ export function getEngine(options?: Partial<CalculationOptions>): NumerologyEngi
 export function resetEngine(): void {
   defaultEngine = null;
 }
+ 
