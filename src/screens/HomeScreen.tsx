@@ -16,6 +16,7 @@ import { useDestinyMatrix } from '@hooks/use-destiny-matrix';
 import { COLORS, FONT_SIZE, SPACING, BORDER_RADIUS, SHADOWS } from '@constants/theme';
 import { formatDate, parseDate, DATE_FORMAT } from '@core/utils/date-utils';
 import { ArkanaCard } from '@components/ui/ArkanaCard';
+import { DestinyDiamond } from '@components/charts';
 import type { DestinyMatrixInput, DestinyPoint } from '@core/destiny-matrix/types';
 
 const ID_DATE_FORMAT = 'dd/MM/yyyy';
@@ -107,9 +108,11 @@ export function HomeScreen() {
 
           {matrix && (
             <View style={styles.resultsContainer}>
-              {/* TODO: replace this list with DestinyDiamond.tsx octagram
-                  visualization once built. Listing points for now so the
-                  calculation is verifiable end-to-end. */}
+              <View style={styles.sectionCard}>
+                <Text style={styles.sectionTitle}>Diagram Matriks</Text>
+                <DestinyDiamond matrix={matrix} />
+              </View>
+
               <View style={styles.sectionCard}>
                 <Text style={styles.sectionTitle}>13 Titik Matriks</Text>
                 {Object.values(matrix.points).map((point: DestinyPoint) => (

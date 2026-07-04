@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS, FONT_SIZE, SPACING, BORDER_RADIUS } from '@constants/theme';
 import { useAppStore } from '@store/app-store';
+import { DestinyDiamond } from '@components/charts';
 import type { DestinyPoint } from '@core/destiny-matrix/types';
 
 export function MatrixScreen() {
@@ -23,9 +24,8 @@ export function MatrixScreen() {
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.content}>
         <Text style={styles.title}>Matriks Takdir</Text>
-        {/* TODO: replace with DestinyDiamond.tsx octagram visualization
-            once built — currently listing points as a functional
-            placeholder. */}
+        <DestinyDiamond matrix={matrix} />
+        <View style={{ height: SPACING.lg }} />
         {Object.values(matrix.points).map((point: DestinyPoint) => (
           <View key={point.key} style={styles.pointRow}>
             <View style={styles.pointKeyBadge}>
