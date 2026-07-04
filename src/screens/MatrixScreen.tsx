@@ -1,13 +1,15 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS, FONT_SIZE, SPACING, BORDER_RADIUS } from '@constants/theme';
 import { useAppStore } from '@store/app-store';
 import { DestinyDiamond } from '@components/charts';
+import { PointDetailModal } from '@components/ui/PointDetailModal';
 import type { DestinyPoint } from '@core/destiny-matrix/types';
 
 export function MatrixScreen() {
   const matrix = useAppStore((state) => state.currentMatrix);
+  const [selectedPoint, setSelectedPoint] = useState<DestinyPoint | null>(null);
 
   if (!matrix) {
     return (
@@ -24,10 +26,15 @@ export function MatrixScreen() {
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.content}>
         <Text style={styles.title}>Matriks Takdir</Text>
-        <DestinyDiamond matrix={matrix} />
+        <DestinyDiamond matrix={matrix} onPointPress={setSelectedPoint} />
         <View style={{ height: SPACING.lg }} />
         {Object.values(matrix.points).map((point: DestinyPoint) => (
-          <View key={point.key} style={styles.pointRow}>
+          <TouchableOpacity
+            key={point.key}
+            style={styles.pointRow}
+            activeOpacity={0.7}
+            onPress={() => setSelectedPoint(point)}
+          >
             <View style={styles.pointKeyBadge}>
               <Text style={styles.pointKeyText}>{point.key}</Text>
             </View>
@@ -37,9 +44,11 @@ export function MatrixScreen() {
                 {point.value} — {point.arcana.card}
               </Text>
             </View>
-          </View>
+          </TouchableOpacity>
         ))}
       </ScrollView>
+
+      <PointDetailModal point={selectedPoint} onClose={() => setSelectedPoint(null)} />
     </SafeAreaView>
   );
 }

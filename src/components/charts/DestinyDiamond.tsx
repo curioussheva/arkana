@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { View, Text, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
 import { Canvas, Path, Circle, Group, BlurMask } from '@shopify/react-native-skia';
 import { COLORS, FONT_SIZE, SPACING, BORDER_RADIUS } from '@constants/theme';
 import {
@@ -13,6 +13,7 @@ import type { ArkanaInfo } from '@core/numerology/types';
 
 interface Props {
   matrix: DestinyMatrix;
+  onPointPress?: (point: DestinyMatrix['points'][DestinyPointKey]) => void;
 }
 
 const PRIMARY_POINTS: DestinyPointKey[] = ['A', 'B', 'C', 'D', 'E'];
@@ -45,7 +46,7 @@ function pathFromKeys(
     .join(' ');
 }
 
-export function DestinyDiamond({ matrix }: Props) {
+export function DestinyDiamond({ matrix, onPointPress }: Props) {
   const canvasSize = Dimensions.get('window').width - SPACING.md * 2 - 16;
   const contentRadius = canvasSize * 0.42; // leaves margin for node circles + labels
   const origin = canvasSize / 2;
@@ -100,11 +101,13 @@ export function DestinyDiamond({ matrix }: Props) {
           ))}
         </Canvas>
 
-        {/* Labels overlaid on the canvas */}
+        {/* Labels overlaid on the canvas — also serve as tap targets */}
         {nodes.map((node) => (
-          <View
+          <TouchableOpacity
             key={`label-${node.key}`}
-            pointerEvents="none"
+            activeOpacity={0.7}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            onPress={() => onPointPress?.(node.point)}
             style={[
               styles.labelWrap,
               { left: node.pixel.x - 18, top: node.pixel.y - 18, width: 36, height: 36 },
@@ -112,7 +115,7 @@ export function DestinyDiamond({ matrix }: Props) {
           >
             <Text style={styles.keyText}>{node.key}</Text>
             <Text style={styles.valueText}>{node.point.value}</Text>
-          </View>
+          </TouchableOpacity>
         ))}
       </View>
 

@@ -16,13 +16,16 @@ import { useDestinyMatrix } from '@hooks/use-destiny-matrix';
 import { COLORS, FONT_SIZE, SPACING, BORDER_RADIUS, SHADOWS } from '@constants/theme';
 import { formatDate, parseDate, DATE_FORMAT } from '@core/utils/date-utils';
 import { ArkanaCard } from '@components/ui/ArkanaCard';
+import { PointDetailModal, type DetailablePoint } from '@components/ui/PointDetailModal';
 import { DestinyDiamond } from '@components/charts';
+import { calculatePersonalYearArcana } from '@core/destiny-matrix/personal-year';
 import type { DestinyMatrixInput, DestinyPoint } from '@core/destiny-matrix/types';
 
 const ID_DATE_FORMAT = 'dd/MM/yyyy';
 
 export function HomeScreen() {
   const [birthDateInput, setBirthDateInput] = useState('');
+  const [selectedPoint, setSelectedPoint] = useState<DetailablePoint | null>(null);
   const { calculate, isLoading, matrix, error } = useDestinyMatrix();
 
   const handleBirthDateChange = (text: string) => {
@@ -110,13 +113,42 @@ export function HomeScreen() {
             <View style={styles.resultsContainer}>
               <View style={styles.sectionCard}>
                 <Text style={styles.sectionTitle}>Diagram Matriks</Text>
-                <DestinyDiamond matrix={matrix} />
+                <DestinyDiamond matrix={matrix} onPointPress={setSelectedPoint} />
               </View>
+
+              {(() => {
+                const personalYear = calculatePersonalYearArcana(matrix.input.birthDate);
+                return (
+                  <TouchableOpacity
+                    style={styles.sectionCard}
+                    activeOpacity={0.7}
+                    onPress={() =>
+                      setSelectedPoint({
+                        key: 'PY',
+                        label: `Arcana Tahun ${personalYear.year}`,
+                        value: personalYear.personalYearValue,
+                        arcana: personalYear.arcana,
+                      })
+                    }
+                  >
+                    <Text style={styles.sectionTitle}>Arcana Tahun {personalYear.year}</Text>
+                    <Text style={styles.pointValue}>
+                      {personalYear.personalYearValue} — {personalYear.arcana.card}
+                    </Text>
+                    <Text style={styles.pointLabel}>Tap untuk detail lengkap</Text>
+                  </TouchableOpacity>
+                );
+              })()}
 
               <View style={styles.sectionCard}>
                 <Text style={styles.sectionTitle}>13 Titik Matriks</Text>
                 {Object.values(matrix.points).map((point: DestinyPoint) => (
-                  <View key={point.key} style={styles.pointRow}>
+                  <TouchableOpacity
+                    key={point.key}
+                    style={styles.pointRow}
+                    activeOpacity={0.7}
+                    onPress={() => setSelectedPoint(point)}
+                  >
                     <View style={styles.pointKeyBadge}>
                       <Text style={styles.pointKeyText}>{point.key}</Text>
                     </View>
@@ -126,7 +158,7 @@ export function HomeScreen() {
                         {point.value} — {point.arcana.card}
                       </Text>
                     </View>
-                  </View>
+                  </TouchableOpacity>
                 ))}
               </View>
 
@@ -142,6 +174,8 @@ export function HomeScreen() {
           )}
         </ScrollView>
       </KeyboardAvoidingView>
+
+      <PointDetailModal point={selectedPoint} onClose={() => setSelectedPoint(null)} />
     </SafeAreaView>
   );
 }
