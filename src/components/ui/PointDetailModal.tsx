@@ -1,11 +1,20 @@
+// src/components/ui/PointDetailModal.tsx
 import React from 'react';
-import { Modal, View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
-import { COLORS, FONT_SIZE, SPACING, BORDER_RADIUS, SHADOWS } from '@constants/theme';
+import {
+  Modal,
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  useWindowDimensions,
+} from 'react-native';
+import { useThemeStore } from '@store/theme-store';
+import { SPACING, FONT_SIZE, BORDER_RADIUS, SHADOWS } from '@constants/theme';
+import { getArkanaImage } from '@constants/arkana-images';
 import type { ArkanaInfo } from '@core/numerology/types';
 
-// Structurally compatible with DestinyPoint (and anything else with this
-// shape, e.g. PersonalYearArcana adapted to it) — kept generic on purpose
-// so this modal can be reused beyond the 13 core A-M points.
 export interface DetailablePoint {
   key: string;
   label: string;
@@ -19,67 +28,130 @@ interface Props {
 }
 
 export function PointDetailModal({ point, onClose }: Props) {
+  const { width, height } = useWindowDimensions();
+  const colors = useThemeStore(state => state.getColors());
+  if (!point) return null;
+
+  const maxCardWidth = width - SPACING.lg * 4;
+  const cardWidth = Math.min(maxCardWidth, 280);
+  const imageHeight = cardWidth / 0.6;
+  const cardImage = getArkanaImage(point.arcana.card);
+
   return (
-    <Modal visible={point !== null} transparent animationType="fade" onRequestClose={onClose}>
-      <TouchableOpacity style={styles.backdrop} activeOpacity={1} onPress={onClose}>
-        <TouchableOpacity activeOpacity={1} style={styles.card} onPress={(e) => e.stopPropagation()}>
-          {point && (
-            <ScrollView showsVerticalScrollIndicator={false}>
-              <View style={styles.header}>
-                <View style={styles.keyBadge}>
-                  <Text style={styles.keyText}>{point.key}</Text>
-                </View>
-                <View style={styles.headerInfo}>
-                  <Text style={styles.label}>{point.label}</Text>
-                  <Text style={styles.value}>Nilai: {point.value}</Text>
-                </View>
+    <Modal visible transparent animationType="fade" onRequestClose={onClose} statusBarTranslucent>
+      <View style={styles.container}>
+        <TouchableOpacity style={styles.backdrop} activeOpacity={1} onPress={onClose} />
+        <View style={[styles.card, { maxHeight: height * 0.8, backgroundColor: colors.surface }]}>
+          <ScrollView
+            style={styles.scrollView}
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={true}
+            bounces
+          >
+            {cardImage ? (
+              <View style={styles.imageWrapper}>
+                <Image
+                  source={cardImage}
+                  style={[styles.cardImage, { width: cardWidth, height: imageHeight }]}
+                  resizeMode="contain"
+                />
               </View>
-
-              <View style={styles.divider} />
-
-              <Text style={styles.cardName}>{point.arcana.card}</Text>
-              <Text style={styles.element}>Elemen: {point.arcana.element}</Text>
-
-              <View style={styles.keywordsWrap}>
-                {point.arcana.keywords.map((kw) => (
-                  <View key={kw} style={styles.keywordChip}>
-                    <Text style={styles.keywordText}>{kw}</Text>
-                  </View>
-                ))}
+            ) : (
+              <View style={[styles.imagePlaceholder, { width: cardWidth, height: imageHeight }]}>
+                <Text style={{ color: colors.textMuted }}>🃏</Text>
               </View>
-
-              <Text style={styles.sectionLabel}>Makna Upright</Text>
-              <Text style={styles.meaning}>{point.arcana.uprightMeaning}</Text>
-
-              <Text style={styles.sectionLabel}>Makna Reversed</Text>
-              <Text style={styles.meaning}>{point.arcana.reversedMeaning}</Text>
-
-              <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-                <Text style={styles.closeButtonText}>Tutup</Text>
-              </TouchableOpacity>
-            </ScrollView>
-          )}
-        </TouchableOpacity>
-      </TouchableOpacity>
+            )}
+            <View style={styles.header}>
+              <View style={[styles.keyBadge, { backgroundColor: colors.backgroundLight }]}>
+                <Text style={[styles.keyText, { color: colors.primary }]}>{point.key}</Text>
+              </View>
+              <View style={styles.headerInfo}>
+                <Text style={[styles.label, { color: colors.textSecondary }]}>{point.label}</Text>
+                <Text style={[styles.value, { color: colors.text }]}>Nilai: {point.value}</Text>
+              </View>
+            </View>
+            <View style={[styles.divider, { backgroundColor: colors.border }]} />
+            <Text style={[styles.cardName, { color: colors.text }]}>{point.arcana.card}</Text>
+            <View style={styles.elementRow}>
+              <View style={[styles.elementDot, { backgroundColor: colors.primaryLight }]} />
+              <Text style={[styles.element, { color: colors.primaryLight }]}>
+                Elemen: {point.arcana.element}
+              </Text>
+            </View>
+            <View style={styles.keywordsWrap}>
+              {point.arcana.keywords.map(kw => (
+                <View key={kw} style={[styles.keywordChip, { backgroundColor: colors.backgroundLight }]}>
+                  <Text style={[styles.keywordText, { color: colors.textSecondary }]}>{kw}</Text>
+                </View>
+              ))}
+            </View>
+            <View style={styles.meaningSection}>
+              <Text style={[styles.sectionLabel, { color: colors.textSecondary }]}>✨ Makna Upright</Text>
+              <Text style={[styles.meaning, { color: colors.text }]}>{point.arcana.uprightMeaning}</Text>
+            </View>
+            <View style={styles.meaningSection}>
+              <Text style={[styles.sectionLabel, { color: colors.textSecondary }]}>🔄 Makna Reversed</Text>
+              <Text style={[styles.meaning, { color: colors.text }]}>{point.arcana.reversedMeaning}</Text>
+            </View>
+            <TouchableOpacity
+              style={[styles.closeButton, { backgroundColor: colors.primary }]}
+              onPress={onClose}
+            >
+              <Text style={styles.closeButtonText}>Tutup</Text>
+            </TouchableOpacity>
+          </ScrollView>
+        </View>
+      </View>
     </Modal>
   );
 }
 
 const styles = StyleSheet.create({
-  backdrop: {
+  container: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.6)',
     justifyContent: 'center',
     alignItems: 'center',
-    padding: SPACING.lg,
+    // Memastikan tidak ada glitch touch yang tembus ke belakang modal
+    backgroundColor: 'transparent', 
+  },
+  backdrop: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.7)',
   },
   card: {
-    backgroundColor: COLORS.surface,
+    width: '90%',
+    // 💡 SOLUSI: Menggunakan minHeight agar ScrollView tidak mengkerut ke ukuran 0
+    minHeight: 150, 
     borderRadius: BORDER_RADIUS.xl,
-    padding: SPACING.lg,
-    width: '100%',
-    maxHeight: '80%',
+    overflow: 'hidden',
     ...SHADOWS.lg,
+    zIndex: 1,
+    elevation: 5,
+    // Memastikan child views (termasuk ScrollView) ter-layout dengan aman
+    flexDirection: 'column', 
+  },
+  scrollView: {
+    // 💡 SOLUSI: Menggunakan flexGrow agar ScrollView fleksibel mengikuti konten
+    flexGrow: 0, 
+  },
+  scrollContent: {
+    padding: SPACING.lg,
+    paddingBottom: SPACING.xl,
+  },
+  imageWrapper: {
+    alignItems: 'center',
+    marginBottom: SPACING.lg,
+  },
+  cardImage: {
+    borderRadius: BORDER_RADIUS.lg,
+  },
+  imagePlaceholder: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#1E293B',
+    borderRadius: BORDER_RADIUS.lg,
+    marginBottom: SPACING.lg,
+    alignSelf: 'center',
   },
   header: {
     flexDirection: 'row',
@@ -90,7 +162,6 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: BORDER_RADIUS.md,
-    backgroundColor: COLORS.backgroundLight,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: SPACING.md,
@@ -98,75 +169,76 @@ const styles = StyleSheet.create({
   keyText: {
     fontSize: FONT_SIZE.xl,
     fontWeight: '700',
-    color: COLORS.primary,
   },
   headerInfo: {
     flex: 1,
   },
   label: {
     fontSize: FONT_SIZE.md,
-    color: COLORS.textSecondary,
   },
   value: {
     fontSize: FONT_SIZE.lg,
     fontWeight: '600',
-    color: COLORS.text,
   },
   divider: {
     height: 1,
-    backgroundColor: COLORS.border,
     marginVertical: SPACING.md,
   },
   cardName: {
     fontSize: FONT_SIZE.xxl,
     fontWeight: '700',
-    color: COLORS.text,
     marginBottom: SPACING.xs,
+  },
+  elementRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: SPACING.md,
+  },
+  elementDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginRight: SPACING.xs,
   },
   element: {
     fontSize: FONT_SIZE.sm,
-    color: COLORS.primaryLight,
-    marginBottom: SPACING.md,
   },
   keywordsWrap: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: SPACING.xs,
-    marginBottom: SPACING.md,
+    marginBottom: SPACING.lg,
   },
   keywordChip: {
-    backgroundColor: COLORS.backgroundLight,
     borderRadius: BORDER_RADIUS.full,
     paddingVertical: SPACING.xs,
     paddingHorizontal: SPACING.sm,
   },
   keywordText: {
     fontSize: FONT_SIZE.xs,
-    color: COLORS.textSecondary,
+  },
+  meaningSection: {
+    marginBottom: SPACING.md,
   },
   sectionLabel: {
-    fontSize: FONT_SIZE.sm,
+    fontSize: FONT_SIZE.md,
     fontWeight: '600',
-    color: COLORS.textSecondary,
-    marginTop: SPACING.sm,
     marginBottom: SPACING.xs,
   },
   meaning: {
     fontSize: FONT_SIZE.md,
-    color: COLORS.text,
     lineHeight: 22,
-    marginBottom: SPACING.sm,
   },
   closeButton: {
-    backgroundColor: COLORS.primary,
     borderRadius: BORDER_RADIUS.md,
     padding: SPACING.md,
     alignItems: 'center',
     marginTop: SPACING.md,
   },
   closeButtonText: {
-    color: COLORS.text,
+    color: '#FFFFFF',
     fontSize: FONT_SIZE.md,
     fontWeight: '600',
   },
 });
+ 

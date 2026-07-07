@@ -1,3 +1,4 @@
+// src/core/destiny-matrix/personal-year.ts
 import { getArkanaByNumber } from '../numerology/arkana';
 import { reduceToArcana, parseBirthDate, sumDigits } from './utils';
 import type { ArkanaInfo } from '../numerology/types';
@@ -14,20 +15,14 @@ export interface PersonalYearArcana {
 /**
  * Personal Year Arcana — NOT part of the original 13-point core matrix
  * (A-M). This is deliberately our own consistent extension rather than a
- * verified reproduction of Natalia Ladini's original method: public
- * sources disagree on how this should be calculated. Some reduce the
- * result fully to a single digit (classical-numerology style); others
- * don't publish their method at all (paid/proprietary calculators).
- *
- * This implementation prioritizes staying consistent with our verified
- * core engine (reduceToArcana caps at 22, never reduces to a single
- * digit) over matching any one unverified external source.
+ * verified reproduction of Natalia Ladini's original method.
  */
 export function calculatePersonalYearArcana(
   birthDate: string,
-  year: number = new Date().getFullYear()
+  year: number = new Date().getFullYear() // Dinamis mengambil tahun saat ini (2026)
 ): PersonalYearArcana {
   const date = parseBirthDate(birthDate);
+  
   const day = reduceToArcana(date.day);
   const month = reduceToArcana(date.month);
   const universalYearValue = reduceToArcana(sumDigits(year));
@@ -37,6 +32,9 @@ export function calculatePersonalYearArcana(
     year,
     universalYearValue,
     personalYearValue,
-    arcana: getArkanaByNumber(personalYearValue % 22),
+    // 💡 PERBAIKAN: Langsung gunakan personalYearValue tanpa modulo (%) 
+    // karena fungsi reduceToArcana di atas sudah menjamin output berada di rentang aman (1-22).
+    arcana: getArkanaByNumber(personalYearValue),
   };
 }
+ 

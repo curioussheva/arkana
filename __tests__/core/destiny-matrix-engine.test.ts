@@ -31,6 +31,18 @@ describe('DestinyMatrixEngine', () => {
       expect(result.points.L.value).toBe(10);
       expect(result.points.M.value).toBe(18);
     });
+
+    it('calculates extended points N-T', () => {
+      // N=M+L=18+10=28->10; O=M+N=18+10=28->10; P=L+N=10+10=20
+      // Q=A+J=7+10=17; R=B+K=1+4=5; S=C+L=7+10=17; T=D+M=15+18=33->6
+      expect(result.points.N.value).toBe(10);
+      expect(result.points.O.value).toBe(10);
+      expect(result.points.P.value).toBe(20);
+      expect(result.points.Q.value).toBe(17);
+      expect(result.points.R.value).toBe(5);
+      expect(result.points.S.value).toBe(17);
+      expect(result.points.T.value).toBe(6);
+    });
   });
 
   describe('calculate() — second reference date (1983-08-12)', () => {
@@ -52,6 +64,16 @@ describe('DestinyMatrixEngine', () => {
       expect(result.points.K.value).toBe(18); // (8+10=18)
       expect(result.points.L.value).toBe(4); // (21+10=31 -> 3+1=4)
       expect(result.points.M.value).toBe(15); // (5+10=15)
+      // Extended points N-T:
+      // N=M+L=15+4=19; O=M+N=15+19=34->7; P=L+N=4+19=23->5
+      // Q=A+J=12+22=34->7; R=B+K=8+18=26->8; S=C+L=21+4=25->7; T=D+M=5+15=20
+      expect(result.points.N.value).toBe(19);
+      expect(result.points.O.value).toBe(7);
+      expect(result.points.P.value).toBe(5);
+      expect(result.points.Q.value).toBe(7);
+      expect(result.points.R.value).toBe(8);
+      expect(result.points.S.value).toBe(7);
+      expect(result.points.T.value).toBe(20);
     });
   });
 

@@ -1,15 +1,16 @@
 import { openDatabaseAsync, type SQLiteDatabase } from 'expo-sqlite';
 import { drizzle, type ExpoSQLiteDatabase } from 'drizzle-orm/expo-sqlite';
 import * as destinySchema from './destiny-schema';
+import * as profileSchema from './profile-schema';
 
-const schema = { ...destinySchema };
+const schema = { ...destinySchema, ...profileSchema };
 
 let sqliteInstance: SQLiteDatabase | null = null;
 let drizzleInstance: ExpoSQLiteDatabase<typeof schema> | null = null;
 
 // Bump this whenever a change to the tables below requires a one-time
 // backfill/cleanup for users who already have the app installed.
-const CURRENT_SCHEMA_VERSION = '1';
+const CURRENT_SCHEMA_VERSION = '3';
 const SCHEMA_VERSION_KEY = 'schema_version';
 
 async function initDatabase(db: SQLiteDatabase): Promise<void> {
@@ -18,10 +19,6 @@ async function initDatabase(db: SQLiteDatabase): Promise<void> {
     PRAGMA foreign_keys = ON;
   `);
 
-  // NOTE: this branch (destiny-matrix) only initializes Destiny Matrix
-  // tables. The classical numerology tables (matrix_results, ai_insights,
-  // arkana_readings, user_preferences) live on the pythagorean-klasik
-  // branch — see schema.ts there if you need to reference or restore them.
   await db.execAsync(`
     CREATE TABLE IF NOT EXISTS destiny_matrix_results (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -46,6 +43,13 @@ async function initDatabase(db: SQLiteDatabase): Promise<void> {
 
     CREATE INDEX IF NOT EXISTS idx_destiny_history_user_time ON destiny_user_history(user_id, created_at);
 
+    CREATE TABLE IF NOT EXISTS destiny_profiles (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      birth_date TEXT NOT NULL,
+      created_at INTEGER NOT NULL DEFAULT (unixepoch())
+    );
+
     CREATE TABLE IF NOT EXISTS destiny_schema_meta (
       key TEXT PRIMARY KEY,
       value TEXT NOT NULL
@@ -66,8 +70,20 @@ async function runMigrations(db: SQLiteDatabase): Promise<void> {
     return;
   }
 
+  // v1 -> v2: added destiny_profiles table (multiple saved profiles).
+  // No backfill needed — CREATE TABLE IF NOT EXISTS above already
+  // handles existing installs; this is purely additive.
+
+  // v2 -> v3: DestinyMatrix.points expanded from 13 points (A-M) to 20
+  // (A-T). Cached rows' points_json only has the old shape and will
+  // crash the UI on read (missing N-T). Clearing the cache table is
+  // safe — it's recomputable from birth_date, no user data is lost.
+  if (fromVersion < '3') {
+    await db.execAsync('DELETE FROM destiny_matrix_results;');
+  }
+
   // Add future migration blocks here, e.g.:
-  // if (fromVersion < '2') { ... }
+  // if (fromVersion < '3') { ... }
 
   await db.runAsync(
     'INSERT OR REPLACE INTO destiny_schema_meta (key, value) VALUES (?, ?)',
