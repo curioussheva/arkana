@@ -9,7 +9,7 @@ import {
   ScrollView,
   Alert,
 } from 'react-native';
-import Animated, { FadeInUp, FadeInDown } from 'react-native-reanimated';
+import Animated, { FadeInUp, FadeInDown, Layout } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
@@ -18,7 +18,9 @@ import { useThemeStore } from '@store/theme-store';
 import { useAppStore } from '@store/app-store';
 import { getDestinyMatrixEngine } from '@core/destiny-matrix/engine';
 import { calculateCompatibility } from '@core/destiny-matrix/compatibility';
+import { calculateCompositeMatrix } from '@core/destiny-matrix/composite'; // 🔥 BARU: Import Engine Komposit Sprint 4
 import type { CompatibilityResult } from '@core/destiny-matrix/compatibility';
+import type { CompositeMatrixResult } from '@core/destiny-matrix/composite';
 import { SPACING, FONT_SIZE, BORDER_RADIUS, SHADOWS } from '@constants/theme';
 
 export function CompatibilityScreen() {
@@ -27,9 +29,9 @@ export function CompatibilityScreen() {
 
   const [birthDate2, setBirthDate2] = useState('');
   const [result, setResult] = useState<CompatibilityResult | null>(null);
+  const [compositeResult, setCompositeResult] = useState<CompositeMatrixResult | null>(null); // 🔥 BARU: State hasil komposit
   const [isCalculating, setIsCalculating] = useState(false);
 
-  // Dinamisasi warna indikator berdasarkan status tema (Dark/Light)
   const LEVEL_COLORS: Record<CompatibilityResult['level'], string> = useMemo(() => ({
     'Sangat Harmonis': '#4ade80',
     'Harmonis': '#22c55e',
@@ -54,8 +56,16 @@ export function CompatibilityScreen() {
     try {
       const engine = getDestinyMatrixEngine();
       const matrix2 = engine.calculate({ birthDate: birthDate2 });
+      
+      // 1. Hitung skor kompatibilitas dasar bawaan
       const compResult = calculateCompatibility(currentMatrix, matrix2);
+      
+      // 2. 🔥 BARU: Hitung penggabungan struktur jiwa takdir (Union Engine Modulo 22)
+      const unionResult = calculateCompositeMatrix(currentMatrix, matrix2);
+
       setResult(compResult);
+      setCompositeResult(unionResult);
+      
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     } catch (error) {
       Alert.alert('Error', 'Gagal menghitung kecocokan.');
@@ -66,14 +76,15 @@ export function CompatibilityScreen() {
 
   const clearAll = () => {
     setResult(null);
+    setCompositeResult(null);
     setBirthDate2('');
   };
 
   const shareResult = async () => {
-    if (!result) return;
+    if (!result || !compositeResult) return;
     try {
       await Sharing.shareAsync({
-        message: `💑 Hasil Kompatibilitas Destiny Matrix\n\nSkor: ${result.totalScore}%\nLevel: ${result.level}\n\n${result.narrative}`,
+        message: `💑 Hasil Kompatibilitas Destiny Matrix\n\nSkor: ${result.totalScore}%\nLevel: ${result.level}\nEsensi Hubungan: ${compositeResult.interpretation.soulOfUnion}\n\n${result.narrative}`,
         title: 'Compatibility Result',
       });
     } catch {}
@@ -98,7 +109,7 @@ export function CompatibilityScreen() {
           <Text style={[styles.label, { color: colors.text }]}>Tanggal Lahir Pasangan</Text>
           <TextInput
             style={[styles.input, { backgroundColor: colors.backgroundLight, color: colors.text, borderColor: colors.border }]}
-            placeholder="DD/MM/YYYY (contoh: 15/03/1995)"
+            placeholder="contoh: 15-03-1995"
             placeholderTextColor={colors.textMuted}
             value={birthDate2}
             onChangeText={setBirthDate2}
@@ -125,8 +136,12 @@ export function CompatibilityScreen() {
         </View>
 
         {/* Hasil Analisis Lengkap */}
-        {result && (
-          <Animated.View entering={FadeInUp.duration(600).springify()} style={[styles.resultCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+        {result && compositeResult && (
+          <Animated.View 
+            entering={FadeInUp.duration(600).springify()} 
+            layout={Layout.springify()}
+            style={[styles.resultCard, { backgroundColor: colors.surface, borderColor: colors.border }]}
+          >
             <Text style={[styles.score, { color: colors.primary }]}>{result.totalScore}%</Text>
             <Text style={[styles.level, { color: LEVEL_COLORS[result.level] }]}>
               {result.level}
@@ -145,7 +160,24 @@ export function CompatibilityScreen() {
               </View>
             </View>
 
-            <Text style={[styles.narrative, { color: colors.textSecondary }]}>
+            {/* 🔥 BARU: Komponen Visualisasi Arketipe Jiwa Bersama (Composite Union Card) */}
+            <View style={[styles.unionBox, { backgroundColor: colors.backgroundLight, borderColor: colors.border }]}>
+              <Text style={[styles.unionBoxTitle, { color: colors.primary }]}>🔮 Arcana Pusat Komposit: Titik E ({compositeResult.compositePoints['E']})</Text>
+              <Text style={[styles.unionSoulName, { color: colors.text }]}>{compositeResult.interpretation.soulOfUnion}</Text>
+              
+              <View style={styles.divider} />
+              
+              <Text style={[styles.sectionSubtitle, { color: colors.text }]}>💪 Kekuatan Hubungan:</Text>
+              <Text style={[styles.unionText, { color: colors.textSecondary }]}>{compositeResult.interpretation.partnershipStrength}</Text>
+              
+              <Text style={[styles.sectionSubtitle, { color: colors.error, marginTop: SPACING.xs }]}>⚠️ Tantangan Karma Bersama:</Text>
+              <Text style={[styles.unionText, { color: colors.textSecondary }]}>{compositeResult.interpretation.karmicChallenge}</Text>
+              
+              <Text style={[styles.sectionSubtitle, { color: '#fbbf24', marginTop: SPACING.xs }]}>🔑 Nasihat Pertumbuhan:</Text>
+              <Text style={[styles.unionText, { color: colors.textSecondary }]}>{compositeResult.interpretation.growthAdvice}</Text>
+            </View>
+
+            <Text style={[styles.narrative, { color: colors.textSecondary, marginTop: SPACING.md }]}>
               {result.narrative}
             </Text>
 
@@ -214,6 +246,15 @@ const styles = StyleSheet.create({
   elementBadge: { paddingHorizontal: SPACING.md, paddingVertical: SPACING.sm, borderRadius: BORDER_RADIUS.md, alignItems: 'center', minWidth: 80 },
   elementBadgeLabel: { fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 2 },
   elementBadgeValue: { fontSize: FONT_SIZE.sm, fontWeight: '700' },
+  
+  // 🔥 Style Baru Untuk Box Komposit
+  unionBox: { width: '100%', padding: SPACING.md, borderRadius: BORDER_RADIUS.xl, borderWidth: 1, marginTop: SPACING.xs },
+  unionBoxTitle: { fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5 },
+  unionSoulName: { fontSize: FONT_SIZE.md, fontWeight: '700', marginTop: 2 },
+  divider: { height: 1, backgroundColor: 'rgba(150, 150, 150, 0.15)', marginVertical: SPACING.sm },
+  sectionSubtitle: { fontSize: FONT_SIZE.xs, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.3, marginBottom: 2 },
+  unionText: { fontSize: 13, lineHeight: 18, marginBottom: SPACING.sm },
+
   narrative: { fontSize: FONT_SIZE.md, textAlign: 'center', marginBottom: SPACING.lg, lineHeight: 24 },
   sharedArcanasContainer: { width: '100%', marginBottom: SPACING.lg },
   chipGroup: { flexDirection: 'row', flexWrap: 'wrap', gap: SPACING.xs, marginTop: SPACING.xs },

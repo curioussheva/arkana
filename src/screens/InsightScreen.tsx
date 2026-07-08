@@ -6,7 +6,7 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Share, // 🔥 PERBAIKAN: Menambahkan import Share yang hilang agar tidak crash
+  Share,
 } from 'react-native';
 import Animated, {
   FadeInDown,
@@ -18,12 +18,13 @@ import Animated, {
   withRepeat,
   withSequence,
   withTiming,
+  FadeInRight,
 } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import { useThemeStore } from '@store/theme-store';
-import { useAppStore } from '@store/app-store';
+import { useAppStore, selectAdvancedAnalysis, selectActiveProfileName } from '@store/app-store';
 import { generateInsight, firstSentence } from '@core/destiny-matrix/insight';
 import { getPositionInterpretation } from '@core/destiny-matrix/position-meanings';
 import { ArkanaCard } from '@components/ui/ArkanaCard';
@@ -34,11 +35,17 @@ import type { DestinyPointKey } from '@core/destiny-matrix/types';
 import { SPACING, FONT_SIZE, BORDER_RADIUS, SHADOWS } from '@constants/theme';
 
 const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient);
+type ActiveTabType = 'blueprint' | 'energy';
 
 export function InsightScreen() {
   const colors = useThemeStore(state => state.getColors());
   const [showFullNarrative, setShowFullNarrative] = useState(false);
+  const [activeTab, setActiveTab] = useState<ActiveTabType>('blueprint');
+  
   const matrix = useAppStore(state => state.currentMatrix);
+  const analysis = useAppStore(selectAdvancedAnalysis);
+  const profileName = useAppStore(selectActiveProfileName);
+  
   const glowOpacity = useSharedValue(0.3);
 
   const insight = useMemo(() => {
@@ -101,315 +108,91 @@ export function InsightScreen() {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     try {
       await Share.share({
-        message: `🔮 Destiny Matrix Insight\n\n${insight.narrative}`,
+        message: `🔮 Destiny Matrix Insight untuk ${profileName}\n\n${insight.narrative}`,
         title: 'Destiny Matrix Insight',
       });
     } catch (error) {
       console.error('Share failed:', error);
     }
-  }, [insight]);
+  }, [insight, profileName]);
 
-  const dynamicStyles = useMemo(() => ({
-    container: {
-      flex: 1,
-      backgroundColor: colors.background,
-    },
+  const handleTabPress = (tab: ActiveTabType) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setActiveTab(tab);
+  };
+
+  const dynamicStyles = useMemo(() => StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.background },
     headerGradient: {
       padding: SPACING.xl,
       paddingTop: SPACING.xxl,
       borderBottomLeftRadius: BORDER_RADIUS['3xl'],
       borderBottomRightRadius: BORDER_RADIUS['3xl'],
-      marginBottom: SPACING.lg,
     },
-    headerTitle: {
-      fontSize: FONT_SIZE['3xl'],
-      fontWeight: '800' as const,
-      color: colors.text,
-      marginBottom: SPACING.xs,
-    },
-    headerSubtitle: {
-      fontSize: FONT_SIZE.sm,
-      color: colors.textSecondary,
-      lineHeight: 20,
-    },
+    headerTitle: { fontSize: FONT_SIZE['3xl'], fontWeight: '800', color: colors.text, marginBottom: SPACING.xs },
+    headerSubtitle: { fontSize: FONT_SIZE.sm, color: colors.textSecondary, lineHeight: 20 },
+    tabBar: { flexDirection: 'row', borderBottomWidth: 1, height: 48, alignItems: 'center', backgroundColor: colors.surface, borderColor: colors.border },
+    tabItem: { flex: 1, height: '100%', justifyContent: 'center', alignItems: 'center' },
+    tabLabel: { fontSize: FONT_SIZE.sm },
     elementBanner: {
-      flexDirection: 'row' as const,
-      alignItems: 'center' as const,
-      backgroundColor: colors.surface,
-      borderRadius: BORDER_RADIUS.xl,
-      padding: SPACING.md,
-      marginHorizontal: SPACING.md,
-      marginBottom: SPACING.lg,
-      borderWidth: 1,
-      borderColor: elementData?.color ? elementData.color + '30' : colors.border,
-      gap: SPACING.md,
+      flexDirection: 'row', alignItems: 'center', backgroundColor: colors.surface, borderRadius: BORDER_RADIUS.xl,
+      padding: SPACING.md, marginHorizontal: SPACING.md, marginTop: SPACING.lg, marginBottom: SPACING.md,
+      borderWidth: 1, borderColor: elementData?.color ? elementData.color + '30' : colors.border, gap: SPACING.md,
     },
-    elementIconContainer: {
-      width: 48,
-      height: 48,
-      borderRadius: BORDER_RADIUS.lg,
-      justifyContent: 'center' as const,
-      alignItems: 'center' as const,
-    },
+    elementIconContainer: { width: 48, height: 48, borderRadius: BORDER_RADIUS.lg, justifyContent: 'center', alignItems: 'center' },
     elementIcon: { fontSize: 24 },
     elementInfo: { flex: 1 },
-    elementLabel: {
-      fontSize: FONT_SIZE.xs,
-      color: colors.textMuted,
-      textTransform: 'uppercase' as const,
-      letterSpacing: 1,
-      marginBottom: 2,
-    },
-    elementName: {
-      fontSize: FONT_SIZE.lg,
-      fontWeight: '700' as const,
-      color: elementData?.color || colors.text,
-    },
-    sectionTitle: {
-      fontSize: FONT_SIZE.xl,
-      fontWeight: '700' as const,
-      color: colors.text,
-      marginBottom: SPACING.md,
-      textAlign: 'center' as const,
-    },
+    elementLabel: { fontSize: FONT_SIZE.xs, color: colors.textMuted, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 2 },
+    elementName: { fontSize: FONT_SIZE.lg, fontWeight: '700', color: elementData?.color || colors.text },
+    sectionTitle: { fontSize: FONT_SIZE.xl, fontWeight: '700', color: colors.text, marginBottom: SPACING.md, textAlign: 'center' },
     narrativeCard: {
-      backgroundColor: colors.surface,
-      borderRadius: BORDER_RADIUS['2xl'],
-      padding: SPACING.lg,
-      marginHorizontal: SPACING.md,
-      marginBottom: SPACING.md,
-      borderWidth: 1,
-      borderColor: colors.border,
-      ...SHADOWS.lg,
-      position: 'relative' as const,
-      overflow: 'hidden' as const,
+      backgroundColor: colors.surface, borderRadius: BORDER_RADIUS['2xl'], padding: SPACING.lg,
+      marginHorizontal: SPACING.md, marginBottom: SPACING.md, borderWidth: 1, borderColor: colors.border,
+      ...SHADOWS.lg, position: 'relative', overflow: 'hidden',
     },
-    narrativeGlow: {
-      position: 'absolute' as const,
-      top: -50,
-      left: -50,
-      right: -50,
-      bottom: -50,
-      borderRadius: BORDER_RADIUS['2xl'],
-    },
-    narrativeTitleRow: {
-      flexDirection: 'row' as const,
-      alignItems: 'center' as const,
-      justifyContent: 'center' as const,
-      marginBottom: SPACING.md,
-      gap: 8,
-    },
-    narrativeTitle: {
-      fontSize: FONT_SIZE.xl,
-      fontWeight: '700' as const,
-      color: colors.text,
-    },
-    narrativeText: {
-      fontSize: FONT_SIZE.md,
-      color: colors.text,
-      lineHeight: 26,
-    },
-    narrativeFade: {
-      position: 'absolute' as const,
-      bottom: 0,
-      left: 0,
-      right: 0,
-      height: 60,
-      borderBottomLeftRadius: BORDER_RADIUS['2xl'],
-      borderBottomRightRadius: BORDER_RADIUS['2xl'],
-    },
-    showMoreButton: {
-      alignItems: 'center' as const,
-      paddingVertical: SPACING.sm,
-    },
-    showMoreText: {
-      fontSize: FONT_SIZE.sm,
-      color: colors.primary,
-      fontWeight: '600' as const,
-    },
-    wheelContainer: {
-      marginHorizontal: SPACING.md,
-      marginBottom: SPACING.lg,
-      alignItems: 'center' as const,
-    },
-    stepContainer: {
-      marginHorizontal: SPACING.md,
-      marginBottom: SPACING.lg,
-    },
-    stepRow: {
-      flexDirection: 'row' as const,
-      marginBottom: 8,
-      paddingHorizontal: SPACING.sm,
-      alignItems: 'flex-start' as const,
-    },
-    stepNumber: {
-      color: colors.primary,
-      fontWeight: '700' as const,
-      marginRight: 8,
-      width: 20,
-    },
-    stepText: {
-      color: colors.textSecondary,
-      flex: 1,
-    },
-    stepCardName: {
-      fontWeight: '600' as const,
-      color: colors.text,
-    },
-    pointCard: {
-      backgroundColor: colors.surface,
-      borderRadius: BORDER_RADIUS.xl,
-      padding: SPACING.md,
-      marginBottom: SPACING.sm,
-      borderWidth: 1,
-      borderColor: colors.border,
-      marginHorizontal: SPACING.md,
-    },
-    pointHeader: {
-      flexDirection: 'row' as const,
-      alignItems: 'center' as const,
-      marginBottom: 4,
-    },
-    pointBadge: {
-      width: 28,
-      height: 28,
-      borderRadius: 14,
-      backgroundColor: colors.primary + '20',
-      justifyContent: 'center' as const,
-      alignItems: 'center' as const,
-      marginRight: 8,
-    },
-    pointBadgeText: {
-      color: colors.primary,
-      fontWeight: '800' as const,
-      fontSize: 12,
-    },
-    pointLabel: {
-      color: colors.text,
-      fontWeight: '600' as const,
-      fontSize: 14,
-    },
-    pointInterpretation: {
-      color: colors.textSecondary,
-      fontSize: 13,
-      lineHeight: 20,
-    },
-    essenceCard: {
-      backgroundColor: colors.surface,
-      borderRadius: BORDER_RADIUS['2xl'],
-      padding: SPACING.lg,
-      marginHorizontal: SPACING.md,
-      marginBottom: SPACING.md,
-      borderWidth: 1,
-      borderColor: colors.border,
-      ...SHADOWS.lg,
-    },
-    essenceTitle: {
-      fontSize: FONT_SIZE.lg,
-      fontWeight: '700' as const,
-      color: colors.text,
-      marginBottom: SPACING.md,
-      textAlign: 'center' as const,
-    },
-    essenceSubtitle: {
-      fontSize: FONT_SIZE.sm,
-      color: colors.textSecondary,
-      textAlign: 'center' as const,
-      marginBottom: SPACING.lg,
-      fontStyle: 'italic' as const,
-    },
-    shareButton: {
-      flexDirection: 'row' as const,
-      alignItems: 'center' as const,
-      justifyContent: 'center' as const,
-      backgroundColor: colors.primary + '15',
-      borderRadius: BORDER_RADIUS.xl,
-      padding: SPACING.md,
-      marginHorizontal: SPACING.md,
-      marginTop: SPACING.md,
-      gap: SPACING.sm,
-      borderWidth: 1,
-      borderColor: colors.primary + '30',
-    },
-    shareButtonText: {
-      color: colors.primary,
-      fontSize: FONT_SIZE.md,
-      fontWeight: '600' as const,
-    },
-    emptyContainer: {
-      flex: 1,
-      justifyContent: 'center' as const,
-      alignItems: 'center' as const,
-      padding: SPACING.xl,
-    },
+    narrativeGlow: { position: 'absolute', top: -50, left: -50, right: -50, bottom: -50, borderRadius: BORDER_RADIUS['2xl'] },
+    narrativeTitleRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginBottom: SPACING.md, gap: 8 },
+    narrativeTitle: { fontSize: FONT_SIZE.xl, fontWeight: '700', color: colors.text },
+    narrativeText: { fontSize: FONT_SIZE.md, color: colors.text, lineHeight: 26 },
+    narrativeFade: { position: 'absolute', bottom: 0, left: 0, right: 0, height: 60, borderBottomLeftRadius: BORDER_RADIUS['2xl'], borderBottomRightRadius: BORDER_RADIUS['2xl'] },
+    showMoreButton: { alignItems: 'center', paddingVertical: SPACING.sm },
+    showMoreText: { fontSize: FONT_SIZE.sm, color: colors.primary, fontWeight: '600' },
+    wheelContainer: { marginHorizontal: SPACING.md, marginBottom: SPACING.lg, alignItems: 'center' },
+    stepContainer: { marginHorizontal: SPACING.md, marginBottom: SPACING.lg },
+    stepRow: { flexDirection: 'row', marginBottom: 8, paddingHorizontal: SPACING.sm, alignItems: 'flex-start' },
+    stepNumber: { color: colors.primary, fontWeight: '700', marginRight: 8, width: 20 },
+    stepText: { color: colors.textSecondary, flex: 1 },
+    stepCardName: { fontWeight: '600', color: colors.text },
+    pointCard: { backgroundColor: colors.surface, borderRadius: BORDER_RADIUS.xl, padding: SPACING.md, marginBottom: SPACING.sm, borderWidth: 1, borderColor: colors.border, marginHorizontal: SPACING.md },
+    pointHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 4 },
+    pointBadge: { width: 28, height: 28, borderRadius: 14, backgroundColor: colors.primary + '20', justifyContent: 'center', alignItems: 'center', marginRight: 8 },
+    pointBadgeText: { color: colors.primary, fontWeight: '800', fontSize: 12 },
+    pointLabel: { color: colors.text, fontWeight: '600', fontSize: 14 },
+    pointInterpretation: { color: colors.textSecondary, fontSize: 13, lineHeight: 20 },
+    essenceCard: { backgroundColor: colors.surface, borderRadius: BORDER_RADIUS['2xl'], padding: SPACING.lg, marginHorizontal: SPACING.md, marginBottom: SPACING.md, borderWidth: 1, borderColor: colors.border, ...SHADOWS.lg },
+    essenceTitle: { fontSize: FONT_SIZE.lg, fontWeight: '700', color: colors.text, marginBottom: SPACING.md, textAlign: 'center' },
+    essenceSubtitle: { fontSize: FONT_SIZE.sm, color: colors.textSecondary, textAlign: 'center', marginBottom: SPACING.lg, fontStyle: 'italic' },
+    shareButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: colors.primary + '15', borderRadius: BORDER_RADIUS.xl, padding: SPACING.md, marginHorizontal: SPACING.md, marginTop: SPACING.md, gap: SPACING.sm, borderWidth: 1, borderColor: colors.primary + '30' },
+    shareButtonText: { color: colors.primary, fontSize: FONT_SIZE.md, fontWeight: '600' },
+    emptyContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: SPACING.xl },
     emptyIcon: { fontSize: 64, marginBottom: SPACING.lg },
-    emptyTitle: {
-      fontSize: FONT_SIZE.xxl,
-      fontWeight: '700' as const,
-      color: colors.text,
-      marginBottom: SPACING.sm,
-    },
-    emptyText: {
-      fontSize: FONT_SIZE.md,
-      color: colors.textSecondary,
-      textAlign: 'center' as const,
-      lineHeight: 24,
-      marginBottom: SPACING.xl,
-    },
-    emptyButton: {
-      backgroundColor: colors.primary,
-      borderRadius: BORDER_RADIUS.xl,
-      padding: SPACING.lg,
-      paddingHorizontal: SPACING.xxl,
-    },
-    emptyButtonText: {
-      color: '#FFFFFF',
-      fontSize: FONT_SIZE.md,
-      fontWeight: '700' as const,
-    },
-    metadataSection: {
-      flexDirection: 'row' as const,
-      gap: SPACING.sm,
-      marginHorizontal: SPACING.md,
-      marginBottom: SPACING.md,
-    },
-    metadataCard: {
-      flex: 1,
-      backgroundColor: colors.surface,
-      borderRadius: BORDER_RADIUS.xl,
-      padding: SPACING.md,
-      borderWidth: 1,
-      borderColor: colors.border,
-      alignItems: 'center' as const,
-    },
-    metadataIcon: { fontSize: 24, marginBottom: SPACING.xs },
-    metadataLabel: {
-      fontSize: FONT_SIZE.xs,
-      color: colors.textMuted,
-      textAlign: 'center' as const,
-    },
-    metadataValue: {
-      fontSize: FONT_SIZE.md,
-      fontWeight: '700' as const,
-      color: colors.text,
-      marginTop: 2,
-    },
-    // Sub-card styling untuk Named Lines
-    lineBlock: {
-      backgroundColor: colors.backgroundLight + '50',
-      borderRadius: BORDER_RADIUS.xl,
-      padding: SPACING.md,
-      marginTop: SPACING.sm,
-      marginBottom: SPACING.md,
-      borderWidth: 1,
-      borderColor: colors.border + '30',
-    },
-    lineTitle: {
-      fontWeight: '700' as const,
-      color: colors.text,
-      fontSize: 16,
-      marginBottom: 2,
-    },
+    emptyTitle: { fontSize: FONT_SIZE.xxl, fontWeight: '700', color: colors.text, marginBottom: SPACING.sm },
+    emptyText: { fontSize: FONT_SIZE.md, color: colors.textSecondary, textAlign: 'center', lineHeight: 24, marginBottom: SPACING.xl },
+    lineBlock: { backgroundColor: colors.backgroundLight + '50', borderRadius: BORDER_RADIUS.xl, padding: SPACING.md, marginTop: SPACING.sm, marginBottom: SPACING.md, borderWidth: 1, borderColor: colors.border + '30' },
+    lineTitle: { fontWeight: '700', color: colors.text, fontSize: 16, marginBottom: 2 },
+    
+    // Advanced Energy Style Basics
+    archetypeText: { fontSize: FONT_SIZE.lg, fontWeight: '800', marginBottom: SPACING.md },
+    barContainer: { flexDirection: 'row', height: 28, borderRadius: BORDER_RADIUS.sm, overflow: 'hidden', marginBottom: SPACING.md, marginTop: SPACING.sm },
+    yinBar: { justifyContent: 'center', paddingLeft: SPACING.sm },
+    yangBar: { justifyContent: 'center', alignItems: 'flex-end', paddingRight: SPACING.sm },
+    barLabel: { color: '#ffffff', fontSize: 11, fontWeight: '700' },
+    chakraHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SPACING.xs },
+    chakraName: { fontSize: FONT_SIZE.md, fontWeight: '700' },
+    statusBadge: { paddingHorizontal: SPACING.sm, paddingVertical: 2, borderRadius: BORDER_RADIUS.sm },
+    statusBadgeText: { fontSize: 10, fontWeight: '700', textTransform: 'uppercase' },
+    chakraStatsRow: { flexDirection: 'row', gap: SPACING.md, marginBottom: SPACING.sm },
+    chakraStatText: { fontSize: FONT_SIZE.xs }
   }), [colors, elementData]);
 
   if (!matrix || !insight) {
@@ -426,15 +209,6 @@ export function InsightScreen() {
               untuk membuka wawasan spiritual yang mendalam
             </Text>
           </Animated.View>
-          <Animated.View entering={FadeInUp.delay(400).duration(800)}>
-            <TouchableOpacity
-              style={dynamicStyles.emptyButton}
-              onPress={() => {}}
-              activeOpacity={0.8}
-            >
-              <Text style={dynamicStyles.emptyButtonText}>✨ Mulai Perjalanan</Text>
-            </TouchableOpacity>
-          </Animated.View>
         </View>
       </SafeAreaView>
     );
@@ -447,194 +221,169 @@ export function InsightScreen() {
 
   return (
     <SafeAreaView style={dynamicStyles.container}>
+      {/* Header Statis */}
+      <Animated.View entering={FadeInDown.duration(600).springify()}>
+        <LinearGradient colors={colors.gradients.headerGradient} style={dynamicStyles.headerGradient}>
+          <Text style={dynamicStyles.headerTitle}>🔮 Spiritual Blueprint</Text>
+          <Text style={dynamicStyles.headerSubtitle}>
+            Profil esensi energi takdir bagi jiwa: <Text style={{ fontWeight: '700', color: colors.primary }}>{profileName}</Text>
+          </Text>
+        </LinearGradient>
+      </Animated.View>
+
+      {/* Tab Switcheable Antara Blueprint vs Analisis Energi */}
+      <View style={dynamicStyles.tabBar}>
+        <TouchableOpacity
+          style={[dynamicStyles.tabItem, activeTab === 'blueprint' && { borderBottomColor: colors.primary, borderBottomWidth: 2 }]}
+          onPress={() => handleTabPress('blueprint')}
+        >
+          <Text style={[dynamicStyles.tabLabel, { color: activeTab === 'blueprint' ? colors.primary : colors.textMuted, fontWeight: activeTab === 'blueprint' ? '700' : '500' }]}>
+            Blueprint Takdir
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[dynamicStyles.tabItem, activeTab === 'energy' && { borderBottomColor: colors.primary, borderBottomWidth: 2 }]}
+          onPress={() => handleTabPress('energy')}
+        >
+          <Text style={[dynamicStyles.tabLabel, { color: activeTab === 'energy' ? colors.primary : colors.textMuted, fontWeight: activeTab === 'energy' ? '700' : '500' }]}>
+            Analisis Energi Internal
+          </Text>
+        </TouchableOpacity>
+      </View>
+
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        {/* Header */}
-        <Animated.View entering={FadeInDown.duration(600).springify()}>
-          <LinearGradient colors={colors.gradients.headerGradient} style={dynamicStyles.headerGradient}>
-            <Text style={dynamicStyles.headerTitle}>🔮 Insight Naratif</Text>
-            <Text style={dynamicStyles.headerSubtitle}>
-              Wawasan mendalam tentang perjalanan spiritualmu
-            </Text>
-          </LinearGradient>
-        </Animated.View>
-
-        {/* Element Banner */}
-        <Animated.View entering={SlideInRight.delay(200).duration(600)}>
-          <View style={dynamicStyles.elementBanner}>
-            <Animated.View style={[dynamicStyles.elementIconContainer, { backgroundColor: (elementData?.color || colors.primary) + '20' }]}>
-              <Text style={dynamicStyles.elementIcon}>{elementData?.icon}</Text>
-            </Animated.View>
-            <View style={dynamicStyles.elementInfo}>
-              <Text style={dynamicStyles.elementLabel}>Elemen Dominan</Text>
-              <Text style={dynamicStyles.elementName}>{insight.dominantElement}</Text>
-            </View>
-          </View>
-        </Animated.View>
-
-        {/* Narrative Card */}
-        <Animated.View entering={FadeInUp.delay(400).duration(800)} layout={Layout.springify()}>
-          <View style={dynamicStyles.narrativeCard}>
-            <AnimatedLinearGradient
-              colors={[(elementData?.color || colors.primary) + '10', 'transparent', (elementData?.color || colors.primary) + '05']}
-              style={[dynamicStyles.narrativeGlow, glowStyle]}
-            />
-            <View style={dynamicStyles.narrativeTitleRow}>
-              <Text style={dynamicStyles.narrativeTitle}>✨ Bacaan Matrix-mu</Text>
-            </View>
-            <Text style={dynamicStyles.narrativeText}>{narrativePreview}</Text>
-            {shouldTruncate && (
-              <TouchableOpacity
-                style={dynamicStyles.showMoreButton}
-                onPress={() => {
-                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                  setShowFullNarrative(!showFullNarrative);
-                }}
-              >
-                <Text style={dynamicStyles.showMoreText}>
-                  {showFullNarrative ? '▲ Lebih Sedikit' : '▼ Baca Selengkapnya'}
-                </Text>
-              </TouchableOpacity>
-            )}
-            {shouldTruncate && !showFullNarrative && (
-              <LinearGradient colors={['transparent', colors.surface]} style={dynamicStyles.narrativeFade} />
-            )}
-          </View>
-        </Animated.View>
-
-        {/* 🔥 PERBAIKAN: Sinkronisasi Struktur & Tema Named Lines */}
-        {insight?.namedLines && (
-          <Animated.View entering={FadeInUp.delay(500).duration(800)} style={dynamicStyles.narrativeCard}>
-            <Text style={dynamicStyles.sectionTitle}>🔗 Garis Energi Utama</Text>
-            
-            {/* Karmic Tail */}
-            <View style={dynamicStyles.lineBlock}>
-              <Text style={dynamicStyles.lineTitle}>🎭 Karmic Tail {insight.namedLines.karmicTail.pattern}</Text>
-              {insight.namedLines.karmicTail.title && (
-                <Text style={{ fontWeight: '600', color: colors.primary, fontSize: 13, marginBottom: 4 }}>
-                  Arketipe: {insight.namedLines.karmicTail.title}
-                </Text>
-              )}
-              <Text style={{ color: colors.textSecondary, fontSize: 13, lineHeight: 20 }}>
-                {insight.namedLines.karmicTail.meaning}
-              </Text>
-              {insight.namedLines.karmicTail.resolution && (
-                <Text style={{ fontStyle: 'italic', color: colors.textMuted, fontSize: 12, marginTop: 6 }}>
-                  💡 Resolusi: {insight.namedLines.karmicTail.resolution}
-                </Text>
-              )}
-            </View>
-
-            {/* Love Line */}
-            <View style={dynamicStyles.lineBlock}>
-              <Text style={dynamicStyles.lineTitle}>💖 Love Line</Text>
-              <Text style={{ color: colors.textSecondary, fontSize: 13, lineHeight: 20, marginBottom: 4 }}>
-                {insight.namedLines.loveLine.meaning}
-              </Text>
-              {insight.namedLines.loveLine.keyLesson && (
-                <Text style={{ color: colors.primaryLight, fontSize: 12, fontWeight: '600' }}>
-                  🔑 Pelajaran Inti: {insight.namedLines.loveLine.keyLesson}
-                </Text>
-              )}
-            </View>
-
-            {/* Money Line */}
-            <View style={[dynamicStyles.lineBlock, { marginBottom: 0 }]}>
-              <Text style={dynamicStyles.lineTitle}>💰 Money Line</Text>
-              <Text style={{ color: colors.textSecondary, fontSize: 13, lineHeight: 20, marginBottom: 4 }}>
-                {insight.namedLines.moneyLine.meaning}
-              </Text>
-              {insight.namedLines.moneyLine.advice && (
-                <Text style={{ color: '#E2B842', fontSize: 12, fontWeight: '600' }}>
-                  💼 Nasihat Finansial: {insight.namedLines.moneyLine.advice}
-                </Text>
-              )}
-            </View>
-          </Animated.View>
-        )}
-
-        {arcanaSequence.length > 0 && (
-          <Animated.View entering={FadeInUp.delay(500).duration(600)} style={dynamicStyles.wheelContainer}>
-            <Text style={dynamicStyles.sectionTitle}>🎡 Roda Takdir Anda</Text>
-            <ArcanaWheel arcanaSequence={arcanaSequence} />
-          </Animated.View>
-        )}
-
-        {arcanaSequence.length > 0 && (
-          <Animated.View entering={FadeInUp.delay(600).duration(600)} style={dynamicStyles.stepContainer}>
-            <Text style={[dynamicStyles.sectionTitle, { marginBottom: SPACING.sm }]}>
-              🌱 Langkah Positif Anda
-            </Text>
-            {arcanaSequence.map((arcana, idx) => (
-              <View key={idx} style={dynamicStyles.stepRow}>
-                <Text style={dynamicStyles.stepNumber}>{idx + 1}.</Text>
-                <Text style={dynamicStyles.stepText}>
-                  <Text style={dynamicStyles.stepCardName}>{arcana.card}</Text>
-                  {' – '}{firstSentence(arcana.uprightMeaning)}
-                </Text>
+        
+        {/* TAB 1: BLUEPRINT UTAMA (KODE LAMA ANDA) */}
+        {activeTab === 'blueprint' && (
+          <Animated.View entering={FadeInRight} layout={Layout.springify()}>
+            {/* Element Banner */}
+            <View style={dynamicStyles.elementBanner}>
+              <View style={[dynamicStyles.elementIconContainer, { backgroundColor: (elementData?.color || colors.primary) + '20' }]}>
+                <Text style={dynamicStyles.elementIcon}>{elementData?.icon}</Text>
               </View>
-            ))}
-          </Animated.View>
-        )}
+              <View style={dynamicStyles.elementInfo}>
+                <Text style={dynamicStyles.elementLabel}>Elemen Dominan</Text>
+                <Text style={dynamicStyles.elementName}>{insight.dominantElement}</Text>
+              </View>
+            </View>
 
-        {importantPoints.length > 0 && (
-          <Animated.View entering={FadeInUp.delay(700).duration(600)} style={{ marginBottom: SPACING.lg }}>
-            <Text style={[dynamicStyles.sectionTitle, { marginBottom: SPACING.md }]}>
-              📌 Interpretasi Titik Utama
-            </Text>
-            {importantPoints.map((item) => (
-              <View key={item.key} style={dynamicStyles.pointCard}>
-                <View style={dynamicStyles.pointHeader}>
-                  <View style={dynamicStyles.pointBadge}>
-                    <Text style={dynamicStyles.pointBadgeText}>{item.key}</Text>
-                  </View>
-                  <Text style={dynamicStyles.pointLabel}>{item.label}</Text>
+            {/* Narrative Interpretation */}
+            <View style={dynamicStyles.narrativeCard}>
+              <AnimatedLinearGradient
+                colors={[(elementData?.color || colors.primary) + '10', 'transparent', (elementData?.color || colors.primary) + '05']}
+                style={[dynamicStyles.narrativeGlow, glowStyle]}
+              />
+              <Text style={[dynamicStyles.narrativeTitle, { textAlign: 'center', marginBottom: SPACING.md }]}>✨ Bacaan Matrix-mu</Text>
+              <Text style={dynamicStyles.narrativeText}>{narrativePreview}</Text>
+              {shouldTruncate && (
+                <TouchableOpacity style={dynamicStyles.showMoreButton} onPress={() => setShowFullNarrative(!showFullNarrative)}>
+                  <Text style={dynamicStyles.showMoreText}>{showFullNarrative ? '▲ Lebih Sedikit' : '▼ Baca Selengkapnya'}</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+
+            {/* Lines Summary */}
+            {insight?.namedLines && (
+              <View style={dynamicStyles.narrativeCard}>
+                <Text style={dynamicStyles.sectionTitle}>🔗 Garis Linier Energi</Text>
+                <View style={dynamicStyles.lineBlock}>
+                  <Text style={dynamicStyles.lineTitle}>💖 Love Line</Text>
+                  <Text style={{ color: colors.textSecondary, fontSize: 13 }}>{insight.namedLines.loveLine.meaning}</Text>
                 </View>
-                <Text style={dynamicStyles.pointInterpretation}>{item.interpretation}</Text>
+                <View style={[dynamicStyles.lineBlock, { marginBottom: 0 }]}>
+                  <Text style={dynamicStyles.lineTitle}>💰 Money Line</Text>
+                  <Text style={{ color: colors.textSecondary, fontSize: 13 }}>{insight.namedLines.moneyLine.meaning}</Text>
+                </View>
               </View>
-            ))}
+            )}
+
+            {/* Arcana Wheel & Steps */}
+            {arcanaSequence.length > 0 && (
+              <View style={dynamicStyles.wheelContainer}>
+                <Text style={dynamicStyles.sectionTitle}>🎡 Roda Takdir Jiwa</Text>
+                <ArcanaWheel arcanaSequence={arcanaSequence} />
+              </View>
+            )}
+
+            {importantPoints.length > 0 && (
+              <View style={{ marginBottom: SPACING.lg }}>
+                <Text style={dynamicStyles.sectionTitle}>📌 Interpretasi Titik Utama</Text>
+                {importantPoints.map((item) => (
+                  <View key={item.key} style={dynamicStyles.pointCard}>
+                    <Text style={dynamicStyles.pointLabel}>{item.key} - {item.label}</Text>
+                    <Text style={dynamicStyles.pointInterpretation}>{item.interpretation}</Text>
+                  </View>
+                ))}
+              </View>
+            )}
+
+            {matrix.points.E && (
+              <View style={dynamicStyles.essenceCard}>
+                <Text style={dynamicStyles.essenceTitle}>🌟 Esensi Jiwamu</Text>
+                <ArkanaCard arkana={matrix.points.E.arcana} variant="full" showMeaning />
+              </View>
+            )}
           </Animated.View>
         )}
 
-        {matrix.points.E && (
-          <Animated.View entering={FadeInUp.delay(800).duration(600)}>
-            <View style={dynamicStyles.essenceCard}>
-              <Text style={dynamicStyles.essenceTitle}>🌟 Esensi Jiwamu</Text>
-              <Text style={dynamicStyles.essenceSubtitle}>
-                Kartu yang merepresentasikan inti dirimu
-              </Text>
-              <ArkanaCard arkana={matrix.points.E.arcana} variant="full" showMeaning />
+        {/* TAB 2: ADVANCED ANALISIS ENERGI (FITUR BARU) */}
+        {activeTab === 'energy' && analysis && (
+          <Animated.View entering={FadeInRight} layout={Layout.springify()}>
+            
+            {/* Yin Yang Component */}
+    <View style={dynamicStyles.narrativeCard}>
+      <Text style={dynamicStyles.narrativeTitle}>⚖️ Profil Yin-Yang</Text>
+      <Text style={[dynamicStyles.archetypeText, { color: colors.primary, marginTop: 4 }]}>{analysis.yinYang.archetype}</Text>
+      <View style={dynamicStyles.barContainer}>
+        <View style={[dynamicStyles.yinBar, { width: `${analysis.yinYang.yinPercentage}%`, backgroundColor: '#3b82f6' }]}>
+          <Text style={styles.barLabel}>Yin {analysis.yinYang.yinPercentage}%</Text>
+        </View>
+        {/* 🔥 PERBAIKAN: Ubah analysis.yangYang menjadi analysis.yinYang */}
+        <View style={[dynamicStyles.yangBar, { width: `${analysis.yinYang.yangPercentage}%`, backgroundColor: '#ef4444' }]}>
+          <Text style={styles.barLabel}>Yang {analysis.yinYang.yangPercentage}%</Text>
+        </View>
+      </View>
+      <Text style={{ color: colors.textSecondary, fontSize: 14, lineHeight: 22 }}>
+        {analysis.yinYang.dominant === 'Balanced' ? 'Energi internal Anda seimbang sempurna antara intuisi (Yin) dan aksi (Yang).' : analysis.yinYang.dominant === 'Yang' ? 'Anda sangat dinamis, terstruktur, dan berorientasi pada pencapaian logis.' : 'Anda memiliki ketajaman batin, sensitivitas spiritual, serta ruang kreativitas yang dalam.'}
+      </Text>
+    </View>
+
+            {/* Karmic Tail Component */}
+            <View style={dynamicStyles.narrativeCard}>
+              <Text style={dynamicStyles.narrativeTitle}>🎭 Konsekuensi Segitiga Karma</Text>
+              <View style={[dynamicStyles.lineBlock, { marginTop: SPACING.md }]}>
+                <Text style={[dynamicStyles.lineTitle, { color: colors.error }]}>{analysis.karmicTail.title}</Text>
+                <Text style={{ color: colors.textSecondary, fontSize: 13, marginTop: 4 }}>{analysis.karmicTail.manifestation}</Text>
+                <Text style={{ color: colors.primary, fontSize: 13, fontWeight: '700', marginTop: 8 }}>🔑 Resolusi Jiwa:</Text>
+                <Text style={{ color: colors.text, fontSize: 13, fontStyle: 'italic' }}>{analysis.karmicTail.healingWay}</Text>
+              </View>
+            </View>
+
+            {/* 7 Chakra Component */}
+            <View style={{ paddingHorizontal: SPACING.sm }}>
+              <Text style={[dynamicStyles.sectionTitle, { marginBottom: SPACING.sm }]}>🧘 Peta Aliran 7 Chakra</Text>
+              {analysis.chakras.map((item, index) => {
+                const statusColor = item.status === 'Balanced' ? '#10b981' : item.status === 'Overactive' ? '#f59e0b' : '#ef4444';
+                return (
+                  <View key={index} style={dynamicStyles.pointCard}>
+                    <View style={dynamicStyles.chakraHeaderRow}>
+                      <Text style={dynamicStyles.chakraName}>{item.name}</Text>
+                      <View style={[dynamicStyles.statusBadge, { backgroundColor: statusColor + '15' }]}>
+                        <Text style={[dynamicStyles.statusBadgeText, { color: statusColor }]}>{item.status}</Text>
+                      </View>
+                    </View>
+                    <Text style={{ color: colors.textSecondary, fontSize: 12, marginTop: 2 }}>{item.description}</Text>
+                  </View>
+                );
+              })}
             </View>
           </Animated.View>
         )}
 
-        <Animated.View entering={FadeInUp.delay(900).duration(600)} style={dynamicStyles.metadataSection}>
-          <View style={dynamicStyles.metadataCard}>
-            <Text style={dynamicStyles.metadataIcon}>🎯</Text>
-            <Text style={dynamicStyles.metadataLabel}>Titik Matriks</Text>
-            <Text style={dynamicStyles.metadataValue}>20</Text>
-          </View>
-          <View style={dynamicStyles.metadataCard}>
-            <Text style={dynamicStyles.metadataIcon}>🃏</Text>
-            <Text style={dynamicStyles.metadataLabel}>Arcana</Text>
-            <Text style={dynamicStyles.metadataValue}>Major</Text>
-          </View>
-          <View style={dynamicStyles.metadataCard}>
-            <Text style={dynamicStyles.metadataIcon}>⚡</Text>
-            <Text style={dynamicStyles.metadataLabel}>Energi</Text>
-            <Text style={dynamicStyles.metadataValue}>{elementData?.icon}</Text>
-          </View>
-        </Animated.View>
-
-        <Animated.View entering={FadeInUp.delay(1000).duration(600)}>
-          <TouchableOpacity
-            style={dynamicStyles.shareButton}
-            onPress={handleShare}
-            activeOpacity={0.8}
-          >
-            <Text>📤</Text>
-            <Text style={dynamicStyles.shareButtonText}>Bagikan Insight</Text>
-          </TouchableOpacity>
-        </Animated.View>
+        {/* Global Action Share */}
+        <TouchableOpacity style={dynamicStyles.shareButton} onPress={handleShare} activeOpacity={0.8}>
+          <Text style={dynamicStyles.shareButtonText}>📤 Bagikan Insight Takdir</Text>
+        </TouchableOpacity>
 
         <View style={{ height: SPACING.xxl }} />
       </ScrollView>
@@ -643,6 +392,5 @@ export function InsightScreen() {
 }
 
 const styles = StyleSheet.create({
-  scrollContent: { flexGrow: 1 },
+  scrollContent: { flexGrow: 1, paddingBottom: SPACING.xl },
 });
- 
