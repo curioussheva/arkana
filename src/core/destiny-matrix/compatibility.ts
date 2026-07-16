@@ -1,5 +1,5 @@
 import type { DestinyMatrix } from './types';
-import type { ArkanaInfo } from '../numerology/types';
+import type { ArcanaDefinition } from '../arcana/types';
 import { countElements } from './insight';
 
 export interface CompatibilityDetail {
@@ -16,15 +16,15 @@ export interface CompatibilityResult {
   details: CompatibilityDetail[];
   sharedArcanas: string[];
   dominantElements: {
-    person1: ArkanaInfo['element'];
-    person2: ArkanaInfo['element'];
+    person1: ArcanaDefinition['element'];
+    person2: ArcanaDefinition['element'];
   };
 }
 
 // ─── Helper: dapatkan elemen dominan ─────────────────
-function getDominantElement(matrix: DestinyMatrix): ArkanaInfo['element'] {
+function getDominantElement(matrix: DestinyMatrix): ArcanaDefinition['element'] {
   const counts = countElements(matrix);
-  const entries = Object.entries(counts) as [ArkanaInfo['element'], number][];
+  const entries = Object.entries(counts) as [ArcanaDefinition['element'], number][];
   entries.sort((a, b) => b[1] - a[1]);
   return entries[0]?.[0] || 'Fire';
 }
@@ -66,7 +66,8 @@ export function calculateCompatibility(
   const sharedCore = coreKeys.filter(key => {
     const p1 = matrix1.points[key];
     const p2 = matrix2.points[key];
-    return p1 && p2 && p1.arcana?.card === p2.arcana?.card;
+    // DIPERBAIKI: Mengubah p1.arcana.card menjadi p1.arcana.tarotName sesuai schema ArcanaDefinition baru
+    return p1 && p2 && p1.arcana?.tarotName === p2.arcana?.tarotName;
   });
   const coreScore = sharedCore.length * 15; // max 75
 
@@ -75,7 +76,8 @@ export function calculateCompatibility(
   const sharedSecondary = secondaryKeys.filter(key => {
     const p1 = matrix1.points[key];
     const p2 = matrix2.points[key];
-    return p1 && p2 && p1.arcana?.card === p2.arcana?.card;
+    // DIPERBAIKI: Mengubah p1.arcana.card menjadi p1.arcana.tarotName
+    return p1 && p2 && p1.arcana?.tarotName === p2.arcana?.tarotName;
   });
   const secondaryScore = sharedSecondary.length * 8; // max 64
 
@@ -84,7 +86,8 @@ export function calculateCompatibility(
   const sharedExt = extKeys.filter(key => {
     const p1 = matrix1.points[key];
     const p2 = matrix2.points[key];
-    return p1 && p2 && p1.arcana?.card === p2.arcana?.card;
+    // DIPERBAIKI: Mengubah p1.arcana.card menjadi p1.arcana.tarotName
+    return p1 && p2 && p1.arcana?.tarotName === p2.arcana?.tarotName;
   });
   const extScore = sharedExt.length * 5; // max 105 (tapi biar gak dominan)
 
@@ -106,17 +109,17 @@ export function calculateCompatibility(
   }
 
   // --- Dimensi 5: Bonus Arcana spesial (titik E) ---
-  const e1 = matrix1.points.E.arcana.number;
-  const e2 = matrix2.points.E.arcana.number;
+  // DIPERBAIKI: Mengubah .arcana.number menjadi .arcana.id sesuai spesifikasi ArcanaDefinition Anda
+  const e1 = matrix1.points.E.arcana.id;
+  const e2 = matrix2.points.E.arcana.id;
   const arcanaBonus = getArcanaBonus(e1, e2);
   const arcanaDesc = arcanaBonus > 0 
-    ? `Kartu esensi jiwa ${matrix1.points.E.arcana.card} dan ${matrix2.points.E.arcana.card} secara tradisional memiliki ikatan khusus.`
+    ? `Kartu esensi jiwa ${matrix1.points.E.arcana.tarotName} dan ${matrix2.points.E.arcana.tarotName} secara tradisional memiliki ikatan khusus.`
     : '';
 
   // --- Dimensi 6: Keseimbangan Yin-Yang (ganjil/genap) ---
   const odd1 = countOddValues(matrix1);
   const odd2 = countOddValues(matrix2);
-  const totalPoints = Object.keys(matrix1.points).length; // asumsikan sama = 33
   const balanceScore = Math.abs(odd1 - odd2) < 5 ? 10 : 0; // jika selisih ganjil < 5, dianggap seimbang
   const balanceDesc = balanceScore > 0 
     ? 'Keseimbangan energi yin-yang kalian harmonis, menciptakan ritme yang nyaman.'
@@ -136,7 +139,7 @@ export function calculateCompatibility(
 
   // --- Gabungkan arcana yang sama dari semua titik untuk referensi ---
   const allShared = [...sharedCore, ...sharedSecondary, ...sharedExt]
-    .map(key => matrix1.points[key]?.arcana?.card)
+    .map(key => matrix1.points[key]?.arcana?.tarotName) // DIPERBAIKI: .card menjadi .tarotName
     .filter((card): card is string => !!card);
 
   // --- Bangun narasi deskriptif ---
@@ -148,8 +151,8 @@ export function calculateCompatibility(
     sharedCore.length,
     arcanaDesc,
     balanceDesc,
-    matrix1.points.E.arcana.card,
-    matrix2.points.E.arcana.card
+    matrix1.points.E.arcana.tarotName, // DIPERBAIKI: .card menjadi .tarotName
+    matrix2.points.E.arcana.tarotName  // DIPERBAIKI: .card menjadi .tarotName
   );
 
   return {
@@ -213,4 +216,5 @@ function buildNarrative(
   }
 
   return `${base}${core}${essencePart} ${balanceDesc} ${levelAdvice}`;
-} 
+}
+ 

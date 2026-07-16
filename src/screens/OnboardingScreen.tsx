@@ -4,7 +4,6 @@ import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import Animated, { 
   FadeInRight, 
   FadeOutLeft,
-  layout,
   Layout
 } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -12,8 +11,8 @@ import * as Haptics from 'expo-haptics';
 import { useThemeStore } from '@store/theme-store';
 import { SPACING, FONT_SIZE, BORDER_RADIUS, SHADOWS } from '@constants/theme';
 
-// Import aset lokal secara statis
-const LOGO_IMG = require('../../assets/images/logo.png');
+import { LOGO_IMG } from '@constants/images';
+
 
 const slides = [
   { isLogo: true, title: 'Selamat Datang di Arkana', desc: 'Temukan peta takdir hidup kuno dan cetak biru jiwamu melalui sistem kalkulasi Destiny Matrix.' },

@@ -7,7 +7,8 @@ import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 import { useThemeStore } from '@store/theme-store';
 import { useAppStore } from '@store/app-store';
 import { calculatePersonalYearArcana } from '@core/destiny-matrix/personal-year';
-import { ArkanaCard } from '@components/ui/ArkanaCard';
+import { ArcanaCard } from '@components/ui/ArcanaCard';
+
 
 type ParamList = {
   PersonalYear: { year: number };
@@ -34,7 +35,7 @@ export function PersonalYearScreen() {
   }
 
   // Interpretasi tambahan (contoh sederhana, bisa diperkaya)
-  const interpretation = getYearInterpretation(personalYear.arcana.number);
+  const interpretation = getYearInterpretation(personalYear.arcana.id);
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
@@ -45,7 +46,7 @@ export function PersonalYearScreen() {
         </LinearGradient>
         
         <View style={styles.cardContainer}>
-          <ArkanaCard arkana={personalYear.arcana} variant="full" showMeaning showKeywords />
+          <ArcanaCard arcana={personalYear.arcana} variant="full" showMeaning showKeywords />
         </View>
         
         <View style={[styles.interpretationBox, { backgroundColor: colors.surface }]}>

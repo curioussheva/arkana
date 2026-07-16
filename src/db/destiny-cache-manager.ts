@@ -1,6 +1,9 @@
+// src/db/destiny-cache-manager.ts
+
 import { eq, and, gte, lt, desc, sql } from 'drizzle-orm';
 import { getDrizzleDb } from './index';
 import { destinyMatrixResults, destinyUserHistory } from './destiny-schema';
+import { MATRIX_VERSION } from '@core/destiny-matrix/constants';
 import type { DestinyMatrix } from '@core/destiny-matrix/types';
 
 class DestinyCacheManager {
@@ -33,12 +36,32 @@ class DestinyCacheManager {
       if (cached.length === 0) return null;
 
       const row = cached[0];
-      return {
-        version: row.version,
-        calculatedAt: row.calculatedAt.toISOString(),
-        input: { birthDate: row.birthDate },
-        points: JSON.parse(row.pointsJson),
-      };
+
+      // 🔴 FIX: pointsJson sekarang menyimpan SELURUH objek DestinyMatrix,
+      // bukan hanya `matrix.points`. Baris lama (format lama) akan gagal
+      // divalidasi di bawah dan otomatis diperlakukan sebagai cache miss.
+      let parsedMatrix: DestinyMatrix;
+      try {
+        parsedMatrix = JSON.parse(row.pointsJson) as DestinyMatrix;
+      } catch {
+        console.warn('[DestinyCache] Corrupt JSON, treating as cache miss');
+        return null;
+      }
+
+      // 🔴 Validasi versi skema — mencegah data arcana/struktur lama
+      // (dari sebelum migrasi skema) menyebabkan crash di hilir.
+      if (!parsedMatrix || parsedMatrix.version !== MATRIX_VERSION) {
+        console.log('[DestinyCache] Stale version, treating as cache miss');
+        return null;
+      }
+
+      // 🔴 Validasi struktural minimal — pastikan field wajib benar-benar ada.
+      if (!parsedMatrix.points || !parsedMatrix.destinies || !parsedMatrix.namedLines) {
+        console.warn('[DestinyCache] Incomplete cached matrix, treating as cache miss');
+        return null;
+      }
+
+      return parsedMatrix;
     } catch (error) {
       console.warn('[DestinyCache] Read error:', error);
       return null;
@@ -52,7 +75,9 @@ class DestinyCacheManager {
       .values({
         userId,
         birthDate: matrix.input.birthDate,
-        pointsJson: JSON.stringify(matrix.points),
+        // 🔴 FIX: simpan SELURUH matrix (points + destinies + namedLines + version, dst),
+        // bukan hanya matrix.points seperti sebelumnya.
+        pointsJson: JSON.stringify(matrix),
         version: matrix.version,
       })
       .returning({ id: destinyMatrixResults.id });
@@ -88,6 +113,21 @@ class DestinyCacheManager {
     const result = await db
       .delete(destinyMatrixResults)
       .where(lt(destinyMatrixResults.expiresAt, new Date()));
+
+    return result.changes ?? 0;
+  }
+ 
+  /**
+   * 🆕 Hapus semua cache yang bukan versi skema saat ini.
+   * Berguna dipanggil sekali saat startup setelah migrasi skema besar,
+   * untuk membersihkan baris-baris lama daripada dibiarkan menumpuk
+   * (mereka akan tetap diabaikan oleh getCachedMatrix, tapi tidak pernah terhapus).
+   */
+  async cleanupStaleVersions(): Promise<number> {
+    const db = await getDrizzleDb();
+    const result = await db
+      .delete(destinyMatrixResults)
+      .where(sql`${destinyMatrixResults.version} != ${MATRIX_VERSION}`);
 
     return result.changes ?? 0;
   }

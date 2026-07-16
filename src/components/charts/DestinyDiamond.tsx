@@ -34,7 +34,7 @@ import {
   HORIZONTAL_DIAGONAL,
 } from '@core/destiny-matrix/layout';
 import type { DestinyMatrix, DestinyPointKey } from '@core/destiny-matrix/types';
-import type { ArkanaInfo } from '@core/numerology/types';
+import type { ArcanaDefinition } from '@core/arcana/types';
 import { ELEMENT_STYLES } from '@components/ui/ArkanaCard/types';
 import type { ElementType } from '@components/ui/ArkanaCard/types';
 
@@ -48,7 +48,9 @@ export interface DestinyDiamondHandle {
   exportAsImage: () => Promise<string>;
 }
 
-type ThemeColors = ReturnType<ReturnType<typeof useThemeStore>['getColors']>;
+type ThemeColors = ReturnType<
+  ReturnType<typeof useThemeStore.getState>['getColors']
+>;
 
 // ─── Point Tiers ─────────────────────────────────────
 const PRIMARY_POINTS: DestinyPointKey[] = ['A', 'B', 'C', 'D', 'E'];
@@ -64,14 +66,23 @@ const POINT_TIERS = {
 } as const;
 
 // ─── Helper Functions ────────────────────────────────
-function getElementColor(element: ArkanaInfo['element'], colors: ReturnType<typeof useThemeStore.getState>['getColors']): string {
-  const elementStyle = ELEMENT_STYLES[element as ElementType];
-  return elementStyle?.color || colors.primary;
+function getElementColor(
+  element: ArcanaDefinition['element'],
+  colors: ThemeColors,
+): string {
+  const style = ELEMENT_STYLES[element as ElementType];
+  return style?.color ?? colors.primary;
 }
 
-function getElementGradient(element: ArkanaInfo['element'], colors: ThemeColors): [string, string] {
-  const elementStyle = ELEMENT_STYLES[element as ElementType];
-  return (elementStyle?.gradient as [string, string]) || [colors.primary, colors.primaryDark];
+function getElementGradient(
+  element: ArcanaDefinition['element'],
+  colors: ThemeColors,
+): [string,string] {
+  const style = ELEMENT_STYLES[element as ElementType];
+  return style?.gradient ?? [
+    colors.primary,
+    colors.primaryDark,
+  ];
 }
 
 function pathFromKeys(

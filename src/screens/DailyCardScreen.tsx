@@ -18,12 +18,12 @@ import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import { useThemeStore } from '@store/theme-store';
 import { getRandomDailyCard } from '@core/destiny-matrix/daily-card';
-import { ArkanaCard } from '@components/ui/ArkanaCard';
-import type { ArkanaInfo } from '@core/numerology/types';
+import { ArcanaCard } from '@components/ui/ArcanaCard';
+import type { ArcanaDefinition } from '@core/arcana/types';
 
 export function DailyCardScreen() {
   const colors = useThemeStore(state => state.getColors());
-  const [dailyCard, setDailyCard] = useState<ArkanaInfo | null>(null);
+  const [dailyCard, setDailyCard] = useState<ArcanaDefinition | null>(null);
 
   // Ambil kartu harian berdasarkan tanggal
   useEffect(() => {
@@ -41,9 +41,9 @@ export function DailyCardScreen() {
     if (!dailyCard) return;
     try {
       await Share.share({
-        message: `🃏 Kartu Harianku: ${dailyCard.card}\n\n${dailyCard.uprightMeaning}\n\n✨ Arkana Numerology`,
+        message: `🃏 Kartu Harianku: ${dailyCard.tarotName}\n\n${dailyCard.uprightMeaning}\n\n✨ Arkana Numerology`,
         title: 'Kartu Tarot Harian',
-      });
+      }); 
     } catch (error) {
       console.log(error);
     }
@@ -74,7 +74,7 @@ export function DailyCardScreen() {
 
         <Animated.View entering={FadeInUp.delay(200).duration(600)}>
           <View style={[styles.cardContainer, { backgroundColor: colors.surface }]}>
-            <ArkanaCard arkana={dailyCard} variant="full" showMeaning showKeywords />
+            <ArcanaCard arcana={dailyCard} variant="full" showMeaning showKeywords />
           </View>
         </Animated.View>
 

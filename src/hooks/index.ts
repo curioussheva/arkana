@@ -1,1 +1,1 @@
-export * from './use-destiny-matrix';
+export * from './useDestinyMatrix';

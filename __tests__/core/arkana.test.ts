@@ -1,19 +1,20 @@
-import { ARKANA_CARDS, getArkanaByNumber, getArkanaByName } from '../../src/core/numerology/arkana';
+import { getArcanaByNumber, getArcanaByTarotName, getAllArcana } from '../../src/core/arcana';
 
-describe('ARKANA_CARDS data integrity', () => {
+describe('ARCANA_DATABASE data integrity', () => {
+  const allArcana = getAllArcana();
+
   it('contains exactly 22 cards (Major Arcana)', () => {
-    expect(ARKANA_CARDS).toHaveLength(22);
+    expect(allArcana).toHaveLength(22);
   });
 
-  it('has sequential numbers from 0 to 21 matching array index', () => {
-    ARKANA_CARDS.forEach((card, index) => {
-      expect(card.number).toBe(index);
-    });
+  it('has sequential ids from 0 to 21', () => {
+    const ids = allArcana.map((a) => a.id).sort((a, b) => a - b);
+    expect(ids).toEqual(Array.from({ length: 22 }, (_, i) => i));
   });
 
-  it('every card has all required ArkanaInfo fields non-empty', () => {
-    ARKANA_CARDS.forEach((card) => {
-      expect(card.card.length).toBeGreaterThan(0);
+  it('every card has all required fields non-empty', () => {
+    allArcana.forEach((card) => {
+      expect(card.tarotName.length).toBeGreaterThan(0);
       expect(['Fire', 'Water', 'Air', 'Earth']).toContain(card.element);
       expect(card.keywords.length).toBeGreaterThan(0);
       expect(card.uprightMeaning.length).toBeGreaterThan(0);
@@ -21,36 +22,36 @@ describe('ARKANA_CARDS data integrity', () => {
     });
   });
 
-  it('has no duplicate card names', () => {
-    const names = ARKANA_CARDS.map((c) => c.card);
+  it('has no duplicate tarot names', () => {
+    const names = allArcana.map((a) => a.tarotName);
     expect(new Set(names).size).toBe(names.length);
   });
 });
 
-describe('getArkanaByNumber', () => {
+describe('getArcanaByNumber', () => {
   it('returns the correct card for a valid index', () => {
-    expect(getArkanaByNumber(0).card).toBe('The Fool');
-    expect(getArkanaByNumber(21).card).toBe('The World');
+    expect(getArcanaByNumber(0).tarotName).toBe('The Fool');
+    expect(getArcanaByNumber(21).tarotName).toBe('The World');
   });
 
   it('wraps positive numbers larger than 21 via modulo', () => {
-    expect(getArkanaByNumber(22).card).toBe('The Fool');
-    expect(getArkanaByNumber(23).card).toBe('The Magician');
+    expect(getArcanaByNumber(22).tarotName).toBe('The Fool');
+    expect(getArcanaByNumber(23).tarotName).toBe('The Magician');
   });
 
   it('wraps negative numbers correctly (no negative-index crash)', () => {
     // ((-1 % 22) + 22) % 22 = 21
-    expect(getArkanaByNumber(-1).card).toBe('The World');
+    expect(getArcanaByNumber(-1).tarotName).toBe('The World');
   });
 });
 
-describe('getArkanaByName', () => {
+describe('getArcanaByTarotName', () => {
   it('finds a card case-insensitively', () => {
-    expect(getArkanaByName('the fool')?.number).toBe(0);
-    expect(getArkanaByName('THE WORLD')?.number).toBe(21);
+    expect(getArcanaByTarotName('the fool')?.id).toBe(0);
+    expect(getArcanaByTarotName('THE WORLD')?.id).toBe(21);
   });
 
   it('returns undefined for a non-existent card name', () => {
-    expect(getArkanaByName('The Banker')).toBeUndefined();
+    expect(getArcanaByTarotName('The Banker')).toBeUndefined();
   });
-});
+}); 

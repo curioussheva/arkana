@@ -1,4 +1,3 @@
-// src/navigation/AppNavigator.tsx
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -15,10 +14,12 @@ import Animated, { useAnimatedStyle, withSpring, useSharedValue } from 'react-na
 import { useThemeStore } from '@store/theme-store';
 import { ErrorBoundary } from '@components/ui/ErrorBoundary';
 
-// Screens
-import { HomeScreen } from '@screens/HomeScreen';
-import { MatrixScreen } from '@screens/MatrixScreen';
-import { InsightScreen } from '@screens/InsightScreen';
+// 🚀 IMPOR BARU: Menggunakan Fitur Modular Terfragmentasi (@features)
+import { HomeScreen } from '@features/home';
+import { MatrixScreen } from '@features/destiny-matrix';
+import { InsightScreen } from '@features/insight';
+ 
+// ─── Layar Satelit Sementara (Hapus Bertahap Jika Sudah Dimigrasi) ───
 import { DailyCardScreen } from '@screens/DailyCardScreen';
 import { TimelineScreen } from '@screens/TimelineScreen';
 import { SettingsScreen } from '@screens/SettingsScreen';
@@ -26,6 +27,8 @@ import { CompatibilityScreen } from '@screens/CompatibilityScreen';
 import { AboutScreen } from '@screens/AboutScreen';
 import { HelpScreen } from '@screens/HelpScreen';
 import { CardListScreen } from '@screens/CardListScreen';
+
+import { LOGO_IMG } from '@constants/images';
 
 // ─── Tipe Navigasi ───────────────────────────────────
 export type RootDrawerParamList = {
@@ -35,6 +38,7 @@ export type RootDrawerParamList = {
   Help: undefined;
   About: undefined;
 };
+console.log("Sanity Checking Feature Imports:", { HomeScreen, MatrixScreen, InsightScreen });
 
 export type MainTabParamList = {
   Home: undefined;
@@ -125,10 +129,9 @@ function CustomDrawerContent(props: DrawerContentComponentProps) {
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.backgroundLight }}>
-      {/* HEADER: Logo Gambar & Nama Aplikasi */}
       <View style={[styles.drawerHeader, { paddingTop: insets.top + 16, borderBottomColor: colors.border }]}>
         <Image 
-          source={require('../../assets/images/logo.png')} // Jalur relatif disesuaikan dari src/navigation/
+          source={LOGO_IMG}
           style={styles.logoImage}
           resizeMode="contain"
         />
@@ -138,15 +141,10 @@ function CustomDrawerContent(props: DrawerContentComponentProps) {
         </View>
       </View>
 
-      {/* BODY: Daftar Menu Navigasi (Auto Scrollable jika menu penuh) */}
-      <DrawerContentScrollView 
-        {...props} 
-        contentContainerStyle={{ paddingTop: 8 }}
-      >
+      <DrawerContentScrollView {...props} contentContainerStyle={{ paddingTop: 8 }}>
         <DrawerItemList {...props} />
       </DrawerContentScrollView>
 
-      {/* FOOTER: Informasi App & Copyright */}
       <View style={[styles.drawerFooter, { paddingBottom: insets.bottom + 16, borderTopColor: colors.border }]}>
         <Text style={[styles.footerText, { color: colors.textMuted }]}>Version 1.0.0</Text>
         <Text style={[styles.footerCopyright, { color: colors.textMuted }]}>© 2026 CuriousSheva</Text>
@@ -161,16 +159,11 @@ const Drawer = createDrawerNavigator<RootDrawerParamList>();
 export function AppNavigator() {
   const colors = useThemeStore(state => state.getColors());
 
-  // Keterangan: NavigationContainer sekarang sepenuhnya dihapus dari file ini.
-  // Pastikan di file App.tsx Anda sudah membungkus <SafeAppNavigator /> dengan <NavigationContainer>.
-
   return (
     <Drawer.Navigator
       drawerContent={(props) => <CustomDrawerContent {...props} />}
       screenOptions={{
-        drawerStyle: {
-          width: 280,
-        },
+        drawerStyle: { width: 280 },
         drawerLabelStyle: { fontSize: 15, fontWeight: '500', marginLeft: -8 },
         drawerActiveBackgroundColor: colors.primary + '15',
         drawerActiveTintColor: colors.primary,
@@ -232,55 +225,15 @@ export function SafeAppNavigator() {
 
 export default SafeAppNavigator;
 
-// ─── Styles ───────────────────────────────────────────
 const styles = StyleSheet.create({
-  tabIcon: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  tabIconText: {
-    fontSize: 18,
-  },
-  // Style Komponen Custom Drawer
-  drawerHeader: {
-    paddingHorizontal: 16,
-    paddingBottom: 20,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  logoImage: {
-    width: 50,
-    height: 50,
-    borderRadius: 12,
-  },
-  appName: {
-    fontSize: 18,
-    fontWeight: '800',
-    letterSpacing: 1.5,
-  },
-  appSubtitle: {
-    fontSize: 11,
-    marginTop: 2,
-  },
-  drawerFooter: {
-    paddingHorizontal: 20,
-    paddingTop: 16,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    alignItems: 'center',
-  },
-  footerText: {
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  footerCopyright: {
-    fontSize: 10,
-    marginTop: 4,
-    opacity: 0.6,
-  },
+  tabIcon: { width: 28, height: 28, borderRadius: 14, justifyContent: 'center', alignItems: 'center' },
+  tabIconText: { fontSize: 18 },
+  drawerHeader: { paddingHorizontal: 16, paddingBottom: 20, borderBottomWidth: StyleSheet.hairlineWidth, flexDirection: 'row', alignItems: 'center', gap: 12 },
+  logoImage: { width: 50, height: 50, borderRadius: 12 },
+  appName: { fontSize: 18, fontWeight: '800', letterSpacing: 1.5 },
+  appSubtitle: { fontSize: 11, marginTop: 2 },
+  drawerFooter: { paddingHorizontal: 20, paddingTop: 16, borderTopWidth: StyleSheet.hairlineWidth, alignItems: 'center' },
+  footerText: { fontSize: 12, fontWeight: '600' },
+  footerCopyright: { fontSize: 10, marginTop: 4, opacity: 0.6 },
 });
  

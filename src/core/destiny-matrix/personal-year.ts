@@ -1,7 +1,7 @@
 // src/core/destiny-matrix/personal-year.ts
-import { getArkanaByNumber } from '../numerology/arkana';
+import { getArcanaByNumber } from '../arcana';
 import { reduceToArcana, parseBirthDate, sumDigits } from './utils';
-import type { ArkanaInfo } from '../numerology/types';
+import type { ArcanaDefinition } from '../arcana/types';
 
 export interface PersonalYearArcana {
   year: number;
@@ -9,7 +9,7 @@ export interface PersonalYearArcana {
   universalYearValue: number;
   /** Combination of birth day + birth month + universalYearValue, reduced to 1-22. */
   personalYearValue: number;
-  arcana: ArkanaInfo;
+  arcana: ArcanaDefinition;
 }
 
 /**
@@ -34,7 +34,7 @@ export function calculatePersonalYearArcana(
     personalYearValue,
     // 💡 PERBAIKAN: Langsung gunakan personalYearValue tanpa modulo (%) 
     // karena fungsi reduceToArcana di atas sudah menjamin output berada di rentang aman (1-22).
-    arcana: getArkanaByNumber(personalYearValue),
+    arcana: getArcanaByNumber(personalYearValue),
   };
 }
  

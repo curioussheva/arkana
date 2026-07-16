@@ -1,5 +1,5 @@
 // src/core/destiny-matrix/types.ts
-import type { ArkanaInfo } from '../numerology/types';
+import type { ArcanaDefinition } from '../arcana/types';
 
 export type DestinyPointKey =
   | 'A' | 'B' | 'C' | 'D' | 'E'
@@ -16,7 +16,13 @@ export interface DestinyPoint {
   key: DestinyPointKey;
   label: string;
   value: number;
-  arcana: ArkanaInfo;
+  arcana: ArcanaDefinition;
+}
+
+export interface DestinyLevels {
+  personal: number;
+  social: number;
+  spiritual: number;
 }
 
 export interface DestinyMatrixPoints {
@@ -61,10 +67,26 @@ export interface DestinyMatrixInput {
   birthDate: string;
 }
 
+// ==================== CONSOLIDATED MATRIX INTERFACE ====================
 export interface DestinyMatrix {
   version: string;
   calculatedAt: string;
+  birthDate: string;               // Menyediakan akses langsung string tanggal ke hook/UI
   input: DestinyMatrixInput;
   points: DestinyMatrixPoints;
-  namedLines: NamedLines;        // ← BARU
+  destinies: DestinyLevels;
+  namedLines: NamedLines;
+  
+  // Memetakan struktur A, B, C, D, E murni untuk Canvas & Header Stat
+  primaryPoints?: {
+    A: number;
+    B: number;
+    C: number;
+    D: number;
+    E: number;
+  };
+  
+  // Mengakomodasi mapping data kategorikal di UI Presentasi
+  groupedPoints?: Record<string, any>; 
 }
+ 

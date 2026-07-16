@@ -7,7 +7,7 @@ describe('calculatePersonalYearArcana', () => {
     const result = calculatePersonalYearArcana('1983-08-12', 2026);
     expect(result.universalYearValue).toBe(10);
     expect(result.personalYearValue).toBe(3);
-    expect(result.arcana.card).toBe('The Empress');
+    expect(result.arcana.tarotName).toBe('The Empress');
   });
 
   it('1987-01-07 for year 2026: no reduction pass needed (sum stays <=22)', () => {
@@ -16,7 +16,7 @@ describe('calculatePersonalYearArcana', () => {
     const result = calculatePersonalYearArcana('1987-01-07', 2026);
     expect(result.universalYearValue).toBe(10);
     expect(result.personalYearValue).toBe(18);
-    expect(result.arcana.card).toBe('The Moon');
+    expect(result.arcana.tarotName).toBe('The Moon');
   });
 
   it('defaults to the current year when no year argument is given', () => {
@@ -35,7 +35,7 @@ describe('calculatePersonalYearArcana', () => {
       const result = calculatePersonalYearArcana(birthDate, year);
       expect(result.personalYearValue).toBeGreaterThanOrEqual(1);
       expect(result.personalYearValue).toBeLessThanOrEqual(22);
-      expect(result.arcana.card.length).toBeGreaterThan(0);
+      expect(result.arcana.tarotName.length).toBeGreaterThan(0);
     });
   });
 });

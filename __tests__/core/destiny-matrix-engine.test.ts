@@ -82,21 +82,21 @@ describe('DestinyMatrixEngine', () => {
       const engine = new DestinyMatrixEngine();
       const result = engine.calculate({ birthDate: '1987-01-07' });
       expect(result.points.H.value).toBe(22);
-      expect(result.points.H.arcana.card).toBe('The Fool');
+      expect(result.points.H.arcana.tarotName).toBe('The Fool');
     });
 
     it('maps value 1 to The Magician', () => {
       const engine = new DestinyMatrixEngine();
       const result = engine.calculate({ birthDate: '1987-01-07' });
       expect(result.points.B.value).toBe(1);
-      expect(result.points.B.arcana.card).toBe('The Magician');
+      expect(result.points.B.arcana.tarotName).toBe('The Magician');
     });
 
     it('every point has a valid, non-empty arcana card', () => {
       const engine = new DestinyMatrixEngine();
       const result = engine.calculate({ birthDate: '1990-05-15' });
       Object.values(result.points).forEach((point) => {
-        expect(point.arcana.card.length).toBeGreaterThan(0);
+        expect(point.arcana.tarotName.length).toBeGreaterThan(0);
         expect(point.value).toBeGreaterThanOrEqual(1);
         expect(point.value).toBeLessThanOrEqual(22);
       });

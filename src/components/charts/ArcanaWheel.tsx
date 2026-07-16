@@ -1,148 +1,301 @@
 // src/components/charts/ArcanaWheel.tsx
-import React, { useMemo } from 'react';
-import { View, Text, StyleSheet, useWindowDimensions } from 'react-native';
-import { Canvas, Circle, Path, BlurMask } from '@shopify/react-native-skia';
-import { useThemeStore } from '@store/theme-store';
-import type { ArkanaInfo } from '@core/numerology/types';
 
-interface Props {
-  arcanaSequence: ArkanaInfo[]; // array 8 arcana utama siklus takdir
-  highlightIndex?: number;      // indeks yang disorot (opsional)
+import React, { Fragment, useMemo, forwardRef, useImperativeHandle } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  useWindowDimensions,
+  TouchableOpacity,
+} from 'react-native';
+import {
+  Canvas,
+  Circle,
+  Path,
+  BlurMask,
+} from '@shopify/react-native-skia';
+
+import { useThemeStore } from '@store/theme-store';
+import type { DestinyPointKey } from '@core/destiny-matrix/types';
+import type { DetailablePoint } from '@components/ui/PointDetailModal';
+import type { ArcanaDefinition, ArcanaElement } from '@core/arcana/types';
+import type { AssessmentState } from '@core/assessment/assessmentEngine';
+
+interface ArcanaWheelProps {
+  // 💡 Mengizinkan fleksibilitas: Bisa menerima DestinyMatrix utuh ATAU EvolutionPointsInput murni
+  matrix?: any;
+  arcanaSequence?: ArcanaDefinition[];
+  onPointPress?: (point: DetailablePoint) => void;
+  // 🔄 REFACTOR: Satu sumber kebenaran menggantikan isStuck + highlightIndex terpisah.
+  // null/undefined berarti mode Insight biasa (semua node terbuka, tanpa lock/highlight).
+  assessmentState?: AssessmentState | null;
 }
 
-const ARCANE_COLORS: Record<string, string> = {
+const ELEMENT_COLORS: Record<ArcanaElement, string> = {
   Fire: '#FF6B35',
   Water: '#4ECDC4',
   Air: '#FFE66D',
   Earth: '#6B8E23',
 };
 
-export function ArcanaWheel({ arcanaSequence, highlightIndex = -1 }: Props) {
-  const { width } = useWindowDimensions();
-  const colors = useThemeStore(state => state.getColors());
-  const size = Math.min(width - 64, 320);
-  const radius = size / 2.5;
-  const center = size / 2;
+const EVOLUTION_ORDER: DestinyPointKey[] = ['D', 'B', 'A', 'E', 'C'];
 
-  // Menghitung koordinat posisi 8 titik di sekeliling roda oktagram
-  const nodes = useMemo(() => {
-    return arcanaSequence.map((arcana, i) => {
-      // Mengurangi Math.PI / 2 agar titik pertama (indeks 0 / Titik A) berada tepat di atas (jam 12)
-      const angle = (i / arcanaSequence.length) * Math.PI * 2 - Math.PI / 2;
-      const x = center + radius * Math.cos(angle);
-      const y = center + radius * Math.sin(angle);
-      return { ...arcana, x, y, angle, index: i };
-    });
-  }, [arcanaSequence, center, radius]);
+/**
+ * 🔄 Tabel derivasi terpusat untuk setiap state assessment.
+ * Index EVOLUTION_ORDER: D=0, B=1, A=2, E=3, C=4
+ *
+ * lockedFromIndex: node dengan index >= nilai ini akan dikunci (redup + tidak bisa diklik)
+ * highlightIndex: node yang mendapat efek glow/highlight sebagai "posisi kamu saat ini"
+ * color: warna jalur & indikator teks (kosong string = pakai warna primer tema)
+ */
+const STATE_CONFIG: Record<
+  AssessmentState,
+  { lockedFromIndex: number; highlightIndex: number; color: string; label: string }
+> = {
+  NEGATIF: {
+    lockedFromIndex: 3,
+    highlightIndex: 2,
+    color: '#FF3B30',
+    label: '⚠️ Siklus Terhambat di Titik A!',
+  },
+  NETRAL: {
+    lockedFromIndex: 4,
+    highlightIndex: 3,
+    color: '#FFB020',
+    label: '🌗 Transisi: Titik E Terbuka, C Menunggu',
+  },
+  POSITIF: {
+    lockedFromIndex: 5, // >= panjang nodes, jadi tidak ada yang terkunci
+    highlightIndex: 4,
+    color: '',
+    label: '✨ Alur Evolusi Jiwa: D ➔ B ➔ A ➔ E ➔ C',
+  },
+};
 
-  // 🔥 BARU: Membuat garis lintasan tertutup secara melingkar (A -> J -> E -> L -> C -> F -> H -> I -> A)
-  const closedLoopPath = useMemo(() => {
-    if (nodes.length === 0) return '';
-    let pathStr = `M${nodes[0].x},${nodes[0].y}`;
-    for (let i = 1; i < nodes.length; i++) {
-      pathStr += ` L${nodes[i].x},${nodes[i].y}`;
-    }
-    pathStr += ' Z'; // 'Z' otomatis menyambungkan kembali titik terakhir ke titik awal (M)
-    return pathStr;
-  }, [nodes]);
+export const ArcanaWheel = forwardRef<any, ArcanaWheelProps>(
+  function ArcanaWheel(
+    { matrix, arcanaSequence, onPointPress, assessmentState = null }: ArcanaWheelProps,
+    ref
+  ) {
+    const { width } = useWindowDimensions();
+    const colors = useThemeStore((s) => s.getColors());
 
-  // 🔥 BARU: Membuat Garis Silang Internal Pembentuk Bintang Segi Delapan (Oktagram Konstruktif)
-  // Menghubungkan sumbu diagonal utama (Utara-Selatan, Barat-Timur, dst)
-  const crossLinesPath = useMemo(() => {
-    if (nodes.length < 8) return '';
-    return `
-      M${nodes[0].x},${nodes[0].y} L${nodes[4].x},${nodes[4].y} 
-      M${nodes[2].x},${nodes[2].y} L${nodes[6].x},${nodes[6].y}
-      M${nodes[1].x},${nodes[1].y} L${nodes[5].x},${nodes[5].y}
-      M${nodes[3].x},${nodes[3].y} L${nodes[7].x},${nodes[7].y}
-    `;
-  }, [nodes]);
+    const size = Math.min(width - 64, 320);
+    const center = size / 2;
+    const radius = size / 2.6;
 
-  return (
-    <View style={[styles.container, { backgroundColor: colors.backgroundLight + '80' }]}>
-      <Canvas style={{ width: size, height: size }}>
-        {/* Lingkaran luar dekoratif */}
-        <Circle cx={center} cy={center} r={radius + 20} color={colors.border + '30'} style="stroke" strokeWidth={1} />
-        
-        {/* Efek Cahaya / Glow Aura di Inti Roda */}
-        <Circle cx={center} cy={center} r={radius * 0.25} color={colors.primary + '25'} style="fill" />
-        <BlurMask blur={15} style="normal" />
-        
-        {/* 1. Gambar Garis Silang Internal (Cross-axes) */}
-        {crossLinesPath ? (
-          <Path path={crossLinesPath} style="stroke" strokeWidth={1} color={colors.border + '40'} />
-        ) : null}
+    useImperativeHandle(ref, () => ({
+      exportAsImage: async () => null,
+    }));
 
-        {/* 2. Gambar Lintasan Perimeter Luar Tertutup */}
-        {closedLoopPath ? (
-          <Path path={closedLoopPath} style="stroke" strokeWidth={1.5} color={colors.primary + '60'} />
-        ) : null}
+    // Cek apakah data bertipe Matrix Struktur Data
+    const isMatrixMode = useMemo(() => !!(matrix && (matrix.points || matrix.D)), [matrix]);
 
-        {/* 3. Render Node Lingkaran Skia */}
-        {nodes.map((node, i) => {
-          const isHighlighted = i === highlightIndex;
-          const elementColor = ARCANE_COLORS[node.element] || colors.primary;
-          return (
-            <React.Fragment key={`${node.card}-${i}`}>
-              {/* Efek Glow Luar jika Node sedang di-highlight */}
-              {isHighlighted && (
-                <Circle cx={node.x} cy={node.y} r={26} color={elementColor + '30'} style="fill" />
-              )}
-              {/* Lingkaran Titik Utama */}
-              <Circle
-                cx={node.x}
-                cy={node.y}
-                r={isHighlighted ? 18 : 14}
-                color={isHighlighted ? elementColor : colors.surface}
-                style="fill"
-              />
-              {/* Border lingkaran agar terlihat kontras */}
-              <Circle
-                cx={node.x}
-                cy={node.y}
-                r={isHighlighted ? 18 : 14}
-                color={isHighlighted ? elementColor : colors.border}
-                style="stroke"
-                strokeWidth={1}
-              />
-            </React.Fragment>
-          );
-        })} 
-      </Canvas>
+    // Konfigurasi state assessment (null jika belum ada / mode Insight biasa)
+    const config = useMemo(
+      () => (assessmentState ? STATE_CONFIG[assessmentState] : null),
+      [assessmentState]
+    );
 
-      {/* Layer Teks Angka Numerologi di atas Canvas */}
-      <View style={{ position: 'absolute', top: 0, left: 0, width: size, height: size }} pointerEvents="none">
-        {nodes.map((node, i) => {
-          const isHighlighted = i === highlightIndex;
-          return (
-            <View
-              key={`label-${node.card}-${i}`}
-              style={{
-                position: 'absolute',
-                left: node.x - 15,
-                top: node.y - 15,
-                width: 30,
-                height: 30,
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}
-            >
-              <Text 
-                style={{ 
-                  color: isHighlighted ? '#FFFFFF' : colors.text, 
-                  fontSize: isHighlighted ? 12 : 11, 
-                  fontWeight: '700' 
+    // 1. Ekstraksi koordinat & data node secara seragam
+    const nodes = useMemo(() => {
+      if (isMatrixMode && matrix) {
+        const pointsSource = matrix.points ? matrix.points : matrix;
+
+        return EVOLUTION_ORDER.map((key, index) => {
+          const rawPoint = pointsSource[key];
+          if (!rawPoint) return null;
+
+          const arcana: ArcanaDefinition | undefined = rawPoint.arcana ? rawPoint.arcana : rawPoint;
+          const label = rawPoint.value !== undefined ? rawPoint.value.toString() : (arcana?.id?.toString() ?? '0');
+
+          let x = center;
+          let y = center;
+
+          if (key === 'E') {
+            x = center;
+            y = center;
+          } else {
+            const angle = (index / (EVOLUTION_ORDER.length - 1)) * Math.PI * 2 - Math.PI / 2;
+            x = center + radius * Math.cos(angle);
+            y = center + radius * Math.sin(angle);
+          }
+
+          return {
+            point: rawPoint.arcana ? rawPoint : { value: arcana?.id, arcana },
+            key: `matrix-${key}`,
+            label,
+            element: arcana?.element || 'Earth',
+            x,
+            y,
+            showKeyLetter: key,
+          };
+        }).filter((n): n is NonNullable<typeof n> => n !== null);
+      }
+
+      if (arcanaSequence) {
+        return arcanaSequence.map((arcana, index) => {
+          if (!arcana) return null;
+          const angle = (index / arcanaSequence.length) * Math.PI * 2 - Math.PI / 2;
+          const safeId = typeof arcana.id === 'number' ? arcana.id : index;
+
+          return {
+            point: { value: safeId, arcana } as any,
+            key: `seq-${safeId}-${index}`,
+            label: safeId.toString(),
+            element: arcana.element || 'Earth',
+            x: center + radius * Math.cos(angle),
+            y: center + radius * Math.sin(angle),
+            showKeyLetter: '',
+          };
+        }).filter((n): n is NonNullable<typeof n> => n !== null);
+      }
+
+      return [];
+    }, [matrix, arcanaSequence, center, radius, isMatrixMode]);
+
+    // 2. Logika Pemotongan Garis Jalan Tol Energi (berdasarkan config.lockedFromIndex)
+    const dynamicPath = useMemo(() => {
+      if (nodes.length < 2) return '';
+
+      const allowedNodesCount = isMatrixMode && config ? config.lockedFromIndex : nodes.length;
+
+      let path = `M${nodes[0].x},${nodes[0].y}`;
+      for (let i = 1; i < Math.min(allowedNodesCount, nodes.length); i++) {
+        path += ` L${nodes[i].x},${nodes[i].y}`;
+      }
+
+      if (!isMatrixMode) {
+        path += ' Z'; // Tutup cincin melingkar untuk Tab Insight urutan 8 kartu
+      }
+      return path;
+    }, [nodes, isMatrixMode, config]);
+
+    // 3. Warna Jalur Dinamis berdasarkan Kondisi Energi
+    const dynamicLineColor = useMemo(() => {
+      if (isMatrixMode && config?.color) {
+        return config.color;
+      }
+      return colors.primary + '80';
+    }, [isMatrixMode, config, colors.primary]);
+
+    const highlightIndex = config?.highlightIndex ?? -1;
+
+    return (
+      <View style={[styles.container, { backgroundColor: colors.backgroundLight + '40', borderColor: colors.border }]}>
+        {isMatrixMode && config && (
+          <Text style={[styles.flowIndicator, { color: config.color || colors.textSecondary }]}>
+            {config.label}
+          </Text>
+        )}
+
+        <Canvas style={{ width: size, height: size }}>
+          <Circle
+            cx={center}
+            cy={center}
+            r={radius}
+            style="stroke"
+            strokeWidth={1}
+            color={colors.border + '30'}
+          />
+
+          {!!dynamicPath && (
+            <Path
+              path={dynamicPath}
+              style="stroke"
+              strokeWidth={2}
+              color={dynamicLineColor}
+            />
+          )}
+
+          <Circle
+            cx={center}
+            cy={center}
+            r={20}
+            style="fill"
+            color={(config?.color || colors.primary) + '15'}
+          >
+            <BlurMask blur={6} style="normal" />
+          </Circle>
+
+          {nodes.map((node, idx) => {
+            // Node terkunci jika index >= lockedFromIndex pada state saat ini
+            const isNodeLocked = isMatrixMode && !!config && idx >= config.lockedFromIndex;
+            const highlighted = idx === highlightIndex;
+            const nodeColor = ELEMENT_COLORS[node.element] || colors.primary;
+
+            return (
+              <Fragment key={`skia-${node.key}`}>
+                {highlighted && (
+                  <Circle cx={node.x} cy={node.y} r={22} style="fill" color={nodeColor + '25'} />
+                )}
+                <Circle
+                  cx={node.x}
+                  cy={node.y}
+                  r={highlighted ? 16 : 13}
+                  style="fill"
+                  color={isNodeLocked ? colors.backgroundLight : (highlighted ? nodeColor : colors.surface)}
+                />
+                <Circle
+                  cx={node.x}
+                  cy={node.y}
+                  r={highlighted ? 16 : 13}
+                  style="stroke"
+                  strokeWidth={1.5}
+                  color={isNodeLocked ? colors.border : nodeColor}
+                  opacity={isNodeLocked ? 0.4 : 1}
+                />
+              </Fragment>
+            );
+          })}
+        </Canvas>
+
+        {/* Lapisan Interaksi Sentuh */}
+        <View pointerEvents="box-none" style={[StyleSheet.absoluteFillObject, { width: size, height: size }]}>
+          {nodes.map((node, idx) => {
+            const isNodeLocked = isMatrixMode && !!config && idx >= config.lockedFromIndex;
+            const highlighted = idx === highlightIndex;
+
+            return (
+              <TouchableOpacity
+                key={`btn-${node.key}`}
+                disabled={isNodeLocked}
+                style={{
+                  position: 'absolute',
+                  left: node.x - 24,
+                  top: node.y - 24,
+                  width: 48,
+                  height: 48,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  opacity: isNodeLocked ? 0.3 : 1,
                 }}
+                activeOpacity={0.7}
+                onPress={() => onPointPress?.(node.point as DetailablePoint)}
               >
-                {node.number}
-              </Text>
-            </View>
-          );
-        })}
+                {!!node.showKeyLetter && (
+                  <Text style={[styles.letterIndicator, { color: colors.textMuted }]}>
+                    {isNodeLocked ? '🔒' : node.showKeyLetter}
+                  </Text>
+                )}
+                <Text
+                  style={{
+                    color: isNodeLocked ? colors.textMuted : (highlighted ? '#FFF' : colors.text),
+                    fontWeight: '800',
+                    fontSize: highlighted ? 13 : 12,
+                    marginTop: node.showKeyLetter ? -2 : 0,
+                  }}
+                >
+                  {node.label}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
       </View>
-    </View>
-  );
-}
+    );
+  }
+);
 
 const styles = StyleSheet.create({
   container: {
@@ -151,7 +304,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(150, 150, 150, 0.1)',
+  },
+  flowIndicator: {
+    fontSize: 12,
+    fontWeight: '700',
+    marginBottom: 8,
+    letterSpacing: 0.5,
+  },
+  letterIndicator: {
+    fontSize: 9,
+    fontWeight: '600',
+    textTransform: 'uppercase',
   },
 });
- 
+
+export default ArcanaWheel; 

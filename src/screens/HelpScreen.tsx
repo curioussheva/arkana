@@ -14,9 +14,9 @@ export function HelpScreen() {
         <Text style={[styles.title, { color: colors.text }]}>📖 Panduan Penggunaan</Text>
 
         <Section title="🔢 Memasukkan Tanggal Lahir" color={colors.text}>
-          Gunakan format DD/MM/YYYY. Setelah mengisi, tekan tombol "Hitung Matriks".
-          Hasil perhitungan akan langsung ditampilkan di tab Matriks dan Insight.
-        </Section>
+  Gunakan format DD/MM/YYYY. Setelah mengisi, tekan tombol &quot;Hitung Matriks&quot;.
+  Hasil perhitungan akan langsung ditampilkan di tab Matriks dan Insight.
+</Section>
 
         <Section title="💎 Memahami Diagram Matriks" color={colors.text}>
           Diagram berbentuk diamond menampilkan titik-titik energi (A-T dan A1-E2).

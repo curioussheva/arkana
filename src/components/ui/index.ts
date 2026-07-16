@@ -1,1 +1,1 @@
-export * from './ArkanaCard';
+export * from './ArcanaCard';

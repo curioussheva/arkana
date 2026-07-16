@@ -1,4 +1,3 @@
-// src/screens/TimelineScreen.tsx
 import React, { useMemo, useState, useCallback, useRef } from 'react';
 import {
   View,
@@ -6,6 +5,7 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  ViewStyle,
 } from 'react-native';
 import Animated, {
   FadeInDown,
@@ -23,6 +23,7 @@ import { calculatePersonalYearArcana } from '@core/destiny-matrix/personal-year'
 import { PointDetailModal, type DetailablePoint } from '@components/ui/PointDetailModal';
 import { ELEMENT_STYLES } from '@components/ui/ArkanaCard/types';
 import type { ElementType } from '@components/ui/ArkanaCard/types';
+import type { ArcanaDefinition } from '@core/arcana/types';
 
 const YEARS_BEFORE = 3;
 const YEARS_AFTER = 6;
@@ -32,14 +33,7 @@ type TimelineEra = 'past' | 'present' | 'future';
 interface TimelineEntry {
   year: number;
   personalYearValue: number;
-  arcana: {
-    card: string;
-    number: number;
-    element: ElementType;
-    keywords: string[];
-    uprightMeaning: string;
-    reversedMeaning: string;
-  };
+  arcana: ArcanaDefinition; // DIPERBAIKI: Menggunakan interface ArcanaDefinition yang valid secara global
   era: TimelineEra;
   isCurrent: boolean;
 }
@@ -60,7 +54,6 @@ export function TimelineScreen() {
   const scrollRef = useRef<ScrollView>(null);
   const matrix = useAppStore((state) => state.currentMatrix);
   
-  // 🔥 PERBAIKAN: Menetapkan tahun acuan statis ke 2026 agar konsisten dengan engine aplikasi
   const currentYear = 2026;
 
   const timeline = useMemo(() => {
@@ -72,10 +65,62 @@ export function TimelineScreen() {
       if (y < currentYear) era = 'past';
       else if (y === currentYear) era = 'present';
       
+      // DIPERBAIKI: Transformasi data mentah personal-year agar adaptif dengan skema tipe data ArcanaDefinition baru
+      const rawArcana = py.arcana as any;
+      const adaptiveArcana: ArcanaDefinition = {
+        id: rawArcana.number ?? rawArcana.id ?? 0,
+        tarotName: rawArcana.card ?? rawArcana.tarotName ?? 'Unknown Arcana',
+        matrixName: rawArcana.card ?? rawArcana.matrixName ?? 'Unknown Arcana',
+        shortName: rawArcana.card ?? rawArcana.shortName ?? 'Unknown',
+        archetype: 'Personal Year Guide',
+        element: (rawArcana.element || 'Fire') as ElementType,
+        polarity: 'Yang',
+        energyLevel: 5,
+        colors: [],
+        symbols: [],
+        animals: [],
+        crystals: [],
+        keywords: rawArcana.keywords || [],
+        summary: rawArcana.uprightMeaning || '',
+        uprightMeaning: rawArcana.uprightMeaning || '',
+        reversedMeaning: rawArcana.reversedMeaning || '',
+        positiveTraits: [],
+        shadowTraits: [],
+        strengths: [],
+        weaknesses: [],
+        gifts: [],
+        fears: [],
+        talents: [],
+        lifeMission: [],
+        karmicLessons: [],
+        spiritualLessons: [],
+        career: [],
+        finance: [],
+        relationship: [],
+        family: [],
+        friendship: [],
+        health: [],
+        advice: [],
+        affirmations: [],
+        meditation: [],
+        dailyPractice: [],
+        compatibleElements: [],
+        difficultElements: [],
+        narrative: {
+          overview: rawArcana.uprightMeaning || '',
+          personality: '',
+          career: '',
+          relationship: '',
+          spirituality: '',
+          challenge: rawArcana.reversedMeaning || '',
+          advice: ''
+        }
+      };
+
       entries.push({
         year: y,
         personalYearValue: py.personalYearValue,
-        arcana: { ...py.arcana, element: py.arcana.element as ElementType },
+        arcana: adaptiveArcana,
         era,
         isCurrent: y === currentYear,
       });
@@ -95,7 +140,7 @@ export function TimelineScreen() {
       key: 'PY',
       label: `Arcana Tahun ${entry.year}`,
       value: entry.personalYearValue,
-      arcana: entry.arcana,
+      arcana: entry.arcana as any,
     });
   }, []);
 
@@ -119,7 +164,7 @@ export function TimelineScreen() {
     headerActions: { flexDirection: 'row' as const, gap: SPACING.sm, marginTop: SPACING.md },
     headerButton: { backgroundColor: colors.surface + '80', borderRadius: BORDER_RADIUS.xl, paddingHorizontal: SPACING.md, paddingVertical: SPACING.sm, borderWidth: 1, borderColor: colors.border },
     headerButtonText: { fontSize: FONT_SIZE.xs, color: colors.textSecondary, fontWeight: '600' as const },
-    currentYearHero: { backgroundColor: colors.primary + '12', borderRadius: BORDER_RADIUS['2xl'], padding: SPACING.lg, margin: SPACING.md, marginBottom: SPACING.xs, borderWidth: 2, borderColor: colors.primary + '50', ...SHADOWS.lg, position: 'relative' as const, overflow: 'hidden' as const },
+    currentYearHero: { backgroundColor: colors.primary + '12', borderRadius: BORDER_RADIUS['2xl'], padding: SPACING.lg, margin: SPACING.md, marginBottom: SPACING.xs, borderWidth: 2, borderColor: colors.primary + '50', ...(SHADOWS.lg as ViewStyle), position: 'relative' as const, overflow: 'hidden' as const },
     heroGlow: { position: 'absolute' as const, top: -20, right: -20, width: 120, height: 120, borderRadius: 60, backgroundColor: colors.primary + '20' },
     heroYearBadge: { backgroundColor: colors.primary, paddingHorizontal: SPACING.md, paddingVertical: SPACING.xs, borderRadius: BORDER_RADIUS.full, alignSelf: 'flex-start' as const, marginBottom: SPACING.md },
     heroYearText: { color: '#FFFFFF', fontSize: FONT_SIZE.sm, fontWeight: '700' as const },
@@ -133,7 +178,7 @@ export function TimelineScreen() {
     eraTitle: { fontSize: FONT_SIZE.lg, fontWeight: '700' as const, color: colors.text },
     eraCount: { fontSize: FONT_SIZE.xs, color: colors.textMuted, marginLeft: SPACING.xs },
     timelineConnector: { position: 'absolute' as const, left: 28, top: 0, bottom: 0, width: 2, backgroundColor: colors.border },
-    yearCard: { backgroundColor: colors.surface, borderRadius: BORDER_RADIUS.xl, padding: SPACING.md, marginLeft: SPACING.xl, marginBottom: SPACING.sm, borderWidth: 1, borderColor: colors.border, ...SHADOWS.sm, position: 'relative' as const },
+    yearCard: { backgroundColor: colors.surface, borderRadius: BORDER_RADIUS.xl, padding: SPACING.md, marginLeft: SPACING.xl, marginBottom: SPACING.sm, borderWidth: 1, borderColor: colors.border, ...(SHADOWS.sm as ViewStyle), position: 'relative' as const },
     yearCardActive: { borderColor: colors.primary, borderWidth: 2, backgroundColor: colors.primary + '08' },
     yearCardPast: { opacity: 0.65 },
     yearCardFuture: { borderStyle: 'dashed' as const },
@@ -154,7 +199,7 @@ export function TimelineScreen() {
     emptyText: { fontSize: FONT_SIZE.md, color: colors.textSecondary, textAlign: 'center' as const, lineHeight: 24, marginBottom: SPACING.xl },
     emptyButton: { backgroundColor: colors.primary, borderRadius: BORDER_RADIUS.xl, padding: SPACING.lg, paddingHorizontal: SPACING.xxl },
     emptyButtonText: { color: '#FFFFFF', fontSize: FONT_SIZE.md, fontWeight: '700' as const },
-    floatingButton: { position: 'absolute' as const, bottom: SPACING.lg, right: SPACING.lg, width: 48, height: 48, borderRadius: 24, backgroundColor: colors.primary, justifyContent: 'center' as const, alignItems: 'center' as const, ...SHADOWS.lg },
+    floatingButton: { position: 'absolute' as const, bottom: SPACING.lg, right: SPACING.lg, width: 48, height: 48, borderRadius: 24, backgroundColor: colors.primary, justifyContent: 'center' as const, alignItems: 'center' as const, ...(SHADOWS.lg as ViewStyle) },
     floatingButtonText: { fontSize: 20, color: '#FFFFFF' },
   }), [colors]);
 
@@ -205,8 +250,8 @@ export function TimelineScreen() {
               <View style={dynamicStyles.heroYearBadge}>
                 <Text style={dynamicStyles.heroYearText}>✨ Tahun Ini ({currentYear})</Text>
               </View>
-              <Text style={dynamicStyles.heroArcanaName}>{currentEntry.arcana.card}</Text>
-              <Text style={dynamicStyles.heroArcanaNumber}>Arcana #{currentEntry.arcana.number} • {currentEntry.arcana.element}</Text>
+              <Text style={dynamicStyles.heroArcanaName}>{currentEntry.arcana.tarotName}</Text>
+              <Text style={dynamicStyles.heroArcanaNumber}>Arcana #{currentEntry.arcana.id} • {currentEntry.arcana.element}</Text>
               <Text style={dynamicStyles.heroValue}>Personal Year Value: {currentEntry.personalYearValue}</Text>
               <Text style={dynamicStyles.heroCTA}>Tap untuk detail lengkap →</Text>
             </TouchableOpacity>
@@ -234,7 +279,7 @@ export function TimelineScreen() {
                         <Text style={[dynamicStyles.yearElementText, { color: getElementColor(entry.arcana.element) }]}>{entry.arcana.element}</Text>
                       </View>
                     </View>
-                    <Text style={dynamicStyles.yearCardName}>{entry.arcana.card}</Text>
+                    <Text style={dynamicStyles.yearCardName}>{entry.arcana.tarotName}</Text>
                     <View style={dynamicStyles.yearKeywords}>
                       {entry.arcana.keywords.slice(0, 3).map((kw, i) => (
                         <View key={i} style={dynamicStyles.yearKeywordChip}>
@@ -274,7 +319,7 @@ export function TimelineScreen() {
                         <Text style={[dynamicStyles.yearElementText, { color: getElementColor(entry.arcana.element) }]}>{entry.arcana.element}</Text>
                       </View>
                     </View>
-                    <Text style={dynamicStyles.yearCardName}>{entry.arcana.card}</Text>
+                    <Text style={dynamicStyles.yearCardName}>{entry.arcana.tarotName}</Text>
                     <View style={dynamicStyles.yearKeywords}>
                       {entry.arcana.keywords.slice(0, 3).map((kw, i) => (
                         <View key={i} style={dynamicStyles.yearKeywordChip}>

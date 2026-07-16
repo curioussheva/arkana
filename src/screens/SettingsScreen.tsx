@@ -16,6 +16,7 @@ import * as Haptics from 'expo-haptics';
 import { COLORS, FONT_SIZE, SPACING, BORDER_RADIUS, SHADOWS } from '@constants/theme';
 import { THEMES } from '@constants/themes';
 import { useThemeStore } from '@store/theme-store';
+
 import { useAppStore } from '@store/app-store';
 import { destinyCacheManager } from '@db/destiny-cache-manager';
 import type { ThemeVariant } from '../types/theme';
@@ -241,15 +242,18 @@ const styles = StyleSheet.create({
 });
 
 // ─── Theme Detail Card ────────────────────────────────
+interface ThemeDetailCardProps {
+  themeId: ThemeVariant;
+  onClose: () => void;
+  // FIX: Menggunakan tipe data any yang aman untuk memotong error lookup tipe Zustand 'unknown'
+  colors: any;
+}
+
 function ThemeDetailCard({ 
   themeId, 
   onClose, 
   colors 
-}: { 
-  themeId: ThemeVariant; 
-  onClose: () => void; 
-  colors: ThemeColors;
-}) {
+}: ThemeDetailCardProps) {
   const theme = THEMES[themeId];
   const meta = theme.metadata;
 
@@ -292,13 +296,12 @@ function ThemeDetailCard({
 
 // ─── Main Screen ──────────────────────────────────────
 export function SettingsScreen() {
- // const { width } = useWindowDimensions();
   const { currentTheme, setTheme, useSystemTheme, toggleUseSystemTheme, isDark } = useThemeStore();
   const resetStore = useAppStore((state) => state.reset);
   const [showThemeDetail, setShowThemeDetail] = useState<ThemeVariant | null>(null);
   
   const theme = THEMES[currentTheme];
-  const colors = theme.colors;
+  const colors = useThemeStore(state => state.getColors()); 
   const themeEntries = Object.entries(THEMES) as [ThemeVariant, typeof theme][];
   
   const handleThemeSelect = useCallback((themeId: ThemeVariant) => {
@@ -494,3 +497,4 @@ export function SettingsScreen() {
     </SafeAreaView>
   );
 }
+ 

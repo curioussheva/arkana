@@ -1,16 +1,17 @@
-// src/screens/CardListScreen.tsx
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, FlatList, Image, useWindowDimensions, TouchableOpacity } from 'react-native';
+import { Text, StyleSheet, FlatList, Image, useWindowDimensions, TouchableOpacity, ViewStyle } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useThemeStore } from '@store/theme-store';
-import { getArkanaByNumber } from '@core/numerology/arkana';
-import { getArkanaImage } from '@constants/arkana-images';
+import { getArcanaByNumber } from '@core/arcana';
+import { getArcanaImage } from '@constants/arcana-images';
 import { SPACING, FONT_SIZE, BORDER_RADIUS, SHADOWS } from '@constants/theme';
+import type { ArcanaDefinition } from '@core/arcana/types';
 
 // Import Modal Detail yang sudah diperbaiki sebelumnya
 import { PointDetailModal, type DetailablePoint } from '@components/ui/PointDetailModal';
 
-const MAJOR_ARCANA = Array.from({ length: 22 }, (_, i) => getArkanaByNumber(i));
+// Membuat array berisi 22 Major Arcana (0 - 21)
+const MAJOR_ARCANA = Array.from({ length: 22 }, (_, i) => getArcanaByNumber(i)).filter(Boolean) as ArcanaDefinition[];
 
 export function CardListScreen() {
   const colors = useThemeStore(state => state.getColors());
@@ -23,12 +24,12 @@ export function CardListScreen() {
   const cardWidth = (width - SPACING.md * (numColumns + 1)) / numColumns;
 
   // Fungsi saat kartu ditekan untuk memicu modal muncul
-  const handleCardPress = (item: any) => {
+  const handleCardPress = (item: ArcanaDefinition) => {
     setSelectedPoint({
-      key: item.number.toString(), // Menggunakan nomor arcananya sebagai Key Badge
+      key: item.id.toString(),    // DIPERBAIKI: Menggunakan item.id menggantikan item.number
       label: 'Major Arcana',       // Label info atas modal
-      value: item.number,          // Nilai numerologi/nomor kartu
-      arcana: item,                // Seluruh object data ArkanaInfo bawaan kartu
+      value: item.id,             // DIPERBAIKI: Nilai angka menggunakan item.id
+      arcana: item as any,         // Seluruh object data ArcanaDefinition bawaan kartu
     });
   };
 
@@ -36,12 +37,13 @@ export function CardListScreen() {
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['bottom']}>
       <FlatList
         data={MAJOR_ARCANA}
-        keyExtractor={item => item.card}
+        keyExtractor={item => item.tarotName}
         numColumns={numColumns}
         contentContainerStyle={styles.list}
         columnWrapperStyle={styles.row}
         renderItem={({ item }) => {
-          const image = getArkanaImage(item.card);
+          // DIPERBAIKI: Menggunakan item.tarotName menggantikan item.tarotId lama
+          const image = getArcanaImage(item.tarotName);
           return (
             /* Membungkus item dengan TouchableOpacity agar bisa ditap */
             <TouchableOpacity 
@@ -56,8 +58,9 @@ export function CardListScreen() {
                   resizeMode="contain" 
                 />
               )}
-              <Text style={[styles.cardNumber, { color: colors.primary }]}>#{item.number}</Text>
-              <Text style={[styles.cardName, { color: colors.text }]} numberOfLines={1}>{item.card}</Text>
+              {/* DIPERBAIKI: Menyesuaikan properti komponen teks dengan struktur ArcanaDefinition */}
+              <Text style={[styles.cardNumber, { color: colors.primary }]}>#{item.id}</Text>
+              <Text style={[styles.tarotName, { color: colors.text }]} numberOfLines={1}>{item.tarotName}</Text>
               <Text style={[styles.keywords, { color: colors.textSecondary }]} numberOfLines={2}>
                 {item.keywords.slice(0, 3).join(', ')}
               </Text>
@@ -83,14 +86,14 @@ const styles = StyleSheet.create({
     borderRadius: BORDER_RADIUS.xl,
     padding: SPACING.sm,
     alignItems: 'center',
-    ...SHADOWS.md,
+    ...(SHADOWS.md as ViewStyle), // DIPERBAIKI: Casting aman ke ViewStyle
   },
   image: {
     borderRadius: BORDER_RADIUS.lg,
     marginBottom: SPACING.xs,
   },
   cardNumber: { fontSize: FONT_SIZE.xs, fontWeight: '700', marginBottom: 2 },
-  cardName: { fontSize: FONT_SIZE.sm, fontWeight: '600', textAlign: 'center' },
+  tarotName: { fontSize: FONT_SIZE.sm, fontWeight: '600', textAlign: 'center' }, // DIPERBAIKI: Rename style dari cardName ke tarotName
   keywords: { fontSize: 10, textAlign: 'center', marginTop: 2 },
 });
  

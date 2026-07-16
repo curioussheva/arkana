@@ -1,4 +1,4 @@
-import type { BirthDateInput } from '../numerology/types';
+import type { BirthDateInput } from '../arcana/types';
 
 /**
  * Reduces a number into the 1-22 Major Arcana range by summing its digits,
