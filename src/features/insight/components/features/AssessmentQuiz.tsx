@@ -9,10 +9,10 @@ import type { ArcanaDefinition } from '@core/arcana/types'; // 💡 KOREKSI IMPO
 
 interface Props {
   arcanaE: ArcanaDefinition;
-  currentState: AssessmentState; // 💡 TAMBAHAN UX: Berikan umpan balik visual mana opsi yang sedang aktif terpilih
+  currentState: AssessmentState | null;
   onAnswer: (state: AssessmentState) => void;
 }
-
+ 
 export function AssessmentQuiz({ arcanaE, currentState, onAnswer }: Props) {
   const colors = useThemeStore(s => s.getColors());
 

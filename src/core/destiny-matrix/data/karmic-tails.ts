@@ -273,7 +273,7 @@ export const KARMIC_TAIL_DATABASE: Record<string, KarmicTailDefinition> = {
     affirmation: 'Aku melihat kebenaran dengan jelas dan penuh kasih.'
   },
   
-    // 25
+  // 25
   '18-9-18': {
     triad: '18-9-18',
     title: 'The Illusionist Hermit / Fear of Self-Deception (Penyendiri dalam Ilusi & Overthinking Kronis)',
@@ -315,8 +315,116 @@ export const KARMIC_TAIL_DATABASE: Record<string, KarmicTailDefinition> = {
     currentTriggers: 'Cemas berlebihan saat pasangan lambat merespons, menciptakan drama imajiner karena ketakutan bawah sadar.',
     healingWay: 'Sembuhkan luka penolakan masa lalu. Belajarlah mencintai realitas pasangan apa adanya tanpa tuntutan fantasi sempurna.',
     affirmation: 'Aku aman di dalam cinta. Aku melepaskan ketakutan akan penolakan dan menerima hubungan yang nyata.'
+  },
+  
+  // 29
+  '21-7-4': {
+    triad: '21-7-4',
+    title: 'The Oppressed Soul / Sovereignty Debt (Jiwa yang Terkekang & Karma Kedaulatan)',
+    pastLifeDebt: 'Mengalami pengekangan ruang gerak, isolasi hak global, atau terjebak dalam lingkaran penyalahgunaan kekuasaan tirani yang menekan kedaulatan diri.',
+    manifestation: 'Sangat membenci kendali atau aturan kaku dari luar, namun tanpa sadar menerapkan kontrol dan perfeksionisme ekstrem pada diri sendiri atau tim terdekat.',
+    currentTriggers: 'Konflik konstan dengan figur otoritas/atasan, serta sabotase diri (rem-gas) berupa keraguan batin sesaat sebelum mengambil keputusan besar.',
+    healingWay: 'Belajar mendelegasikan tanggung jawab dengan longgar, menentukan satu target eksekusi yang fokus, dan memperluas skala pengaruh ke ranah makro/digital.',
+    affirmation: 'Aku adalah penguasa berdaulat atas takdirku sendiri. Aku melepaskan memori keterkungkungan masa lalu dan melangkah bebas tanpa batas.'
   }
 };
+
+export interface RumpunDefinition {
+  name: string;
+  icon: string;
+  description: string;
+  variations: { triad: string; title: string }[];
+}
+
+export const RUMPUN_DATABASE: Record<string, RumpunDefinition> = {
+  '🔮': {
+    name: 'Rumpun Ilusi & Pengetahuan Sunyi',
+    icon: '🔮',
+    description: 'Fokus pada pergolakan batin, kecemasan pikiran, dan ketakutan bawaan untuk membuka diri atau tampil di depan publik.',
+    variations: [
+      { triad: '9-9-18', title: 'The Magical Hermit / Wizard' },
+      { triad: '18-9-9', title: 'The Hermit Witchcraft' },
+      { triad: '18-9-18', title: 'The Illusionist Hermit' }
+    ]
+  },
+  '🔥': {
+    name: 'Rumpun Obsesi & Kendali Nafsu',
+    icon: '🔥',
+    description: 'Fokus pada distorsi hasrat ego, baik dalam bentuk materi (keuangan), dominasi (amarah), maupun keterikatan hubungan (cinta toksik).',
+    variations: [
+      { triad: '15-5-8', title: 'Losing Wealth / Financial Karma' },
+      { triad: '15-11-8', title: 'Physical Power / Abuse of Strength' },
+      { triad: '9-15-6', title: 'Worldly Passions / Love Disappointment' }
+    ]
+  },
+  '🌳': {
+    name: 'Rumpun Luka Akar & Otoritas Leluhur',
+    icon: '🌳',
+    description: 'Fokus pada konflik eksistensial dengan figur pengasuh (Ayah/Ibu) atau penolakan intens terhadap dogma aturan keluarga besar.',
+    variations: [
+      { triad: '15-20-5', title: 'The Rebel / Broken Family Line' },
+      { triad: '19-10-1', title: 'Father Wound / Authority Issues' },
+      { triad: '3-6-21', title: 'Mother Wound / Nurturing Deficiency' }
+    ]
+  },
+    '🕊️': {
+    name: 'Rumpun Kekangan & Fobia Komitmen',
+    icon: '🕊️',
+    description: 'Fokus pada rasa sesak terhadap belenggu rutinitas harian, hilangnya kedaulatan, dan ketakutan bawah sadar akan kehilangan kebebasan diri.',
+    variations: [
+      { triad: '22-4-8', title: 'The Prisoner / Fear of Bondage' },
+      { triad: '21-10-14', title: 'The Locked Wanderer / Restless Soul' },
+      { triad: '21-7-4', title: 'The Oppressed Soul / Sovereignty Debt' } 
+    ]
+  }
+
+};
+
+// Kamus Esensi Energi Singkat untuk Generator Narasi Dinamis
+const ARCANA_ESSENCE: Record<number, { light: string; shadow: string; key: string }> = {
+  1: { light: 'Inovasi & Manifestasi', shadow: 'Ego & Hambatan Memulai', key: 'Penciptaan' },
+  2: { light: 'Intuisi & Keseimbangan', shadow: 'Kebohongan & Keraguan', key: 'Dualitas' },
+  3: { light: 'Kelimpahan & Kasih Ibu', shadow: 'Kontrol Berlebih & Kemandulan', key: 'Merawat' },
+  4: { light: 'Struktur & Kepemimpinan', shadow: 'Tirani & Perfeksionisme Kaku', key: 'Otoritas' },
+  5: { light: 'Kebijaksanaan & Aturan', shadow: 'Kekakuan Berpikir & Menghakimi', key: 'Pembelajaran' },
+  6: { light: 'Cinta Autentik & Pilihan', shadow: 'Segitiga Cinta & Idealism Fantasi', key: 'Hubungan' },
+  7: { light: 'Target Fokus & Kemenangan', shadow: 'Siklus Rem-Gas & Apatis', key: 'Pergerakan' },
+  8: { light: 'Keadilan & Sebab-Akibat', shadow: 'Pelanggaran Hukum & Ketidakseimbangan', key: 'Integritas' },
+  9: { light: 'Kebijaksanaan Sunyi & Analisis', shadow: 'Isolasi Diri & Minder Kronis', key: 'Pengetahuan' },
+  10: { light: 'Roda Nasib & Alur Keberuntungan', shadow: 'Stuck & Sindrom Pasif Menunggu', key: 'Siklus' },
+  11: { light: 'Kekuatan Potensi & Daya Tahan', shadow: 'Agresivitas & Ledakan Amarah', key: 'Energi' },
+  12: { light: 'Sudut Pandang Baru & Empati', shadow: 'Martyr Complex & Merasa Jadi Korban', key: 'Pengorbanan' },
+  13: { light: 'Transformasi Total & Pelepasan', shadow: 'Takut Perubahan & Stagnasi Masa Lalu', key: 'Mutasi' },
+  14: { light: 'Moderasi & Harmoni Emosi', shadow: 'Kecanduan & Perilaku Ekstrem', key: 'Keseimbangan' },
+  15: { light: 'Daya Tarik & Karisma', shadow: 'Obsesi Materi, Manipulasi & Nafsu', key: 'Godaan' },
+  16: { light: 'Kebangkitan Spiritual & Perubahan', shadow: 'Kehancuran Mendadak & Ego Runtuh', key: 'Dinamika' },
+  17: { light: 'Bakat Bintang & Harapan', shadow: 'Pesimisme Kronis & Takut Bersinar', key: 'Visi' },
+  18: { light: 'Daya Visualisasi & Imajinasi', shadow: 'Ketakutan Batin, Ilusi & Overthinking', key: 'Misteri' },
+  19: { light: 'Kelimpahan Finansial & Sukacita', shadow: 'Kehilangan Semangat & Rasa Bersalah', key: 'Kejayaan' },
+  20: { light: 'Transformasi Keluarga & Kebangkitan', shadow: 'Luka Garis Keturunan & Trauma Akar', key: 'Klan' },
+  21: { light: 'Kebebasan Global & Ekspansi', shadow: 'Perasaan Terisolasi & Fobia Pengekangan', key: 'Kosmik' },
+  22: { light: 'Kebebasan Murni & Langkah Baru', shadow: 'Lari dari Tanggung Jawab & Ketakutan Berkomitmen', key: 'Fobia' }
+};
+
+export function generateCustomKarmicTail(c: number, c1: number, c2: number): KarmicTailDefinition {
+  const normC = c === 0 ? 22 : c;
+  const normC1 = c1 === 0 ? 22 : c1;
+  const normC2 = c2 === 0 ? 22 : c2;
+
+  const arcC = ARCANA_ESSENCE[normC] || { light: 'Energi Kosmik', shadow: 'Sumbatan Energi', key: 'Misteri' };
+  const arcC1 = ARCANA_ESSENCE[normC1] || { light: 'Energi Kosmik', shadow: 'Sumbatan Energi', key: 'Misteri' };
+  const arcC2 = ARCANA_ESSENCE[normC2] || { light: 'Energi Kosmik', shadow: 'Sumbatan Energi', key: 'Misteri' };
+
+  return {
+    triad: `${c}-${c1}-${c2}`,
+    title: `Custom Karmic: Esensi ${arcC.key} - ${arcC1.key}`,
+    pastLifeDebt: `Jiwamu membawa kurikulum belajar spesifik. Cetak biru masa lalumu melibatkan getaran utama kebocoran energi pada aspek [${arcC.key}], yang dipicu oleh dinamika lintasan [${arcC1.key}].`,
+    manifestation: `Di kehidupan sekarang, tantangan utamamu muncul sebagai kebocoran energi di mana kamu sering terjebak dalam kondisi "${arcC.shadow}". Kondisi ini secara berkala menekan potensi bawaanmu untuk mencapai "${arcC2.light}".`,
+    currentTriggers: `Sumbatan karma ini paling cepat aktif (terpicu) saat kamu dihadapkan pada situasi yang menyentuh sisi bayangan dari Arcana ${normC1}, yaitu ketika muncul rasa "${arcC1.shadow}".`,
+    healingWay: `Untuk melepas simpul ini, fokuslah menyembuhkan akar kebocoranmu dengan mengubah pola "${arcC.shadow}" menjadi kesadaran murni "${arcC.light}". Jangan biarkan ketakutanmu menyumbat aliran gerakmu.`,
+    affirmation: `Aku menerima bahwa jiwaku memilih kurikulum ujian yang istimewa ini. Aku melepaskan bayangan masa lalu, merangkul energi ${arcC.key} dengan sehat, dan melangkah dengan berdaulat.`
+  };
+}
 
 export function findKarmicTail(c: number, c1: number, c2: number): KarmicTailDefinition {
   const permutations = [
@@ -334,14 +442,27 @@ export function findKarmicTail(c: number, c1: number, c2: number): KarmicTailDef
     }
   }
 
-  // Fallback
-  return {
-    triad: `${c}-${c1}-${c2}`,
-    title: `Custom Karmic Pattern (${c}-${c1}-${c2})`,
-    pastLifeDebt: `Simpul karma melibatkan Arcana ${c}, ${c1}, dan ${c2}.`,
-    manifestation: `Tantangan berulang yang memaksa keseimbangan ketiga energi ini.`,
-    currentTriggers: `Aktivasi shadow dari ketiga Arcana tersebut.`,
-    healingWay: `Integrasikan dan sembuhkan ketiga aspek ini dengan kesadaran.`,
-    affirmation: `Aku menerima pelajaran jiwa ini dan melangkah maju dengan damai.`
-  };
+  // 🛡️ INTEGRASI SEJATI: Memanggil generator kustom cerdas saat data tidak ditemukan
+  return generateCustomKarmicTail(c, c1, c2);
 }
+
+export function findRumpunByTriad(triad: string): RumpunDefinition | null {
+  // 1. Cari kecocokan di database variasi statis terlebih dahulu
+  for (const key in RUMPUN_DATABASE) {
+    const rumpun = RUMPUN_DATABASE[key];
+    if (rumpun.variations.some(v => v.triad === triad)) {
+      return rumpun;
+    }
+  }
+
+  // 🛡️ DETEKSI DINAMIS: Bersih dari artefak sintaksis
+  const numbers = triad.split('-').map(Number);
+  
+  if (numbers.some(n => [21, 22, 4].includes(n))) return RUMPUN_DATABASE['🕊️'];
+  if (numbers.some(n => [15, 11, 6].includes(n))) return RUMPUN_DATABASE['🔥'];
+  if (numbers.some(n => [9, 18].includes(n))) return RUMPUN_DATABASE['🔮'];
+  if (numbers.some(n => [20, 5, 3].includes(n))) return RUMPUN_DATABASE['🌳'];
+
+  return null;
+}
+ 

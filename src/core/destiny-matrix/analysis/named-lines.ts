@@ -1,4 +1,6 @@
-import type { DestinyMatrixPoints, DestinyPoint, NamedLines } from './types';
+//import type { DestinyMatrixPoints, DestinyPoint, NamedLines } from './types';
+// Ganti baris 1 dari './types' menjadi lokasi absolut/relatif types matrix yang valid, contoh:
+import type { DestinyMatrixPoints, DestinyPoint, NamedLines } from '../types'; 
 
 // Kamus data interpretasi mendalam untuk Karmic Tail (Triad H-I-C) - Diubah menjadi "Kamu/Dirimu"
 const KARMIC_TAIL_DICTIONARY: Record<string, { title: string; meaning: string; resolution: string }> = {
@@ -99,16 +101,16 @@ export function analyzeNamedLines(points: DestinyMatrixPoints): NamedLines {
       resolution: karmicData.resolution,
     },
     loveLine: {
-      past: A || null,
-      present: E || null,
-      future: D || null,
+      past: A,
+      present: E,
+      future: D,
       meaning: loveData.meaning,
       keyLesson: loveData.lesson,
     },
     moneyLine: {
-      entry: B || null,
-      core: M || null,
-      exit: C || null,
+      entry: B,
+      core: M,
+      exit: C,
       meaning: moneyData.meaning,
       advice: moneyData.advice,
     },

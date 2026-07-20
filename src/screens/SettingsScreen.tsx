@@ -1,5 +1,5 @@
 // src/screens/SettingsScreen.tsx
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import {
   View,
   Text,
@@ -13,247 +13,21 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
-import { COLORS, FONT_SIZE, SPACING, BORDER_RADIUS, SHADOWS } from '@constants/theme';
+import { FONT_SIZE, SPACING, BORDER_RADIUS, SHADOWS } from '@constants/theme';
 import { THEMES } from '@constants/themes';
 import { useThemeStore } from '@store/theme-store';
-
 import { useAppStore } from '@store/app-store';
 import { destinyCacheManager } from '@db/destiny-cache-manager';
-import type { ThemeVariant } from '../types/theme';
-
-// ─── Styles ───────────────────────────────────────────
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  content: {
-    paddingBottom: SPACING.xxl,
-  },
-  header: {
-    padding: SPACING.xl,
-    paddingTop: SPACING.xxl,
-    paddingBottom: SPACING.xl,
-  },
-  headerTitle: {
-    fontSize: FONT_SIZE['3xl'],
-    fontWeight: '800',
-    marginBottom: SPACING.xs,
-  },
-  headerSubtitle: {
-    fontSize: FONT_SIZE.md,
-  },
-  section: {
-    margin: SPACING.md,
-    borderRadius: BORDER_RADIUS['2xl'],
-    padding: SPACING.lg,
-    ...SHADOWS.md,
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: SPACING.lg,
-  },
-  sectionTitle: {
-    fontSize: FONT_SIZE.xl,
-    fontWeight: '700',
-    marginBottom: SPACING.xs,
-  },
-  sectionDescription: {
-    fontSize: FONT_SIZE.sm,
-    lineHeight: 20,
-  },
-  modeBadge: {
-    paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.xs,
-    borderRadius: BORDER_RADIUS.full,
-  },
-  modeText: {
-    fontSize: FONT_SIZE.xs,
-    fontWeight: '600',
-  },
-  switchRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingBottom: SPACING.lg,
-    marginBottom: SPACING.md,
-    borderBottomWidth: 1,
-  },
-  switchInfo: {
-    flex: 1,
-    marginRight: SPACING.md,
-  },
-  switchLabel: {
-    fontSize: FONT_SIZE.md,
-    fontWeight: '600',
-    marginBottom: 2,
-  },
-  switchDescription: {
-    fontSize: FONT_SIZE.xs,
-  },
-  themeGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: SPACING.sm,
-    marginTop: SPACING.sm,
-  },
-  themeCard: {
-    width: '31%',
-    borderRadius: BORDER_RADIUS.xl,
-    padding: SPACING.sm,
-    marginBottom: SPACING.xs,
-  },
-  themePreview: {
-    height: 60,
-    borderRadius: BORDER_RADIUS.lg,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: SPACING.sm,
-    position: 'relative',
-    overflow: 'hidden',
-  },
-  themeIcon: {
-    fontSize: 24,
-  },
-  selectedBadge: {
-    position: 'absolute',
-    top: SPACING.xs,
-    right: SPACING.xs,
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  selectedText: {
-    color: '#FFFFFF',
-    fontSize: 12,
-    fontWeight: '700',
-  },
-  themeName: {
-    fontSize: FONT_SIZE.xs,
-    fontWeight: '600',
-    marginBottom: SPACING.xs,
-  },
-  themeColors: {
-    flexDirection: 'row',
-    gap: 4,
-  },
-  colorDot: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.2)',
-  },
-  detailCard: {
-    marginTop: SPACING.md,
-    padding: SPACING.lg,
-    borderRadius: BORDER_RADIUS.xl,
-    backgroundColor: 'rgba(255,255,255,0.05)',
-  },
-  detailHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: SPACING.md,
-    marginBottom: SPACING.md,
-  },
-  detailIcon: {
-    fontSize: 32,
-  },
-  detailTitle: {
-    fontSize: FONT_SIZE.lg,
-    fontWeight: '700',
-  },
-  detailDescription: {
-    fontSize: FONT_SIZE.sm,
-  },
-  detailClose: {
-    marginLeft: 'auto',
-    padding: SPACING.sm,
-  },
-  detailCloseText: {
-    fontSize: FONT_SIZE.lg,
-    fontWeight: '600',
-  },
-  detailInfo: {
-    flexDirection: 'row',
-    gap: SPACING.md,
-  },
-  detailInfoItem: {
-    flex: 1,
-  },
-  detailLabel: {
-    fontSize: FONT_SIZE.xs,
-    marginBottom: 2,
-  },
-  detailValue: {
-    fontSize: FONT_SIZE.sm,
-    fontWeight: '600',
-  },
-  infoRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: SPACING.md,
-    borderBottomWidth: 1,
-  },
-  infoLabel: {
-    fontSize: FONT_SIZE.md,
-  },
-  infoValue: {
-    fontSize: FONT_SIZE.md,
-    fontWeight: '500',
-  },
-  dangerButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: SPACING.md,
-    borderRadius: BORDER_RADIUS.xl,
-    borderWidth: 1.5,
-    gap: SPACING.md,
-  },
-  dangerIcon: {
-    fontSize: 24,
-  },
-  dangerContent: {
-    flex: 1,
-  },
-  dangerTitle: {
-    fontSize: FONT_SIZE.md,
-    fontWeight: '600',
-    color: COLORS.error,
-  },
-  dangerDescription: {
-    fontSize: FONT_SIZE.xs,
-    marginTop: 2,
-  },
-  dangerAction: {
-    fontSize: FONT_SIZE.xl,
-    fontWeight: '700',
-  },
-  footer: {
-    textAlign: 'center',
-    padding: SPACING.xl,
-    fontSize: FONT_SIZE.xs,
-    lineHeight: 20,
-  },
-});
+import type { ThemeVariant, ThemeColors } from '../types/theme';
 
 // ─── Theme Detail Card ────────────────────────────────
 interface ThemeDetailCardProps {
   themeId: ThemeVariant;
   onClose: () => void;
-  // FIX: Menggunakan tipe data any yang aman untuk memotong error lookup tipe Zustand 'unknown'
-  colors: any;
+  colors: ThemeColors;
 }
 
-function ThemeDetailCard({ 
-  themeId, 
-  onClose, 
-  colors 
-}: ThemeDetailCardProps) {
+function ThemeDetailCard({ themeId, onClose, colors }: ThemeDetailCardProps) {
   const theme = THEMES[themeId];
   const meta = theme.metadata;
 
@@ -261,10 +35,8 @@ function ThemeDetailCard({
     <BlurView intensity={20} style={styles.detailCard}>
       <View style={styles.detailHeader}>
         <Text style={styles.detailIcon}>{meta.icon}</Text>
-        <View>
-          <Text style={[styles.detailTitle, { color: colors.text }]}>
-            {theme.name}
-          </Text>
+        <View style={{ flex: 1 }}>
+          <Text style={[styles.detailTitle, { color: colors.text }]}>{theme.name}</Text>
           <Text style={[styles.detailDescription, { color: colors.textSecondary }]}>
             {meta.description}
           </Text>
@@ -273,7 +45,7 @@ function ThemeDetailCard({
           <Text style={[styles.detailCloseText, { color: colors.textSecondary }]}>✕</Text>
         </TouchableOpacity>
       </View>
-      
+
       <View style={styles.detailInfo}>
         <View style={styles.detailInfoItem}>
           <Text style={[styles.detailLabel, { color: colors.textMuted }]}>Planet</Text>
@@ -296,19 +68,45 @@ function ThemeDetailCard({
 
 // ─── Main Screen ──────────────────────────────────────
 export function SettingsScreen() {
-  const { currentTheme, setTheme, useSystemTheme, toggleUseSystemTheme, isDark } = useThemeStore();
+  const {
+    currentTheme,
+    setTheme,
+    useSystemTheme,
+    toggleUseSystemTheme,
+    isDark,
+    getColors,
+  } = useThemeStore();
+
   const resetStore = useAppStore((state) => state.reset);
   const [showThemeDetail, setShowThemeDetail] = useState<ThemeVariant | null>(null);
+
+  const colors = useMemo(() => {
+  return THEMES[currentTheme].colors;
+  }, [currentTheme]);
+
+  // ✅ Memoisasi theme entries agar tidak re-create setiap render
+  const themeEntries = useMemo(
+    () => Object.entries(THEMES) as [ThemeVariant, (typeof THEMES)[ThemeVariant]][],
+    [],
+  );
   
-  const theme = THEMES[currentTheme];
-  const colors = useThemeStore(state => state.getColors()); 
-  const themeEntries = Object.entries(THEMES) as [ThemeVariant, typeof theme][];
-  
-  const handleThemeSelect = useCallback((themeId: ThemeVariant) => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    setTheme(themeId);
-  }, [setTheme]);
-  
+  const darkThemes = useMemo(
+  () => themeEntries.filter(([_, themeData]) => themeData.mode === 'dark'),
+  [themeEntries]
+);
+  const lightThemes = useMemo(
+  () => themeEntries.filter(([_, themeData]) => themeData.mode === 'light'),
+  [themeEntries]
+);
+
+  const handleThemeSelect = useCallback(
+    (themeId: ThemeVariant) => {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      setTheme(themeId);
+    },
+    [setTheme],
+  );
+
   const handleClearCache = useCallback(() => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
     Alert.alert(
@@ -331,34 +129,26 @@ export function SettingsScreen() {
             }
           },
         },
-      ]
+      ],
     );
   }, [resetStore]);
-  
+
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <ScrollView
-        contentContainerStyle={styles.content}
-        showsVerticalScrollIndicator={false}
-      >
-        <LinearGradient
-          colors={colors.gradients.headerGradient}
-          style={styles.header}
-        >
-          <Text style={[styles.headerTitle, { color: colors.text }]}>
-            ⚙️ Pengaturan
-          </Text>
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        {/* Header */}
+        <LinearGradient colors={colors.gradients.headerGradient} style={styles.header}>
+          <Text style={[styles.headerTitle, { color: colors.text }]}>⚙️ Pengaturan</Text>
           <Text style={[styles.headerSubtitle, { color: colors.textSecondary }]}>
             Sesuaikan pengalaman spiritual Anda
           </Text>
         </LinearGradient>
-        
+
+        {/* Theme Section */}
         <View style={[styles.section, { backgroundColor: colors.surface }]}>
           <View style={styles.sectionHeader}>
             <View>
-              <Text style={[styles.sectionTitle, { color: colors.text }]}>
-                🎨 Tema
-              </Text>
+              <Text style={[styles.sectionTitle, { color: colors.text }]}>🎨 Tema</Text>
               <Text style={[styles.sectionDescription, { color: colors.textSecondary }]}>
                 Pilih aura yang sesuai dengan energimu
               </Text>
@@ -369,12 +159,11 @@ export function SettingsScreen() {
               </Text>
             </View>
           </View>
-          
+
+          {/* System Theme Toggle */}
           <View style={[styles.switchRow, { borderBottomColor: colors.border }]}>
             <View style={styles.switchInfo}>
-              <Text style={[styles.switchLabel, { color: colors.text }]}>
-                📱 Ikuti Tema Sistem
-              </Text>
+              <Text style={[styles.switchLabel, { color: colors.text }]}>📱 Ikuti Tema Sistem</Text>
               <Text style={[styles.switchDescription, { color: colors.textMuted }]}>
                 Otomatis sesuai pengaturan perangkat
               </Text>
@@ -386,63 +175,94 @@ export function SettingsScreen() {
               thumbColor={useSystemTheme ? colors.primary : colors.textSecondary}
             />
           </View>
-          
-          <View style={styles.themeGrid}>
-            {themeEntries.map(([themeId, themeData]) => {
-              const isSelected = currentTheme === themeId;
-              const themeColors = themeData.colors;
-              
-              return (
-                <TouchableOpacity
-                  key={themeId}
-                  style={[
-                    styles.themeCard,
-                    {
-                      backgroundColor: themeColors.backgroundLight,
-                      borderColor: isSelected ? themeColors.primary : 'transparent',
-                      borderWidth: isSelected ? 2 : 0,
-                    },
-                  ]}
-                  onPress={() => handleThemeSelect(themeId)}
-                  onLongPress={() => setShowThemeDetail(themeId)}
-                  activeOpacity={0.8}
-                >
-                  <LinearGradient
-                    colors={themeColors.gradients.cardGradient}
-                    style={styles.themePreview}
-                  >
-                    <Text style={styles.themeIcon}>
-                      {themeData.metadata.icon}
-                    </Text>
-                    {isSelected && (
-                      <View style={[styles.selectedBadge, { backgroundColor: themeColors.primary }]}>
-                        <Text style={styles.selectedText}>✓</Text>
-                      </View>
-                    )}
-                  </LinearGradient>
-                  
-                  <Text style={[styles.themeName, { color: themeColors.text }]} numberOfLines={1}>
-                    {themeData.name}
-                  </Text>
-                  
-                  <View style={styles.themeColors}>
-                    {[
-                      themeColors.primary,
-                      themeColors.secondary,
-                      themeColors.accent,
-                      themeColors.text,
-                    ].map((color, i) => (
-                      <View
-                        key={i}
-                        style={[styles.colorDot, { backgroundColor: color }]}
-                      />
-                    ))}
-                  </View>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-          
+
+          {/* Theme Grid – Dark */}
+<Text style={[styles.groupTitle, { color: colors.text }]}>🌙 Tema Gelap</Text>
+<View style={styles.themeGrid}>
+  {darkThemes.map(([themeId, themeData]) => {
+    const isSelected = currentTheme === themeId;
+    const tc = themeData.colors;
+
+    return (
+      <TouchableOpacity
+        key={themeId}
+        style={[
+          styles.themeCard,
+          {
+            backgroundColor: tc.backgroundLight,
+            borderColor: isSelected ? tc.primary : 'transparent',
+            borderWidth: isSelected ? 2 : 0,
+          },
+        ]}
+        onPress={() => handleThemeSelect(themeId)}
+        onLongPress={() => setShowThemeDetail(themeId)}
+        activeOpacity={0.8}
+      >
+        <LinearGradient colors={tc.gradients.cardGradient} style={styles.themePreview}>
+          <Text style={styles.themeIcon}>{themeData.metadata.icon}</Text>
+          {isSelected && (
+            <View style={[styles.selectedBadge, { backgroundColor: tc.primary }]}>
+              <Text style={styles.selectedText}>✓</Text>
+            </View>
+          )}
+        </LinearGradient>
+        <Text style={[styles.themeName, { color: tc.text }]} numberOfLines={1}>
+          {themeData.name}
+        </Text>
+        <View style={styles.themeColors}>
+          {[tc.primary, tc.secondary, tc.accent, tc.text].map((color, i) => (
+            <View key={i} style={[styles.colorDot, { backgroundColor: color }]} />
+          ))}
+        </View>
+      </TouchableOpacity>
+    );
+  })}
+</View>
+
+{/* Theme Grid – Light */}
+<Text style={[styles.groupTitle, { color: colors.text, marginTop: SPACING.lg }]}>☀️ Tema Terang</Text>
+<View style={styles.themeGrid}>
+  {lightThemes.map(([themeId, themeData]) => {
+    const isSelected = currentTheme === themeId;
+    const tc = themeData.colors;
+
+    return (
+      <TouchableOpacity
+        key={themeId}
+        style={[
+          styles.themeCard,
+          {
+            backgroundColor: tc.backgroundLight,
+            borderColor: isSelected ? tc.primary : 'transparent',
+            borderWidth: isSelected ? 2 : 0,
+          },
+        ]}
+        onPress={() => handleThemeSelect(themeId)}
+        onLongPress={() => setShowThemeDetail(themeId)}
+        activeOpacity={0.8}
+      >
+        <LinearGradient colors={tc.gradients.cardGradient} style={styles.themePreview}>
+          <Text style={styles.themeIcon}>{themeData.metadata.icon}</Text>
+          {isSelected && (
+            <View style={[styles.selectedBadge, { backgroundColor: tc.primary }]}>
+              <Text style={styles.selectedText}>✓</Text>
+            </View>
+          )}
+        </LinearGradient>
+        <Text style={[styles.themeName, { color: tc.text }]} numberOfLines={1}>
+          {themeData.name}
+        </Text>
+        <View style={styles.themeColors}>
+          {[tc.primary, tc.secondary, tc.accent, tc.text].map((color, i) => (
+            <View key={i} style={[styles.colorDot, { backgroundColor: color }]} />
+          ))}
+        </View>
+      </TouchableOpacity>
+    );
+  })}
+</View>
+
+          {/* Theme Detail Modal Trigger */}
           {showThemeDetail && (
             <ThemeDetailCard
               themeId={showThemeDetail}
@@ -451,28 +271,23 @@ export function SettingsScreen() {
             />
           )}
         </View>
-        
+
+        {/* About Section */}
         <View style={[styles.section, { backgroundColor: colors.surface }]}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>
-            ℹ️ Tentang
-          </Text>
-          
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>ℹ️ Tentang</Text>
           <View style={[styles.infoRow, { borderBottomColor: colors.border }]}>
             <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>Versi</Text>
             <Text style={[styles.infoValue, { color: colors.text }]}>1.0.0</Text>
           </View>
-          
           <View style={[styles.infoRow, { borderBottomColor: colors.border }]}>
             <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>Dibuat dengan</Text>
             <Text style={[styles.infoValue, { color: colors.text }]}>❤️ & ✨</Text>
           </View>
         </View>
-        
+
+        {/* Data Management */}
         <View style={[styles.section, { backgroundColor: colors.surface }]}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>
-            💾 Data
-          </Text>
-          
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>💾 Data</Text>
           <TouchableOpacity
             style={[styles.dangerButton, { borderColor: colors.error }]}
             onPress={handleClearCache}
@@ -488,13 +303,148 @@ export function SettingsScreen() {
             <Text style={[styles.dangerAction, { color: colors.error }]}>→</Text>
           </TouchableOpacity>
         </View>
-        
+
+        {/* Footer */}
         <Text style={[styles.footer, { color: colors.textMuted }]}>
-          Arkana Numerology Engine {'\n'}
+          Arkana Numerology Engine{'\n'}
           Made with mystical energy ✨
         </Text>
       </ScrollView>
     </SafeAreaView>
   );
 }
- 
+
+// ─── Styles ───────────────────────────────────────────
+const styles = StyleSheet.create({
+  container: { flex: 1 },
+  content: { paddingBottom: SPACING.xxl },
+  header: {
+    padding: SPACING.xl,
+    paddingTop: SPACING.xxl,
+    paddingBottom: SPACING.xl,
+  },
+  headerTitle: { fontSize: FONT_SIZE['3xl'], fontWeight: '800', marginBottom: SPACING.xs },
+  headerSubtitle: { fontSize: FONT_SIZE.md },
+  section: {
+    margin: SPACING.md,
+    borderRadius: BORDER_RADIUS['2xl'],
+    padding: SPACING.lg,
+    ...SHADOWS.md,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: SPACING.lg,
+  },
+  sectionTitle: { fontSize: FONT_SIZE.xl, fontWeight: '700', marginBottom: SPACING.xs },
+  sectionDescription: { fontSize: FONT_SIZE.sm, lineHeight: 20 },
+  modeBadge: {
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.xs,
+    borderRadius: BORDER_RADIUS.full,
+  },
+  modeText: { fontSize: FONT_SIZE.xs, fontWeight: '600' },
+  switchRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingBottom: SPACING.lg,
+    marginBottom: SPACING.md,
+    borderBottomWidth: 1,
+  },
+  switchInfo: { flex: 1, marginRight: SPACING.md },
+  switchLabel: { fontSize: FONT_SIZE.md, fontWeight: '600', marginBottom: 2 },
+  switchDescription: { fontSize: FONT_SIZE.xs },
+  themeGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: SPACING.sm,
+    marginTop: SPACING.sm,
+  },
+  themeCard: {
+    width: '31%',
+    borderRadius: BORDER_RADIUS.xl,
+    padding: SPACING.sm,
+    marginBottom: SPACING.xs,
+  },
+  themePreview: {
+    height: 60,
+    borderRadius: BORDER_RADIUS.lg,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: SPACING.sm,
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  themeIcon: { fontSize: 24 },
+  selectedBadge: {
+    position: 'absolute',
+    top: SPACING.xs,
+    right: SPACING.xs,
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  selectedText: { color: '#FFFFFF', fontSize: 12, fontWeight: '700' },
+  themeName: { fontSize: FONT_SIZE.xs, fontWeight: '600', marginBottom: SPACING.xs },
+  themeColors: { flexDirection: 'row', gap: 4 },
+  colorDot: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
+  },
+  detailCard: {
+    marginTop: SPACING.md,
+    padding: SPACING.lg,
+    borderRadius: BORDER_RADIUS.xl,
+    backgroundColor: 'rgba(255,255,255,0.05)',
+  },
+  detailHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.md,
+    marginBottom: SPACING.md,
+  },
+  detailIcon: { fontSize: 32 },
+  detailTitle: { fontSize: FONT_SIZE.lg, fontWeight: '700' },
+  detailDescription: { fontSize: FONT_SIZE.sm },
+  detailClose: { marginLeft: 'auto', padding: SPACING.sm },
+  detailCloseText: { fontSize: FONT_SIZE.lg, fontWeight: '600' },
+  detailInfo: { flexDirection: 'row', gap: SPACING.md },
+  detailInfoItem: { flex: 1 },
+  detailLabel: { fontSize: FONT_SIZE.xs, marginBottom: 2 },
+  detailValue: { fontSize: FONT_SIZE.sm, fontWeight: '600' },
+  infoRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: SPACING.md,
+    borderBottomWidth: 1,
+  },
+  infoLabel: { fontSize: FONT_SIZE.md },
+  infoValue: { fontSize: FONT_SIZE.md, fontWeight: '500' },
+  dangerButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: SPACING.md,
+    borderRadius: BORDER_RADIUS.xl,
+    borderWidth: 1.5,
+    gap: SPACING.md,
+  },
+  dangerIcon: { fontSize: 24 },
+  dangerContent: { flex: 1 },
+  dangerTitle: { fontSize: FONT_SIZE.md, fontWeight: '600', color: '#EF4444' },
+  dangerDescription: { fontSize: FONT_SIZE.xs, marginTop: 2 },
+  dangerAction: { fontSize: FONT_SIZE.xl, fontWeight: '700' },
+  footer: { textAlign: 'center', padding: SPACING.xl, fontSize: FONT_SIZE.xs, lineHeight: 20 },
+  groupTitle: {
+  fontSize: FONT_SIZE.md,
+  fontWeight: '700',
+  marginBottom: SPACING.sm,
+  marginLeft: SPACING.xs, },
+}); 

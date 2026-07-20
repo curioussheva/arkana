@@ -13,11 +13,23 @@ import { getDatabase } from '@db/index';
 import { SplashScreen as CustomSplash } from '@components/SplashScreen';
 import { OnboardingScreen } from '@screens/OnboardingScreen';
 
+import { useColorScheme } from 'react-native';
+import { useThemeStore } from '@store/theme-store';
+
 const ONBOARDING_STORAGE_KEY = '@arkana_has_launched';
 
 SplashScreen.preventAutoHideAsync();
 
 export default function App() {
+  const colorScheme = useColorScheme();
+  const syncSystemTheme = useThemeStore((state) => state.syncSystemTheme);
+
+  useEffect(() => {
+  if (colorScheme) {
+    syncSystemTheme(colorScheme);
+  }
+}, [colorScheme]);
+
   const [appIsReady, setAppIsReady] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
 

@@ -1,4 +1,3 @@
-// src/store/theme-store.ts
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -11,12 +10,12 @@ interface ThemeState {
   customThemes: Record<string, Partial<Theme>>;
   useSystemTheme: boolean;
   
-  // Actions
   setTheme: (theme: ThemeVariant) => void;
   toggleUseSystemTheme: () => void;
   getTheme: () => Theme;
   getColors: () => Theme['colors'];
   isDark: () => boolean;
+  syncSystemTheme: (colorScheme: 'light' | 'dark') => void; // ← tambahkan ini
 }
 
 export const useThemeStore = create<ThemeState>()(
@@ -32,14 +31,28 @@ export const useThemeStore = create<ThemeState>()(
       },
       
       toggleUseSystemTheme: () => {
-        set(state => ({ useSystemTheme: !state.useSystemTheme }));
+        set(state => {
+          const newUse = !state.useSystemTheme;
+          return { useSystemTheme: newUse };
+        });
+      },
+      
+      // Fungsi yang akan dipanggil dari App.tsx
+      syncSystemTheme: (colorScheme: 'light' | 'dark') => {
+        const state = get();
+        if (state.useSystemTheme) {
+          const matchingTheme = Object.values(THEMES).find(
+            (t) => t.mode === colorScheme
+          );
+          if (matchingTheme) {
+            set({ currentTheme: matchingTheme.id });
+          }
+        }
       },
       
       getTheme: () => {
-        const { currentTheme, customThemes } = get();
-        const baseTheme = THEMES[currentTheme];
-        const customOverrides = customThemes[currentTheme] || {};
-        return { ...baseTheme, ...customOverrides } as Theme;
+        const { currentTheme } = get();
+        return THEMES[currentTheme];
       },
       
       getColors: () => {

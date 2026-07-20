@@ -28,10 +28,18 @@ export function useInsight() {
     return ELEMENT_STYLES[insight.elements.stats.dominant] ?? ELEMENT_STYLES.Fire;
   }, [insight]);
 
+  // 🎯 FIX UTAMA: Perluas cakupan agar memetakan seluruh 22 titik takdir
   const importantPoints = useMemo(() => {
     if (!matrix || !matrix.points) return [];
 
-    const keys: DestinyPointKey[] = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
+    // Mendaftarkan seluruh alfabet mesin dari struktur Destiny Matrix
+    const keys: DestinyPointKey[] = [
+      'A', 'B', 'C', 'D', 'E', // Pusat
+      'F', 'G', 'H', 'I',      // Diagonal / Jembatan luar
+      'J', 'K', 'L', 'M',      // Jembatan Linier internal
+      'N', 'O', 'P',           // Klaster Ekor Karma tambahan
+      'Q', 'R', 'S', 'T'       // Satelit Makro ujung luar
+    ];
 
     return keys
       .map(key => {
@@ -46,11 +54,12 @@ export function useInsight() {
           label: point.label || key,
           arcanaName: point.arcana.matrixName || point.arcana.tarotName || 'Major Arcana',
           arcana: point.arcana,
+          // Gunakan penanganan aman jika getPositionAdvice hanya mendukung kunci A-G lama
           interpretation: getPositionAdvice(
             key,
             point.arcana.matrixName || point.arcana.tarotName,
             safeAdviceText
-          ),
+          ) || safeAdviceText || 'Analisis energi getaran spasial sedang diselaraskan...',
         };
       })
       .filter((item): item is NonNullable<typeof item> => item !== null);
@@ -93,7 +102,11 @@ export function useInsight() {
       content: { paddingBottom: 24 },
     });
   }, []);
-
+Object.entries(matrix?.points ?? {}).forEach(([key, point]) => { 
+  if (!point?.arcana?.element) {
+    console.log('❌ Titik bermasalah:', key, point?.arcana);
+  }
+}); 
   return {
     matrix,
     profileName,
@@ -111,4 +124,4 @@ export function useInsight() {
     setUserAssessmentState,
     handlePointPress,
   };
-} 
+}

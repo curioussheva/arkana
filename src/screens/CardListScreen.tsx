@@ -26,26 +26,30 @@ export function CardListScreen() {
   // Fungsi saat kartu ditekan untuk memicu modal muncul
   const handleCardPress = (item: ArcanaDefinition) => {
     setSelectedPoint({
-      key: item.id.toString(),    // DIPERBAIKI: Menggunakan item.id menggantikan item.number
-      label: 'Major Arcana',       // Label info atas modal
-      value: item.id,             // DIPERBAIKI: Nilai angka menggunakan item.id
-      arcana: item as any,         // Seluruh object data ArcanaDefinition bawaan kartu
+      key: item.id.toString(),    
+      label: 'Major Arcana',       
+      value: item.id === 0 ? 22 : item.id, // 🔮 INTERSEPTOR: Kirim ID 22 ke modal jika aslinya 0
+      arcana: item as any,         
     });
   };
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['bottom']}>
       <FlatList
+        // 🛡️ AMAN GESTURE: Mengubah key secara dinamis saat kolom berganti agar FlatList me-remount grid tanpa crash
+        key={`flatlist-grid-${numColumns}`}
         data={MAJOR_ARCANA}
         keyExtractor={item => item.tarotName}
         numColumns={numColumns}
         contentContainerStyle={styles.list}
         columnWrapperStyle={styles.row}
         renderItem={({ item }) => {
-          // DIPERBAIKI: Menggunakan item.tarotName menggantikan item.tarotId lama
           const image = getArcanaImage(item.tarotName);
+          
+          // 🔮 INTERSEPTOR VISUAL: Ubah ID 0 (The Fool) menjadi nomor tampilan #22 agar ramah dibaca pengguna
+          const displayId = item.id === 0 ? 22 : item.id;
+
           return (
-            /* Membungkus item dengan TouchableOpacity agar bisa ditap */
             <TouchableOpacity 
               activeOpacity={0.8}
               onPress={() => handleCardPress(item)}
@@ -58,8 +62,7 @@ export function CardListScreen() {
                   resizeMode="contain" 
                 />
               )}
-              {/* DIPERBAIKI: Menyesuaikan properti komponen teks dengan struktur ArcanaDefinition */}
-              <Text style={[styles.cardNumber, { color: colors.primary }]}>#{item.id}</Text>
+              <Text style={[styles.cardNumber, { color: colors.primary }]}>#{displayId}</Text>
               <Text style={[styles.tarotName, { color: colors.text }]} numberOfLines={1}>{item.tarotName}</Text>
               <Text style={[styles.keywords, { color: colors.textSecondary }]} numberOfLines={2}>
                 {item.keywords.slice(0, 3).join(', ')}
@@ -86,14 +89,14 @@ const styles = StyleSheet.create({
     borderRadius: BORDER_RADIUS.xl,
     padding: SPACING.sm,
     alignItems: 'center',
-    ...(SHADOWS.md as ViewStyle), // DIPERBAIKI: Casting aman ke ViewStyle
+    ...(SHADOWS.md as ViewStyle), 
   },
   image: {
     borderRadius: BORDER_RADIUS.lg,
     marginBottom: SPACING.xs,
   },
   cardNumber: { fontSize: FONT_SIZE.xs, fontWeight: '700', marginBottom: 2 },
-  tarotName: { fontSize: FONT_SIZE.sm, fontWeight: '600', textAlign: 'center' }, // DIPERBAIKI: Rename style dari cardName ke tarotName
+  tarotName: { fontSize: FONT_SIZE.sm, fontWeight: '600', textAlign: 'center' }, 
   keywords: { fontSize: 10, textAlign: 'center', marginTop: 2 },
 });
  

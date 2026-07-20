@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createStackNavigator } from '@react-navigation/stack';
 import { 
   createDrawerNavigator, 
   DrawerNavigationProp, 
@@ -14,12 +15,12 @@ import Animated, { useAnimatedStyle, withSpring, useSharedValue } from 'react-na
 import { useThemeStore } from '@store/theme-store';
 import { ErrorBoundary } from '@components/ui/ErrorBoundary';
 
-// 🚀 IMPOR BARU: Menggunakan Fitur Modular Terfragmentasi (@features)
+// 🚀 IMPOR UTAMA
 import { HomeScreen } from '@features/home';
 import { MatrixScreen } from '@features/destiny-matrix';
 import { InsightScreen } from '@features/insight';
+import { PersonalYearScreen } from '@screens/PersonalYearScreen'; // Pasangan perbaikan dari layar Timeline
  
-// ─── Layar Satelit Sementara (Hapus Bertahap Jika Sudah Dimigrasi) ───
 import { DailyCardScreen } from '@screens/DailyCardScreen';
 import { TimelineScreen } from '@screens/TimelineScreen';
 import { SettingsScreen } from '@screens/SettingsScreen';
@@ -30,7 +31,6 @@ import { CardListScreen } from '@screens/CardListScreen';
 
 import { LOGO_IMG } from '@constants/images';
 
-// ─── Tipe Navigasi ───────────────────────────────────
 export type RootDrawerParamList = {
   MainTabs: undefined;
   Settings: undefined;
@@ -38,7 +38,6 @@ export type RootDrawerParamList = {
   Help: undefined;
   About: undefined;
 };
-console.log("Sanity Checking Feature Imports:", { HomeScreen, MatrixScreen, InsightScreen });
 
 export type MainTabParamList = {
   Home: undefined;
@@ -53,7 +52,6 @@ type MainTabNavigatorProps = {
   navigation: DrawerNavigationProp<RootDrawerParamList, 'MainTabs'>;
 };
 
-// ─── Custom Tab Bar Icon ─────────────────────────────
 function TabIcon({ icon, focused, color }: { icon: string; focused: boolean; color: string }) {
   const scale = useSharedValue(1);
   
@@ -72,7 +70,6 @@ function TabIcon({ icon, focused, color }: { icon: string; focused: boolean; col
   );
 }
 
-// ─── Tab Navigator ────────────────────────────────────
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
 function MainTabNavigator({ navigation }: MainTabNavigatorProps) {
@@ -122,26 +119,25 @@ function MainTabNavigator({ navigation }: MainTabNavigatorProps) {
   );
 }
 
-// ─── Custom Drawer Content (Header & Footer) ───────────
+// ─── Tampilan Konten Drawer (Desain Baru) ───
 function CustomDrawerContent(props: DrawerContentComponentProps) {
   const colors = useThemeStore(state => state.getColors());
   const insets = useSafeAreaInsets();
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.backgroundLight }}>
-      <View style={[styles.drawerHeader, { paddingTop: insets.top + 16, borderBottomColor: colors.border }]}>
+      {/* 🛠️ PERBAIKAN: Layout diatur vertikal terpusat (Center-Aligned) */}
+      <View style={[styles.drawerHeader, { paddingTop: insets.top + 24, borderBottomColor: colors.border }]}>
         <Image 
           source={LOGO_IMG}
           style={styles.logoImage}
           resizeMode="contain"
         />
-        <View>
-          <Text style={[styles.appName, { color: colors.text }]}>ARKANA</Text>
-          <Text style={[styles.appSubtitle, { color: colors.textMuted }]}>Destiny Matrix & Numerology</Text>
-        </View>
+        <Text style={[styles.appName, { color: colors.text }]}>ARKANA</Text>
+        <Text style={[styles.appSubtitle, { color: colors.textMuted }]}>Destiny Matrix & Numerology</Text>
       </View>
 
-      <DrawerContentScrollView {...props} contentContainerStyle={{ paddingTop: 8 }}>
+      <DrawerContentScrollView {...props} contentContainerStyle={{ paddingTop: 12 }}>
         <DrawerItemList {...props} />
       </DrawerContentScrollView>
 
@@ -153,10 +149,11 @@ function CustomDrawerContent(props: DrawerContentComponentProps) {
   );
 }
 
-// ─── Drawer Navigator ────────────────────────────────
 const Drawer = createDrawerNavigator<RootDrawerParamList>();
+const RootStack = createStackNavigator();
 
-export function AppNavigator() {
+// ─── Stack Kombinasi (Mencegah Crash Navigasi Luar Tab) ───
+function DrawerWrapper() {
   const colors = useThemeStore(state => state.getColors());
 
   return (
@@ -215,6 +212,16 @@ export function AppNavigator() {
   );
 }
 
+export function AppNavigator() {
+  return (
+    <RootStack.Navigator screenOptions={{ headerShown: false }}>
+      <RootStack.Screen name="DrawerRoot" component={DrawerWrapper} />
+      {/* 🛡️ REGISTRASI BERHASIL: Sekarang Timeline dapat mengakses skrin ini langsung */}
+      <RootStack.Screen name="PersonalYear" component={PersonalYearScreen} />
+    </RootStack.Navigator>
+  );
+}
+
 export function SafeAppNavigator() {
   return (
     <ErrorBoundary componentName="AppNavigator">
@@ -225,13 +232,38 @@ export function SafeAppNavigator() {
 
 export default SafeAppNavigator;
 
+// ─── Perubahan Gaya Lembar Desain (Styles) ───
 const styles = StyleSheet.create({
   tabIcon: { width: 28, height: 28, borderRadius: 14, justifyContent: 'center', alignItems: 'center' },
   tabIconText: { fontSize: 18 },
-  drawerHeader: { paddingHorizontal: 16, paddingBottom: 20, borderBottomWidth: StyleSheet.hairlineWidth, flexDirection: 'row', alignItems: 'center', gap: 12 },
-  logoImage: { width: 50, height: 50, borderRadius: 12 },
-  appName: { fontSize: 18, fontWeight: '800', letterSpacing: 1.5 },
-  appSubtitle: { fontSize: 11, marginTop: 2 },
+  
+  // Perubahan struktur header untuk mendukung penempatan logo di tengah atas
+  drawerHeader: { 
+    paddingHorizontal: 16, 
+    paddingBottom: 24, 
+    borderBottomWidth: StyleSheet.hairlineWidth, 
+    flexDirection: 'column', // Berubah dari 'row' ke 'column'
+    alignItems: 'center',    // Memaksa seluruh item anak berada di tengah
+    justifyContent: 'center' 
+  },
+  logoImage: { 
+    width: 80,               // Ukuran diperbesar dari 50 ke 80
+    height: 80,              // Ukuran diperbesar dari 50 ke 80
+    borderRadius: 20,        // Rasio lengkungan disesuaikan dengan proporsi baru
+    marginBottom: 14         // Jarak pisah sebelum teks nama aplikasi dibawahnya
+  },
+  appName: { 
+    fontSize: 20,            // Sedikit dinaikkan ukurannya agar tegas
+    fontWeight: '900', 
+    letterSpacing: 2, 
+    textAlign: 'center' 
+  },
+  appSubtitle: { 
+    fontSize: 11, 
+    marginTop: 4, 
+    textAlign: 'center'      // Teks subjudul rata tengah sempurna
+  },
+
   drawerFooter: { paddingHorizontal: 20, paddingTop: 16, borderTopWidth: StyleSheet.hairlineWidth, alignItems: 'center' },
   footerText: { fontSize: 12, fontWeight: '600' },
   footerCopyright: { fontSize: 10, marginTop: 4, opacity: 0.6 },

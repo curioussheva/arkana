@@ -1,3 +1,5 @@
+// Berkas: src/features/insight/components/shared/NarrativeCard.tsx
+
 import React, { useMemo, useState } from 'react';
 import {
   StyleSheet,
@@ -25,12 +27,14 @@ import {
   SPACING
 } from '@constants/theme';
 
-import { InsightCard } from './InsightCard';
+// 🎯 KOREKSI PATH: Jika InsightCard berada di folder yang sama (components/shared/)
+import { InsightCard } from './InsightCard'; 
 
-const AnimatedGradient =
-  Animated.createAnimatedComponent(
-    LinearGradient,
-  );
+// 💡 CATATAN HINT: Jika Metro bundler masih protes setelah kode di atas, 
+// artinya InsightCard berada di folder luar (components/). Ubah baris 33 menjadi:
+// import { InsightCard } from '../InsightCard';
+
+const AnimatedGradient = Animated.createAnimatedComponent(LinearGradient);
 
 interface Props {
   insight?: DestinyInsight;
@@ -63,7 +67,6 @@ export function NarrativeCard({
     opacity: glow.value,
   }));
 
-  // 👇 Sumber teks: prioritaskan customText, fallback ke insight.narrative
   const fullText = customText ?? insight?.narrative ?? '';
 
   const text = useMemo(() => {
@@ -100,20 +103,16 @@ export function NarrativeCard({
 
 const styles = StyleSheet.create({
   glow: {
-    borderRadius:
-      BORDER_RADIUS['2xl'],
+    borderRadius: BORDER_RADIUS['2xl'],
   },
-
   text: {
     fontSize: FONT_SIZE.md,
     lineHeight: 28,
   },
-
   button: {
     marginTop: SPACING.md,
     alignItems: 'center',
   },
-
   buttonText: {
     fontWeight: '700',
     fontSize: FONT_SIZE.sm,

@@ -1,4 +1,6 @@
-import React, { useMemo, useState, useCallback, useRef } from 'react';
+// Berkas: src/screens/TimelineScreen.tsx
+
+import React, { useState, useMemo, useCallback, useRef } from 'react';
 import {
   View,
   Text,
@@ -20,10 +22,12 @@ import * as Haptics from 'expo-haptics';
 import { useThemeStore } from '@store/theme-store';
 import { useAppStore } from '@store/app-store';
 import { calculatePersonalYearArcana } from '@core/destiny-matrix/personal-year';
-import { PointDetailModal, type DetailablePoint } from '@components/ui/PointDetailModal';
 import { ELEMENT_STYLES } from '@components/ui/ArkanaCard/types';
 import type { ElementType } from '@components/ui/ArkanaCard/types';
 import type { ArcanaDefinition } from '@core/arcana/types';
+
+import { useNavigation } from '@react-navigation/native';
+import type { StackNavigationProp } from '@react-navigation/stack';
 
 const YEARS_BEFORE = 3;
 const YEARS_AFTER = 6;
@@ -33,7 +37,7 @@ type TimelineEra = 'past' | 'present' | 'future';
 interface TimelineEntry {
   year: number;
   personalYearValue: number;
-  arcana: ArcanaDefinition; // DIPERBAIKI: Menggunakan interface ArcanaDefinition yang valid secara global
+  arcana: ArcanaDefinition;
   era: TimelineEra;
   isCurrent: boolean;
 }
@@ -50,11 +54,17 @@ const SHADOWS = {
 
 export function TimelineScreen() {
   const colors = useThemeStore(state => state.getColors());
-  const [selectedPoint, setSelectedPoint] = useState<DetailablePoint | null>(null);
   const scrollRef = useRef<ScrollView>(null);
   const matrix = useAppStore((state) => state.currentMatrix);
   
-  const currentYear = 2026;
+  // 🛡️ FIX NAVIGASI: Gunakan StackNavigationProp agar sanggup melakukan transisi ke screen 'PersonalYear'
+  const navigation = useNavigation<StackNavigationProp<any>>();
+
+  const currentYearLayoutY = useRef<number>(0);
+  const currentYear = useMemo(() => {
+    // Memastikan tahun dievaluasi tepat saat rendering tanpa masalah caching zona waktu lokal
+    return new Date().getFullYear();
+  }, []);
 
   const timeline = useMemo(() => {
     if (!matrix) return [];
@@ -65,7 +75,6 @@ export function TimelineScreen() {
       if (y < currentYear) era = 'past';
       else if (y === currentYear) era = 'present';
       
-      // DIPERBAIKI: Transformasi data mentah personal-year agar adaptif dengan skema tipe data ArcanaDefinition baru
       const rawArcana = py.arcana as any;
       const adaptiveArcana: ArcanaDefinition = {
         id: rawArcana.number ?? rawArcana.id ?? 0,
@@ -134,23 +143,18 @@ export function TimelineScreen() {
     future: timeline.filter(e => e.era === 'future'),
   }), [timeline]);
 
+  // 🎯 REDIRECTION ENGINE: Alihkan fungsi ketukan langsung ke Screen PersonalYear yang jauh lebih interaktif
   const handleYearPress = useCallback((entry: TimelineEntry) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    setSelectedPoint({
-      key: 'PY',
-      label: `Arcana Tahun ${entry.year}`,
-      value: entry.personalYearValue,
-      arcana: entry.arcana as any,
-    });
-  }, []);
+    navigation.navigate('PersonalYear', { year: entry.year });
+  }, [navigation]);
 
   const scrollToCurrentYear = useCallback(() => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    const currentIndex = timeline.findIndex(e => e.isCurrent);
-    if (currentIndex >= 0) {
-      scrollRef.current?.scrollTo({ y: currentIndex * 115 - 80, animated: true });
+    if (currentYearLayoutY.current > 0) {
+      scrollRef.current?.scrollTo({ y: currentYearLayoutY.current - 20, animated: true });
     }
-  }, [timeline]);
+  }, []);
 
   const getElementColor = useCallback((element: ElementType) => {
     return ELEMENT_STYLES[element]?.color || colors.primary;
@@ -215,7 +219,10 @@ export function TimelineScreen() {
             <Text style={dynamicStyles.emptyText}>Hitung Destiny Matrix-mu di Beranda{'\n'}untuk melihat timeline arcana tahunan</Text>
           </Animated.View>
           <Animated.View entering={FadeInUp.delay(400).duration(800)}>
-            <TouchableOpacity style={dynamicStyles.emptyButton} onPress={() => {}} activeOpacity={0.8}>
+            <TouchableOpacity
+             style={dynamicStyles.emptyButton}
+             onPress={() => navigation.navigate('Home')}
+             activeOpacity={0.8}>
               <Text style={dynamicStyles.emptyButtonText}>✨ Mulai Perjalanan</Text>
             </TouchableOpacity>
           </Animated.View>
@@ -225,10 +232,13 @@ export function TimelineScreen() {
   }
 
   const currentEntry = timeline.find(e => e.isCurrent);
+  const displayHeroId = currentEntry?.arcana.id === 0 ? 22 : currentEntry?.arcana.id;
+  const displayHeroValue = currentEntry?.personalYearValue === 0 ? 22 : currentEntry?.personalYearValue;
 
   return (
     <SafeAreaView style={dynamicStyles.container}>
       <ScrollView ref={scrollRef} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false} scrollEventThrottle={16}>
+        
         {/* Header */}
         <Animated.View entering={FadeInDown.duration(600).springify()}>
           <LinearGradient colors={colors.gradients.headerGradient} style={dynamicStyles.headerGradient}>
@@ -251,9 +261,9 @@ export function TimelineScreen() {
                 <Text style={dynamicStyles.heroYearText}>✨ Tahun Ini ({currentYear})</Text>
               </View>
               <Text style={dynamicStyles.heroArcanaName}>{currentEntry.arcana.tarotName}</Text>
-              <Text style={dynamicStyles.heroArcanaNumber}>Arcana #{currentEntry.arcana.id} • {currentEntry.arcana.element}</Text>
-              <Text style={dynamicStyles.heroValue}>Personal Year Value: {currentEntry.personalYearValue}</Text>
-              <Text style={dynamicStyles.heroCTA}>Tap untuk detail lengkap →</Text>
+              <Text style={dynamicStyles.heroArcanaNumber}>Arcana #{displayHeroId} • {currentEntry.arcana.element}</Text>
+              <Text style={dynamicStyles.heroValue}>Personal Year Value: {displayHeroValue}</Text>
+              <Text style={dynamicStyles.heroCTA}>Buka Analisis Cuaca Kosmik →</Text>
             </TouchableOpacity>
           </Animated.View>
         )}
@@ -296,7 +306,13 @@ export function TimelineScreen() {
 
         {/* Future Timeline Section */}
         {groupedTimeline.future.length > 0 && (
-          <Animated.View entering={SlideInRight.delay(400).duration(600)} style={dynamicStyles.eraSection}>
+          <Animated.View 
+            entering={SlideInRight.delay(400).duration(600)} 
+            style={dynamicStyles.eraSection}
+            onLayout={(e) => {
+              currentYearLayoutY.current = e.nativeEvent.layout.y;
+            }}
+          >
             <View style={dynamicStyles.eraHeader}>
               <View style={[dynamicStyles.eraIcon, { backgroundColor: colors.primary + '20' }]}>
                 <Text>⏭️</Text>
@@ -341,17 +357,16 @@ export function TimelineScreen() {
         <View style={{ height: SPACING.xxl * 2 }} />
       </ScrollView>
 
-      {/* Floating Action Button to Target Current Year */}
+      {/* Floating Action Button */}
       <TouchableOpacity style={dynamicStyles.floatingButton} onPress={scrollToCurrentYear} activeOpacity={0.8}>
         <Text style={dynamicStyles.floatingButtonText}>📍</Text>
       </TouchableOpacity>
-
-      <PointDetailModal point={selectedPoint} onClose={() => setSelectedPoint(null)} />
     </SafeAreaView>
-  );
+  ); 
 }
 
 const styles = StyleSheet.create({
   scrollContent: { flexGrow: 1 },
 });
- 
+
+export default TimelineScreen;

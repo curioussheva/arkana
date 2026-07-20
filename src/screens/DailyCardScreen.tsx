@@ -19,13 +19,14 @@ import * as Haptics from 'expo-haptics';
 import { useThemeStore } from '@store/theme-store';
 import { getRandomDailyCard } from '@core/destiny-matrix/daily-card';
 import { ArcanaCard } from '@components/ui/ArcanaCard';
+import { formatDate } from '@core/utils/date-utils'; // 🎯 UTILITAS INTEGRASI: Menggunakan parser terpusat
 import type { ArcanaDefinition } from '@core/arcana/types';
 
 export function DailyCardScreen() {
   const colors = useThemeStore(state => state.getColors());
   const [dailyCard, setDailyCard] = useState<ArcanaDefinition | null>(null);
 
-  // Ambil kartu harian berdasarkan tanggal
+  // Ambil kartu harian berdasarkan tanggal saat komponen dimuat
   useEffect(() => {
     const card = getRandomDailyCard();
     setDailyCard(card);
@@ -33,23 +34,27 @@ export function DailyCardScreen() {
 
   const handleRefresh = useCallback(() => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    // Tetap gunakan kartu yang sama hari ini (daily card tidak berubah meski refresh)
-    // Jika ingin memaksa kartu acak baru setiap klik, Anda bisa panggil setDailyCard(getRandomDailyCard())
+    // Catatan: Jika ingin memaksa pengacakan ulang kartu per klik, 
+    // Anda bisa aktifkan baris di bawah ini:
+    // setDailyCard(getRandomDailyCard());
   }, []);
 
+  // 🔮 INTERSEPTOR VISUAL UI: Konversi ID 0 menjadi 22 agar selaras dengan skema UI aplikasi
+  const displayArcanaId = dailyCard?.id === 0 ? 22 : dailyCard?.id;
+
   const handleShare = useCallback(async () => {
-    if (!dailyCard) return;
+    if (!dailyCard || !displayArcanaId) return;
     try {
       await Share.share({
-        message: `🃏 Kartu Harianku: ${dailyCard.tarotName}\n\n${dailyCard.uprightMeaning}\n\n✨ Arkana Numerology`,
+        message: `🃏 Kartu Harianku: [${displayArcanaId}] ${dailyCard.tarotName}\n\n${dailyCard.uprightMeaning}\n\n✨ Arkana Numerology`,
         title: 'Kartu Tarot Harian',
       }); 
     } catch (error) {
       console.log(error);
     }
-  }, [dailyCard]);
+  }, [dailyCard, displayArcanaId]);
 
-  if (!dailyCard) {
+  if (!dailyCard || !displayArcanaId) {
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: colors.background, justifyContent: 'center', alignItems: 'center' }}>
         <Text style={{ color: colors.text }}>Memuat kartu...</Text>
@@ -57,9 +62,17 @@ export function DailyCardScreen() {
     );
   }
 
+  // Kloning data objek untuk menyuntikkan nomor displayId (#22) ke visual kartu
+  const visualCardData = {
+    ...dailyCard,
+    id: displayArcanaId
+  };
+
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        
+        {/* Header */}
         <Animated.View entering={FadeInDown.duration(600).springify()}>
           <LinearGradient
             colors={colors.gradients.headerGradient}
@@ -67,32 +80,38 @@ export function DailyCardScreen() {
           >
             <Text style={[styles.headerTitle, { color: colors.text }]}>🃏 Kartu Harian</Text>
             <Text style={[styles.headerSubtitle, { color: colors.textSecondary }]}>
-              {new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+              {/* 🎯 SINKRONISASI TANGGAL: Menggunakan format pelokalan date-utils */}
+              {formatDate(new Date(), 'EEEE, dd MMMM yyyy')}
             </Text>
           </LinearGradient>
         </Animated.View>
 
+        {/* Visual Kartu */}
         <Animated.View entering={FadeInUp.delay(200).duration(600)}>
           <View style={[styles.cardContainer, { backgroundColor: colors.surface }]}>
-            <ArcanaCard arcana={dailyCard} variant="full" showMeaning showKeywords />
+            <ArcanaCard arcana={visualCardData} variant="full" showMeaning showKeywords />
           </View>
         </Animated.View>
 
+        {/* Tombol Aksi */}
         <Animated.View entering={FadeInUp.delay(400).duration(600)} style={styles.actions}>
           <TouchableOpacity
             style={[styles.actionButton, { backgroundColor: colors.primary + '20', borderColor: colors.primary + '40' }]}
             onPress={handleRefresh}
+            activeOpacity={0.8}
           >
             <Text style={[styles.actionButtonText, { color: colors.primary }]}>🔄 Segarkan</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.actionButton, { backgroundColor: colors.primary + '20', borderColor: colors.primary + '40' }]}
             onPress={handleShare}
+            activeOpacity={0.8}
           >
             <Text style={[styles.actionButtonText, { color: colors.primary }]}>📤 Bagikan</Text>
           </TouchableOpacity>
         </Animated.View>
 
+        {/* Kotak Deskripsi / Pesan */}
         <Animated.View entering={FadeIn.delay(600)} style={[styles.meaningBox, { backgroundColor: colors.backgroundLight }]}>
           <Text style={[styles.meaningTitle, { color: colors.text }]}>💬 Pesan Hari Ini</Text>
           <Text style={[styles.meaningText, { color: colors.textSecondary }]}>

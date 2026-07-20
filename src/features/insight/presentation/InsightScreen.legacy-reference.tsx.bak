@@ -1,0 +1,336 @@
+// versi lama
+import React, { useMemo, useState } from 'react';
+import {
+  SafeAreaView,
+  ScrollView,
+  View,
+  TouchableOpacity,
+  Text,
+  StyleSheet,
+} from 'react-native';
+import Animated, { 
+  Layout, 
+  FadeInDown 
+} from 'react-native-reanimated';
+
+import { useInsight } from '../hooks/useInsight';
+import { useThemeStore } from '@store/theme-store';
+import { FONT_SIZE, SPACING, BORDER_RADIUS, SHADOWS } from '@constants/theme';
+import { ArcanaWheel } from '@components/charts/ArcanaWheel';
+import { compileEvolutionCycle } from '@core/destiny-matrix/evolutionEngine';
+
+import {
+  InsightHeader,
+  InsightTabs,
+  EmptyInsight,
+  ElementBanner,
+  NarrativeCard,
+  NamedLinesCard,
+  ArcanaSequenceCard,
+  ImportantPoints,
+  YinYangCard,
+  KarmicTailCard,
+  ChakraList,
+  ShareButton,
+  AssessmentQuiz,
+} from '../components';
+
+export default function InsightScreen() {
+  const vm = useInsight();
+  const colors = useThemeStore((state) => state.getColors());
+
+  // State untuk melacak akordeon Pengembangan Diri mana yang sedang aktif/terbuka
+  const [expandedSelfDev, setExpandedSelfDev] = useState<string | null>(null);
+
+  // Semua hooks WAJIB di atas, sebelum early return apa pun
+  const evolutionNarrative = useMemo(() => {
+    if (!vm.matrixPoints || !vm.userAssessmentState) return '';
+    return compileEvolutionCycle(vm.matrixPoints, vm.userAssessmentState);
+  }, [vm.matrixPoints, vm.userAssessmentState]);
+
+  if (!vm.hasInsight || !vm.insight) {
+    return <EmptyInsight />;
+  }
+
+  const toggleSelfDevAccordion = (key: string) => {
+    setExpandedSelfDev(prev => (prev === key ? null : key));
+  };
+
+  const dominantElement = vm.insight?.elements?.stats?.dominant || 'Murni';
+  const elementAdvice = `${vm.insight?.elements?.opening || ''}\n\n${vm.insight?.elements?.advice || ''}`;
+
+  return (
+    <SafeAreaView style={[vm.styles?.container, { backgroundColor: colors.background }]}>
+
+      <InsightHeader profileName={vm.profileName || 'Profil Utama'} />
+
+      <InsightTabs
+        value={vm.activeTab}
+        onChange={vm.setActiveTab}
+      />
+
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={vm.styles?.content}
+      >
+        {/* TAB 1: BLUEPRINT */}
+{vm.activeTab === 'blueprint' && (
+  <>
+    <ElementBanner element={dominantElement} advice={elementAdvice} />
+
+    <NarrativeCard insight={vm.insight} />
+
+    {vm.insight?.namedLines && <NamedLinesCard lines={vm.insight.namedLines} />}
+
+    {vm.arcanaSequence && <ArcanaSequenceCard sequence={vm.arcanaSequence} />}
+
+    {/* 🎯 SEKSI TERPADU: Akordeon Megah Modul Rencana Aksi Pengembangan Diri */}
+    {vm.importantPoints && vm.importantPoints.length > 0 && (
+      <View style={styles.selfDevSection}>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>
+          🌱 Rencana Aksi Pengembangan Diri
+        </Text>
+        <Text style={[styles.sectionSubtitle, { color: colors.textSecondary }]}>
+          Analisis kontekstual, langkah taktis, ritual harian, dan mantra energi berdasarkan cetak birumu.
+        </Text>
+
+        {vm.importantPoints.map((point) => {
+          const isExpanded = expandedSelfDev === point.key;
+          const arcana = point.arcana;
+          if (!arcana) return null;
+
+          const cardId = arcana.id;
+          const tarotName = arcana.tarotName || 'Arcana';
+          const matrixName = arcana.matrixName ? ` ("${arcana.matrixName}")` : '';
+
+          return (
+            <Animated.View 
+              key={`self-dev-${point.key}`} 
+              layout={Layout.springify()}
+              style={[styles.accordionCard, { backgroundColor: colors.surface, borderColor: colors.border }]}
+            >
+              {/* Tombol Header Akordeon */}
+              <TouchableOpacity
+                style={styles.accordionHeader}
+                activeOpacity={0.7}
+                onPress={() => toggleSelfDevAccordion(point.key)}
+              >
+                <View style={styles.headerLeft}>
+                  <View style={[styles.keyBadge, { backgroundColor: colors.primary + '15' }]}>
+                    <Text style={[styles.keyText, { color: colors.primary }]}>{point.key}</Text>
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={[styles.pointLabel, { color: colors.textSecondary }]}>{point.label}</Text>
+                    <Text style={[styles.cardTitle, { color: colors.text }]} numberOfLines={1}>
+                      Arcana {cardId !== undefined ? `${cardId} • ` : ''}{tarotName}{matrixName}
+                    </Text>
+                  </View>
+                </View>
+                <Text style={{ color: colors.textMuted, fontSize: FONT_SIZE.md }}>
+                  {isExpanded ? '▲' : '▼'}
+                </Text>
+              </TouchableOpacity>
+
+              {/* Konten Terpadu yang Terbuka */}
+              {isExpanded && (
+                <Animated.View entering={FadeInDown.duration(300)} style={styles.accordionContent}>
+                  <View style={[styles.divider, { backgroundColor: colors.border + '50' }]} />
+
+                  {/* 1. Narasi Kontekstual Posisi (Opsi B / Advice dari positions.ts) */}
+                  <View style={styles.subSection}>
+                    <Text style={[styles.descriptionText, { color: colors.text }]}>
+                      {point.interpretation || 'Analisis energi sedang diselaraskan...'}
+                    </Text>
+                  </View>
+
+                  {/* 2. Praktik Harian */}
+                  {arcana.dailyPractice && arcana.dailyPractice.length > 0 && (
+                    <View style={styles.subSection}>
+                      <Text style={[styles.subTitle, { color: colors.primary }]}>📅 Praktik Harian</Text>
+                      {arcana.dailyPractice.map((practice, i) => (
+                        <Text key={i} style={[styles.bodyText, { color: colors.text }]}>• {practice}</Text>
+                      ))}
+                    </View>
+                  )}
+
+                  {/* 3. Rekomendasi Meditasi */}
+                  {arcana.meditation && arcana.meditation.length > 0 && (
+                    <View style={styles.subSection}>
+                      <Text style={[styles.subTitle, { color: colors.primary }]}>🧘 Metode Meditasi</Text>
+                      {arcana.meditation.map((med, i) => (
+                        <Text key={i} style={[styles.bodyText, { color: colors.text }]}>• {med}</Text>
+                      ))}
+                    </View>
+                  )}
+
+                  {/* 4. Afirmasi Penguat */}
+                  {arcana.affirmations && arcana.affirmations.length > 0 && (
+                    <View style={[styles.quoteBox, { backgroundColor: colors.backgroundLight, borderColor: colors.primary + '30' }]}>
+                      <Text style={[styles.quoteTitle, { color: colors.primary }]}>✨ Mantra Afirmasi</Text>
+                      <Text style={[styles.quoteText, { color: colors.text }]}>
+                        "{arcana.affirmations[0]}"
+                      </Text>
+                    </View>
+                  )}
+                </Animated.View>
+              )}
+            </Animated.View>
+          );
+        })}
+      </View>
+    )}
+  </>
+)}
+
+
+        {/* TAB 2: ENERGY */}
+        {vm.activeTab === 'energy' && (
+          <>
+            {vm.insight?.advanced?.yinYang && <YinYangCard analysis={vm.insight.advanced.yinYang} />}
+            {vm.insight?.advanced?.karmicTail && <KarmicTailCard analysis={vm.insight.advanced.karmicTail} />}
+            {vm.insight?.advanced?.chakras && <ChakraList chakras={vm.insight.advanced.chakras} />}
+          </>
+        )}
+
+        {/* TAB 3: EVOLUTION */}
+        {vm.activeTab === 'evolution' && vm.matrixPoints && (
+          <>
+            {vm.userAssessmentState === null ? (
+              <AssessmentQuiz
+                arcanaE={vm.matrixPoints.E}
+                onAnswer={vm.setUserAssessmentState}
+              />
+            ) : (
+              <>
+                <ArcanaWheel
+                  matrix={{ points: vm.matrixPoints } as any}
+                  assessmentState={vm.userAssessmentState}
+                  onPointPress={vm.handlePointPress}
+                />
+                <NarrativeCard
+                  customText={evolutionNarrative}
+                  title="Peta Alur Evolusi Jiwa"
+                />
+                <TouchableOpacity
+                  style={{ alignSelf: 'center', marginTop: SPACING.md }}
+                  onPress={() => vm.setUserAssessmentState(null)}
+                >
+                  <Text style={{ color: colors.primary, fontSize: FONT_SIZE.sm }}>
+                    Ulangi Kuesioner
+                  </Text>
+                </TouchableOpacity>
+              </>
+            )}
+          </>
+        )}
+
+        <ShareButton onPress={vm.share} />
+
+        <View style={{ height: SPACING.xl }} />
+      </ScrollView>
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  selfDevSection: {
+    paddingHorizontal: SPACING.md,
+    marginTop: SPACING.xl,
+  },
+  sectionTitle: {
+    fontSize: FONT_SIZE.lg,
+    fontWeight: '800',
+    marginBottom: 4,
+  },
+  sectionSubtitle: {
+    fontSize: FONT_SIZE.xs,
+    lineHeight: 16,
+    marginBottom: SPACING.md,
+  },
+  accordionCard: {
+    borderRadius: BORDER_RADIUS.xl,
+    marginBottom: SPACING.sm,
+    borderWidth: 1,
+    overflow: 'hidden',
+    ...SHADOWS.sm,
+  },
+  accordionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: SPACING.md,
+  },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+    paddingRight: SPACING.md,
+  },
+  keyBadge: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: SPACING.sm,
+  },
+  keyText: {
+    fontWeight: '800',
+    fontSize: FONT_SIZE.sm,
+  },
+  pointLabel: {
+    fontSize: 10,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  cardTitle: {
+    fontSize: FONT_SIZE.md,
+    fontWeight: '700',
+    marginTop: 1,
+  },
+  accordionContent: {
+    paddingHorizontal: SPACING.md,
+    paddingBottom: SPACING.md,
+  },
+  divider: {
+    height: 1,
+    marginBottom: SPACING.md,
+  },
+  subSection: {
+    marginBottom: SPACING.md,
+  },
+  subTitle: {
+    fontSize: FONT_SIZE.sm,
+    fontWeight: '700',
+    marginBottom: 6,
+  },
+  bodyText: {
+    fontSize: FONT_SIZE.sm,
+    lineHeight: 20,
+    marginBottom: 2,
+  },
+  quoteBox: {
+    padding: SPACING.md,
+    borderRadius: BORDER_RADIUS.md,
+    borderLeftWidth: 4,
+    marginTop: SPACING.xs,
+  },
+  quoteTitle: {
+    fontSize: 11,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    marginBottom: 4,
+  },
+  quoteText: {
+    fontSize: FONT_SIZE.sm,
+    fontStyle: 'italic',
+    lineHeight: 20,
+  },
+  descriptionText: {
+    fontSize: FONT_SIZE.sm,
+    lineHeight: 22,
+    opacity: 0.9,
+    marginBottom: SPACING.sm,
+  },
+});

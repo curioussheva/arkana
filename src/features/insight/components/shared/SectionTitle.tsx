@@ -1,4 +1,4 @@
-// src/features/insight/components/SectionTitle.tsx
+// Berkas: src/features/insight/components/SectionTitle.tsx
 
 import React from 'react';
 import {
@@ -34,7 +34,9 @@ export function SectionTitle({
       StyleSheet.create({
         container: {
           marginBottom: SPACING.md,
+          paddingHorizontal: SPACING.md, // 🎯 Solusi: Jarak aman horizontal agar tidak menempel ke tepi layar
           alignItems: centered ? 'center' : 'flex-start',
+          width: '100%',
         },
 
         row: {

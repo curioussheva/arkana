@@ -100,7 +100,7 @@ export const COMPOSITE_DATABASE: Record<number, CompositeRelationDefinition> = {
   },
   14: {
     arcanaNumber: 14,
-    soulOfUnion: 'Temperance (Keharmonisan, Penyembuhan, & Ketenangan)',
+    soulOfUnion: 'Temperance (Keharmonisan, Pemulihan, & Ketenangan)',
     partnershipStrength: 'Hubungan yang sangat damai, membawa efek penyembuhan emosional, moderat, serta mampu menciptakan kompromi yang indah di tengah perbedaan.',
     karmicChallenge: 'Kecenderungan untuk menghindari pembahasan masalah krusial demi menjaga kedamaian semu, atau suasana hubungan yang perlahan terasa terlalu flat (hambar).',
     growthAdvice: 'Jangan takut untuk sesekali menyuarakan kegelisahanmu secara jujur. Bumbui hubungan dengan kejutan-kejutan kecil agar api cinta tetap menyala hangat.'

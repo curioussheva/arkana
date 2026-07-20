@@ -1,18 +1,24 @@
 // src/types/theme.ts
 export type ThemeMode = 'dark' | 'light';
 
-export type ThemeVariant = 
-  | 'mysticMidnight'   // Default - deep purple dark
-  | 'celestialGold'    // Luxury gold dark
-  | 'etherealLight'    // Soft pastel light
-  | 'voidAbyss'        // Pure black
-  | 'forestWisdom'     // Earth tones dark
-  | 'oceanMystery'     // Deep blue dark
-  | 'crystalDawn'      // Crystal light
-  | 'crimsonShadow';   // Red dark
+export type ThemeVariant =
+  | 'mysticMidnight'
+  | 'celestialGold'
+  | 'etherealLight'
+  | 'voidAbyss'
+  | 'forestWisdom'
+  | 'oceanMystery'
+  | 'crystalDawn'
+  | 'crimsonShadow'
+  | 'goldenDawn'
+  | 'springBloom'
+  | 'roseQuartz'
+  | 'azureMist'
+  | 'warmSand'
+  | 'lilacHaze'
+  | 'auroraNight'; // dark baru
 
 export interface ThemeColors {
-  // Core
   primary: string;
   primaryLight: string;
   primaryDark: string;
@@ -22,57 +28,39 @@ export interface ThemeColors {
   accent: string;
   accentLight: string;
   accentDark: string;
-  
-  // Background
   background: string;
   backgroundLight: string;
   backgroundLighter: string;
-  
-  // Surface
   surface: string;
   surfaceLight: string;
   surfaceDark: string;
-  
-  // Text
   text: string;
   textSecondary: string;
   textMuted: string;
-  
-  // Border
   border: string;
   borderLight: string;
-  
-  // Status
   success: string;
   warning: string;
   error: string;
   info: string;
-  
-  // Energy
   energy: {
     low: string;
     medium: string;
     high: string;
     peak: string;
   };
-  
-  // Elements
   elements: {
     fire: string;
     water: string;
     air: string;
     earth: string;
   };
-  
-  // Tarot-specific
   tarot: {
     majorArcana: string;
     minorArcana: string;
     cardBorder: string;
     mysticalGlow: string;
   };
-  
-  // Gradient pairs
   gradients: {
     cardGradient: [string, string];
     headerGradient: [string, string];
