@@ -24,7 +24,7 @@ export interface ArcanaInsight {
 
 export function generateArcanaInsight(
   dominant: ArcanaDefinition,
-  supporting: ArcanaDefinition[] = [],
+  supporting: ArcanaDefinition[] = []
 ): ArcanaInsight {
   const narrative = createNarrative(dominant);
 

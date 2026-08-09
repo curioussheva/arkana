@@ -1,19 +1,15 @@
 // src/core/arcana/service.ts
 
-import type { ArcanaDefinition } from "./types";
+import type { ArcanaDefinition } from './types';
 
 import {
   ARCANA_DATABASE,
   ARCANA_BY_ID,
   ARCANA_BY_TAROT_NAME,
   ARCANA_BY_MATRIX_NAME,
-} from "./database";
+} from './database';
 
-import {
-  getArcanaById,
-  getArcanaByTarotName,
-  getArcanaByMatrixName,
-} from "./query";
+import { getArcanaById, getArcanaByTarotName, getArcanaByMatrixName } from './query';
 
 export class ArcanaService {
   static all(): readonly ArcanaDefinition[] {
@@ -64,44 +60,28 @@ export class ArcanaService {
     return ARCANA_DATABASE[index]!;
   }
 
-  static listByElement(
-    element: string,
-  ): ArcanaDefinition[] {
+  static listByElement(element: string): ArcanaDefinition[] {
     const target = element.toLowerCase();
 
-    return ARCANA_DATABASE.filter(
-      (arcana) => arcana.element.toLowerCase() === target,
-    );
+    return ARCANA_DATABASE.filter(arcana => arcana.element.toLowerCase() === target);
   }
 
-  static listByPlanet(
-    planet: string,
-  ): ArcanaDefinition[] {
+  static listByPlanet(planet: string): ArcanaDefinition[] {
     const target = planet.toLowerCase();
 
-    return ARCANA_DATABASE.filter(
-      (arcana) => arcana.planet?.toLowerCase() === target,
-    );
+    return ARCANA_DATABASE.filter(arcana => arcana.planet?.toLowerCase() === target);
   }
 
-  static listByZodiac(
-    zodiac: string,
-  ): ArcanaDefinition[] {
+  static listByZodiac(zodiac: string): ArcanaDefinition[] {
     const target = zodiac.toLowerCase();
 
-    return ARCANA_DATABASE.filter(
-      (arcana) => arcana.zodiac?.toLowerCase() === target,
-    );
+    return ARCANA_DATABASE.filter(arcana => arcana.zodiac?.toLowerCase() === target);
   }
 
-  static listByChakra(
-    chakra: string,
-  ): ArcanaDefinition[] {
+  static listByChakra(chakra: string): ArcanaDefinition[] {
     const target = chakra.toLowerCase();
 
-    return ARCANA_DATABASE.filter(
-      (arcana) => arcana.chakra?.toLowerCase() === target,
-    );
+    return ARCANA_DATABASE.filter(arcana => arcana.chakra?.toLowerCase() === target);
   }
 
   static getMapById(): ReadonlyMap<number, ArcanaDefinition> {
@@ -117,4 +97,4 @@ export class ArcanaService {
   }
 }
 
-export const arcanaService = ArcanaService; 
+export const arcanaService = ArcanaService;

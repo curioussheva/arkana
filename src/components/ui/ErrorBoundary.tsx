@@ -1,18 +1,7 @@
 // src/components/ui/ErrorBoundary.tsx
 import React, { Component, type ErrorInfo, type ReactNode } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  Platform,
-} from 'react-native';
-import Animated, {
-  FadeInDown,
-  FadeInUp,
-  FadeIn,
-} from 'react-native-reanimated';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Platform } from 'react-native';
+import Animated, { FadeInDown, FadeInUp, FadeIn } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
@@ -47,7 +36,7 @@ interface State {
 // ─── Error Analyzer ──────────────────────────────────
 function analyzeError(error: Error): ErrorMetadata {
   const message = error.message?.toLowerCase() || '';
-  
+
   if (
     message.includes('network') ||
     message.includes('fetch') ||
@@ -64,7 +53,7 @@ function analyzeError(error: Error): ErrorMetadata {
       message: 'Energi digital terputus.\nPeriksa koneksi internetmu.',
     };
   }
-  
+
   if (
     message.includes('undefined') ||
     message.includes('null') ||
@@ -80,7 +69,7 @@ function analyzeError(error: Error): ErrorMetadata {
       message: 'Terjadi ketidakselarasan data.\nCoba muat ulang halaman.',
     };
   }
-  
+
   if (
     message.includes('render') ||
     message.includes('component') ||
@@ -95,7 +84,7 @@ function analyzeError(error: Error): ErrorMetadata {
       message: 'Tampilan mengalami gangguan kecil.\nBiasanya bisa diperbaiki dengan reload.',
     };
   }
-  
+
   return {
     category: 'unknown',
     severity: 'critical',
@@ -125,13 +114,13 @@ function ErrorDisplay({
   onContactSupport?: () => void;
 }) {
   const colors = useThemeStore(state => state.getColors());
-  
+
   const severityColor = {
     minor: colors.warning,
     moderate: colors.error,
     critical: '#DC2626',
   }[metadata.severity];
-  
+
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
       <ScrollView
@@ -148,26 +137,20 @@ function ErrorDisplay({
             <Text style={styles.icon}>{metadata.icon}</Text>
           </View>
         </Animated.View>
-        
+
         {/* Error Title */}
         <Animated.View entering={FadeInUp.delay(200).duration(600)}>
-          <Text style={[styles.title, { color: colors.text }]}>
-            {metadata.title}
-          </Text>
-          <Text style={[styles.message, { color: colors.textSecondary }]}>
-            {metadata.message}
-          </Text>
+          <Text style={[styles.title, { color: colors.text }]}>{metadata.title}</Text>
+          <Text style={[styles.message, { color: colors.textSecondary }]}>{metadata.message}</Text>
         </Animated.View>
-        
+
         {/* Error Code (Developer Info) */}
         {__DEV__ && (
-          <Animated.View 
+          <Animated.View
             entering={FadeIn.delay(400)}
             style={[styles.devSection, { backgroundColor: colors.surface }]}
           >
-            <Text style={[styles.devTitle, { color: colors.textMuted }]}>
-              🛠️ Developer Info
-            </Text>
+            <Text style={[styles.devTitle, { color: colors.textMuted }]}>🛠️ Developer Info</Text>
             {componentName && (
               <Text style={[styles.devText, { color: colors.textSecondary }]}>
                 Component: {componentName}
@@ -194,12 +177,9 @@ function ErrorDisplay({
             </View>
           </Animated.View>
         )}
-        
+
         {/* Action Buttons */}
-        <Animated.View 
-          entering={FadeInUp.delay(600).duration(600)}
-          style={styles.actions}
-        >
+        <Animated.View entering={FadeInUp.delay(600).duration(600)} style={styles.actions}>
           {/* Retry Button */}
           {metadata.recoverable && (
             <TouchableOpacity
@@ -213,13 +193,13 @@ function ErrorDisplay({
               <Text style={styles.actionButtonText}>🔄 Coba Lagi</Text>
             </TouchableOpacity>
           )}
-          
+
           {/* Go Home Button */}
           {onGoHome && (
             <TouchableOpacity
               style={[
                 styles.actionButton,
-                { backgroundColor: colors.backgroundLight, borderColor: colors.border }
+                { backgroundColor: colors.backgroundLight, borderColor: colors.border },
               ]}
               onPress={() => {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -232,13 +212,13 @@ function ErrorDisplay({
               </Text>
             </TouchableOpacity>
           )}
-          
+
           {/* Support Button */}
           {errorCount > 2 && onContactSupport && (
             <TouchableOpacity
               style={[
                 styles.actionButton,
-                { backgroundColor: 'transparent', borderColor: colors.border }
+                { backgroundColor: 'transparent', borderColor: colors.border },
               ]}
               onPress={() => {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
@@ -252,7 +232,7 @@ function ErrorDisplay({
             </TouchableOpacity>
           )}
         </Animated.View>
-        
+
         {/* Mystical Quote */}
         <Animated.View entering={FadeIn.delay(800)}>
           <Text style={styles.quote}>
@@ -271,37 +251,39 @@ export class ErrorBoundary extends Component<Props, State> {
     errorInfo: null,
     errorCount: 0,
   };
-  
+
   static getDerivedStateFromError(error: Error): Partial<State> {
     return { error };
   }
-  
+
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
     console.error(
       `[ErrorBoundary${this.props.componentName ? ` - ${this.props.componentName}` : ''}]`,
-      '\nError:', error,
-      '\nComponent Stack:', errorInfo.componentStack
+      '\nError:',
+      error,
+      '\nComponent Stack:',
+      errorInfo.componentStack
     );
-    
+
     this.setState(prevState => ({
       errorInfo,
       errorCount: prevState.errorCount + 1,
     }));
-    
+
     this.props.onError?.(error, errorInfo);
   }
-  
+
   reset = (): void => {
     this.setState({
       error: null,
       errorInfo: null,
     });
   };
-  
+
   handleGoHome = (): void => {
     this.reset();
   };
-  
+
   handleContactSupport = (): void => {
     const { error, errorInfo } = this.state;
     const errorDetails = `
@@ -309,20 +291,20 @@ Error: ${error?.message}
 Component: ${this.props.componentName || 'Unknown'}
 Stack: ${errorInfo?.componentStack || 'N/A'}
     `.trim();
-    
+
     console.log('Support request:', errorDetails);
   };
-  
+
   render(): ReactNode {
     const { error, errorCount } = this.state;
-    
+
     if (error) {
       if (this.props.fallback) {
         return this.props.fallback(error, this.reset);
       }
-      
+
       const metadata = analyzeError(error);
-      
+
       return (
         <ErrorDisplay
           error={error}
@@ -335,7 +317,7 @@ Stack: ${errorInfo?.componentStack || 'N/A'}
         />
       );
     }
-    
+
     return this.props.children;
   }
 }
@@ -345,8 +327,9 @@ export function withErrorBoundary<P extends object>(
   WrappedComponent: React.ComponentType<P>,
   componentName?: string
 ) {
-  const displayName = componentName || WrappedComponent.displayName || WrappedComponent.name || 'Component';
-  
+  const displayName =
+    componentName || WrappedComponent.displayName || WrappedComponent.name || 'Component';
+
   function WithErrorBoundary(props: P) {
     return (
       <ErrorBoundary componentName={displayName}>
@@ -354,7 +337,7 @@ export function withErrorBoundary<P extends object>(
       </ErrorBoundary>
     );
   }
-  
+
   WithErrorBoundary.displayName = `withErrorBoundary(${displayName})`;
   return WithErrorBoundary;
 }
@@ -362,18 +345,15 @@ export function withErrorBoundary<P extends object>(
 // ─── Quick Error Trigger (Dev Only) ──────────────────
 export function ErrorTestButton({ message = 'Test error' }: { message?: string }) {
   const [shouldThrow, setShouldThrow] = React.useState(false);
-  
+
   if (shouldThrow) {
     throw new Error(message);
   }
-  
+
   if (!__DEV__) return null;
-  
+
   return (
-    <TouchableOpacity
-      style={testStyles.button}
-      onPress={() => setShouldThrow(true)}
-    >
+    <TouchableOpacity style={testStyles.button} onPress={() => setShouldThrow(true)}>
       <Text style={testStyles.text}>🧪 Test Error</Text>
     </TouchableOpacity>
   );
@@ -516,4 +496,3 @@ const testStyles = StyleSheet.create({
 });
 
 export default ErrorBoundary;
- 

@@ -14,7 +14,7 @@ export function useProfileList(onProfileSelected: (dateStr: string) => void) {
   const [selectedProfileId, setSelectedProfileId] = useState<string | null>(null);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showNewProfileInput, setShowNewProfileInput] = useState(false);
-  
+
   const [newProfileName, setNewProfileName] = useState('');
   const [newProfileDate, setNewProfileDate] = useState('');
 
@@ -29,8 +29,14 @@ export function useProfileList(onProfileSelected: (dateStr: string) => void) {
         setSelectedProfileId(activeProfileId);
         const activeProf = list.find(p => p.id === activeProfileId);
         if (activeProf) {
-          onProfileSelected(formatDate(parseDate(activeProf.birthDate, DATE_FORMAT) || new Date(), ID_DATE_FORMAT));
+          onProfileSelected(
+            formatDate(parseDate(activeProf.birthDate, DATE_FORMAT) || new Date(), ID_DATE_FORMAT)
+          );
         }
+      } else {
+        // fallback: jika tidak ada profil aktif, pilih default
+        setSelectedProfileId(null);
+        onProfileSelected('');
       }
     } catch (err) {
       console.error('Gagal memuat profil:', err);
@@ -41,17 +47,36 @@ export function useProfileList(onProfileSelected: (dateStr: string) => void) {
     loadProfiles();
   }, [loadProfiles]);
 
-  const handleSelectProfile = useCallback((profileId: string | null) => {
-    setSelectedProfileId(profileId);
-    if (!profileId) {
-      onProfileSelected('');
-    } else {
+  // ───────── PERBAIKAN UTAMA ─────────
+  const handleSelectProfile = useCallback(
+    (profileId: string | null) => {
+      if (!profileId) {
+        // Profil Default
+        setSelectedProfileId(null);
+        onProfileSelected('');
+        setActiveProfile('default', 'Profil Utama'); // ⭐ reset store
+        setShowProfileModal(false);
+        return;
+      }
+
       const profile = profiles.find(p => p.id === profileId);
-      const parsed = profile ? parseDate(profile.birthDate, DATE_FORMAT) : null;
-      if (parsed) onProfileSelected(formatDate(parsed, ID_DATE_FORMAT));
-    }
-    setShowProfileModal(false);
-  }, [profiles, onProfileSelected]);
+      if (profile) {
+        const parsed = parseDate(profile.birthDate, DATE_FORMAT);
+        const formattedDate = parsed ? formatDate(parsed, ID_DATE_FORMAT) : '';
+        onProfileSelected(formattedDate);
+        setSelectedProfileId(profile.id);
+        setActiveProfile(profile.id, profile.name); // ⭐ sinkron store
+      } else {
+        // fallback jika profil tidak ditemukan
+        onProfileSelected('');
+        setSelectedProfileId(null);
+        setActiveProfile('default', 'Profil Utama');
+      }
+
+      setShowProfileModal(false);
+    },
+    [profiles, onProfileSelected, setActiveProfile]
+  );
 
   const handleCreateProfile = useCallback(async () => {
     if (!newProfileName.trim() || !newProfileDate.trim()) {
@@ -81,28 +106,32 @@ export function useProfileList(onProfileSelected: (dateStr: string) => void) {
     }
   }, [newProfileName, newProfileDate, setActiveProfile, onProfileSelected, loadProfiles]);
 
-  const handleDeleteProfile = useCallback((profile: DestinyProfile) => {
-    Alert.alert('Hapus Profil', `Apakah Anda yakin ingin menghapus profil "${profile.name}"?`, [
-      { text: 'Batal', style: 'cancel' },
-      {
-        text: 'Hapus',
-        style: 'destructive',
-        onPress: async () => {
-          try {
-            await profileManager.deleteProfile(profile.id);
-            if (selectedProfileId === profile.id) {
-              setSelectedProfileId(null);
-              onProfileSelected('');
+  const handleDeleteProfile = useCallback(
+    (profile: DestinyProfile) => {
+      Alert.alert('Hapus Profil', `Apakah Anda yakin ingin menghapus profil "${profile.name}"?`, [
+        { text: 'Batal', style: 'cancel' },
+        {
+          text: 'Hapus',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await profileManager.deleteProfile(profile.id);
+              if (selectedProfileId === profile.id) {
+                setSelectedProfileId(null);
+                onProfileSelected('');
+                setActiveProfile('default', 'Profil Utama'); // ⭐ reset store setelah hapus
+              }
+              await loadProfiles();
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+            } catch {
+              Alert.alert('Error', 'Gagal menghapus profil');
             }
-            await loadProfiles();
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-          } catch {
-            Alert.alert('Error', 'Gagal menghapus profil');
-          }
+          },
         },
-      },
-    ]);
-  }, [selectedProfileId, onProfileSelected, loadProfiles]);
+      ]);
+    },
+    [selectedProfileId, onProfileSelected, loadProfiles, setActiveProfile]
+  );
 
   return {
     profiles,

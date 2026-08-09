@@ -12,7 +12,9 @@ export function EmptyInsight() {
     <EmptyState
       icon="🔮"
       title="Belum Ada Insight"
-      description={'Hitung Destiny Matrix terlebih dahulu\nuntuk membuka analisis spiritual, energi,\nchakra, serta blueprint perjalanan jiwamu.'}
+      description={
+        'Hitung Destiny Matrix terlebih dahulu\nuntuk membuka analisis spiritual, energi,\nchakra, serta blueprint perjalanan jiwamu.'
+      }
       actionLabel="Ke Beranda"
       onAction={() => navigation.navigate('Home')}
     />

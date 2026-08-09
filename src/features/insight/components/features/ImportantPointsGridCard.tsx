@@ -13,25 +13,19 @@ export function ImportantPointsGridCard({ onPress }: Props) {
   const colors = useThemeStore(state => state.getColors());
 
   return (
-    <TouchableOpacity 
-      activeOpacity={0.8} 
+    <TouchableOpacity
+      activeOpacity={0.8}
       onPress={onPress}
       style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}
     >
       <View style={styles.header}>
         <Text style={styles.icon}>⏳</Text>
-        <Text style={[styles.tag, { color: '#10b981', backgroundColor: '#10b98112' }]}>
-          Siklus
-        </Text>
+        <Text style={[styles.tag, { color: '#10b981', backgroundColor: '#10b98112' }]}>Siklus</Text>
       </View>
 
-      <Text style={[styles.title, { color: colors.text }]}>
-        Roda Takdir & Aksi Pengembangan
-      </Text>
+      <Text style={[styles.title, { color: colors.text }]}>Roda Takdir & Aksi Pengembangan</Text>
 
-      <Text style={[styles.cycleText, { color: colors.textSecondary }]}>
-        Peta Jalan Harian
-      </Text>
+      <Text style={[styles.cycleText, { color: colors.textSecondary }]}>Peta Jalan Harian</Text>
 
       <Text style={[styles.actionPrompt, { color: colors.textSecondary }]}>
         Buka rencana aksi →

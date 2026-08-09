@@ -1,72 +1,51 @@
 // src/core/destiny-matrix/builders.ts
 
 import { getArcanaByNumber } from '../arcana';
-import { ALL_POINT_KEYS, POINT_LABELS } from './constants';
+import { POINT_LABELS } from './constants';
 
-import type {
-  DestinyPoint,
-  DestinyPointKey,
-  DestinyMatrixPoints,
-} from './types';
+import type { DestinyPoint, DestinyPointKey, DestinyMatrixPoints } from './types';
 
-import type { RawCalculatedPoints } from './calculator/types';
+/**
+ * Menentukan kategori titik berdasarkan kunci (DestinyPointKey).
+ */
+export function getCategoryForKey(key: DestinyPointKey): DestinyPoint['category'] {
+  if (['A', 'B', 'C', 'D', 'E'].includes(key)) return 'main';
+  if (['F', 'G', 'H', 'I'].includes(key)) return 'ancestral';
+  if (['J', 'K', 'L', 'M', 'A1', 'B1', 'C1', 'D1', 'F1', 'G1', 'H1', 'I1'].includes(key))
+    return 'inner';
+  if (['N', 'O', 'P', 'LM_Center', 'Money', 'Love'].includes(key)) return 'channel';
+  if (['Q', 'R', 'S', 'T'].includes(key) || key.startsWith('Sub')) return 'companion';
+  return 'timeline';
+}
 
 /**
  * Membuat satu titik Destiny Point dengan proteksi penuh dari nilai rusak (NaN/undefined).
  */
-export function buildPoint(
-  key: DestinyPointKey,
-  value: number | undefined,
-): DestinyPoint {
-  // 1. Tameng pertama: Pastikan nilai numeriknya valid
-  const hasValidValue = typeof value === 'number' && !isNaN(value);
-  const safeValue = hasValidValue ? value : 22; // 22 sebagai fallback aman (biasanya Arcana The Fool/World)
-
-  if (!hasValidValue && __DEV__) {
-    console.warn(
-      `[DestinyMatrix Engine] ⚠️ Warning: Titik "${key}" bernilai "${value}". ` +
-      `Pastikan fungsi kalkulator mengembalikan angka yang valid untuk titik ini.`
-    );
-  }
-
-  // 2. Tameng kedua: Ambil data Arcana dari database
-  let arcana = getArcanaByNumber(safeValue);
-
-  // 3. Tameng ketiga: Jika nomornya ada tapi datanya tidak ditemukan di DB
-  if (!arcana) {
-    if (__DEV__) {
-      console.warn(
-        `[DestinyMatrix Engine] ⚠️ Warning: Arcana dengan nomor ${safeValue} tidak ditemukan di database ` +
-        `untuk titik "${key}". Menggunakan fallback Arcana default.`
-      );
-    }
-    // Lakukan fallback bertingkat ke Arcana nomor 22, atau nomor 1 jika terpaksa
-    arcana = getArcanaByNumber(22) || getArcanaByNumber(1);
-  }
+export function buildPoint(key: DestinyPointKey, rawValue: number): DestinyPoint {
+  const safeValue = isNaN(rawValue) || rawValue === undefined || rawValue === null ? 0 : rawValue;
+  const category = getCategoryForKey(key);
 
   return {
     key,
-    label: POINT_LABELS[key] || `Titik ${key}`,
+    label: POINT_LABELS[key] ?? key,
     value: safeValue,
-    arcana: arcana!, // Tanda ! aman digunakan karena fallback di atas menjamin objek ini tidak null
+    arcana: getArcanaByNumber(safeValue),
+    category,
   };
 }
 
 /**
  * Merakit seluruh kumpulan titik Destiny Matrix dari nilai kalkulasi mentah.
  */
-export function buildPoints(
-  raw: RawCalculatedPoints,
-): DestinyMatrixPoints {
-  const result = {} as DestinyMatrixPoints;
+export function buildPoints(rawMap: Partial<Record<DestinyPointKey, number>>): DestinyMatrixPoints {
+  const points = {} as DestinyMatrixPoints;
 
-  // Proteksi jika objek raw tidak sengaja bernilai null atau undefined
-  const safeRaw = raw || {};
+  (Object.keys(rawMap) as DestinyPointKey[]).forEach(key => {
+    const val = rawMap[key];
+    if (val !== undefined) {
+      points[key] = buildPoint(key, val);
+    }
+  });
 
-  for (const key of ALL_POINT_KEYS) {
-    result[key] = buildPoint(key, safeRaw[key]);
-  }
-
-  return result;
+  return points;
 }
- 

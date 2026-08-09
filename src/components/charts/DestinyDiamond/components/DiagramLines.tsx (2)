@@ -1,0 +1,215 @@
+// src/components/charts/DestinyDiamond/components/DiagramLines.tsx
+import React, { useMemo } from 'react';
+import { Path, DashPathEffect, BlurMask, Group, Text as SkiaText, matchFont } from '@shopify/react-native-skia';
+import { Platform } from 'react-native';
+import {
+  OUTER_OUTLINE,
+  ANCESTRAL_OUTLINE,
+  VERTICAL_DIAGONAL,
+  HORIZONTAL_DIAGONAL,
+  MALE_GENERATION_LINE,
+  FEMALE_GENERATION_LINE,
+  OCTAGON_BORDER_LAYOUT,
+} from '@core/destiny-matrix/layout';
+
+interface DiagramLinesProps {
+  pathFromKeys: (keys: readonly string[], close?: boolean) => string;
+  toPixel: (key: string) => { x: number; y: number };
+  palette: any;
+  agePath?: string;
+  // Dibutuhkan untuk menghitung garis oktagon di radius terpisah dari node
+  // (lihat OCTAGON_BORDER_LAYOUT) — toPixel() saja tidak cukup karena dia
+  // terikat ke POINT_LAYOUT (radius node), bukan radius garis rangka.
+  origin: number;
+  contentRadius: number;
+}
+
+// Konversi koordinat mentah (-1..1) dari peta manapun menjadi pixel canvas,
+// mengikuti formula yang sama dengan useDiagramGeometry.toPixel().
+function toPixelFromMap(
+  map: Record<string, { x: number; y: number }>,
+  key: string,
+  origin: number,
+  contentRadius: number
+) {
+  const c = map[key] || { x: 0, y: 0 };
+  return { x: origin + c.x * contentRadius, y: origin + c.y * contentRadius };
+}
+
+// Sudut (derajat) antara dua titik, untuk rotasi label & arah arrowhead.
+function angleDeg(from: { x: number; y: number }, to: { x: number; y: number }): number {
+  return (Math.atan2(to.y - from.y, to.x - from.x) * 180) / Math.PI;
+}
+
+// Titik interpolasi linear antara dua titik, t=0 di `a`, t=1 di `b`.
+function pointAlong(a: { x: number; y: number }, b: { x: number; y: number }, t: number) {
+  return { x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t };
+}
+
+// Path segitiga kecil untuk arrowhead, menunjuk ke arah `angle` (derajat),
+// dengan ujung lancip di titik `tip`.
+function arrowheadPath(tip: { x: number; y: number }, angle: number, size = 7): string {
+  const rad = (angle * Math.PI) / 180;
+  const backAngle1 = rad + (150 * Math.PI) / 180;
+  const backAngle2 = rad - (150 * Math.PI) / 180;
+  const p1 = { x: tip.x + size * Math.cos(backAngle1), y: tip.y + size * Math.sin(backAngle1) };
+  const p2 = { x: tip.x + size * Math.cos(backAngle2), y: tip.y + size * Math.sin(backAngle2) };
+  return `M${tip.x},${tip.y} L${p1.x},${p1.y} L${p2.x},${p2.y} Z`;
+}
+
+export const DiagramLines: React.FC<DiagramLinesProps> = ({
+  pathFromKeys,
+  toPixel,
+  palette,
+  agePath,
+  origin,
+  contentRadius,
+}) => {
+  const paths = useMemo(
+    () => ({
+      // Persegi Lurus (Personal) & Persegi Miring (Ancestral)
+      personalSquare: pathFromKeys(OUTER_OUTLINE),
+      ancestralSquare: pathFromKeys(ANCESTRAL_OUTLINE),
+
+      // Sumbu Salib Utama (Vertikal & Horizontal)
+      vertical: pathFromKeys(VERTICAL_DIAGONAL, false),
+      horizontal: pathFromKeys(HORIZONTAL_DIAGONAL, false),
+
+      // Garis Diagonal Generasi (Male = Ungu, Female = Merah)
+      maleLine: pathFromKeys(MALE_GENERATION_LINE, false),
+      femaleLine: pathFromKeys(FEMALE_GENERATION_LINE, false),
+    }),
+    [pathFromKeys]
+  );
+
+  // Oktagon Terluar — SEKARANG di radius terpisah (OCTAGON_BORDER_LAYOUT),
+  // BUKAN pathFromKeys(node keys) lagi. Sebelumnya garis ini pas menempel
+  // di posisi node (radius sama), sehingga tidak ada ruang untuk ruler
+  // timeline seperti di referensi Ladini. Sekarang ada celah.
+  const outerOctagonPath = useMemo(() => {
+    const order = ['A', 'F', 'B', 'G', 'C', 'H', 'D', 'I'];
+    return (
+      order
+        .map((k, i) => {
+          const p = toPixelFromMap(OCTAGON_BORDER_LAYOUT, k, origin, contentRadius);
+          return `${i === 0 ? 'M' : 'L'}${p.x},${p.y}`;
+        })
+        .join(' ') + ' Z'
+    );
+  }, [origin, contentRadius]);
+
+  // Titik Love dan Money untuk Garis Putus-Putus
+  const lovePt = toPixel('Love');
+  const moneyPt = toPixel('Money');
+
+  // --- Endpoint & geometri label untuk generation line ---
+  const maleStart = toPixel(MALE_GENERATION_LINE[0]);
+  const maleEnd = toPixel(MALE_GENERATION_LINE[MALE_GENERATION_LINE.length - 1]);
+  const femaleStart = toPixel(FEMALE_GENERATION_LINE[0]);
+  const femaleEnd = toPixel(FEMALE_GENERATION_LINE[FEMALE_GENERATION_LINE.length - 1]);
+
+  const maleAngle = angleDeg(maleStart, maleEnd);
+  const femaleAngle = angleDeg(femaleStart, femaleEnd);
+
+  const maleLabelPos = pointAlong(maleStart, maleEnd, 0.31);
+  const femaleLabelPos = pointAlong(femaleStart, femaleEnd, 0.32);
+
+  const labelFont = useMemo(
+    () =>
+      matchFont({
+        fontFamily: Platform.OS === 'ios' ? 'Helvetica' : 'sans-serif',
+        fontSize: 9,
+        fontWeight: 'bold',
+      }),
+    []
+  );
+
+  const renderGenLabel = (
+    text: string,
+    mid: { x: number; y: number },
+    angle: number,
+    color: string
+  ) => {
+    if (!labelFont) return null;
+    const normalizedAngle = angle > 90 || angle < -90 ? angle - 180 : angle; // teks tidak terbalik
+    const textWidth = labelFont.getTextWidth?.(text) ?? text.length * 5;
+    return (
+      <Group
+        transform={[
+          { translateX: mid.x },
+          { translateY: mid.y },
+          { rotate: (normalizedAngle * Math.PI) / 180 },
+        ]}
+      >
+        <SkiaText x={-textWidth / 2.2} y={-4} text={text} font={labelFont} color={color} />
+      </Group>
+    );
+  };
+
+  return (
+    <>
+      {/* 1. Oktagon Terluar (Border Luar Diagram) — radius terpisah dari node */}
+      <Path
+        path={outerOctagonPath}
+        style="stroke"
+        strokeWidth={2.5}
+        color={palette.goldPrimary}
+      >
+        <BlurMask blur={4.2} style="solid" />
+      </Path>
+
+      {/* 2. Rangka Persegi & Sumbu Salib (Garis Hitam/Emas) */}
+      <Path path={paths.personalSquare} style="stroke" strokeWidth={1.4} color={palette.lineStroke} />
+      <Path path={paths.ancestralSquare} style="stroke" strokeWidth={1.4} color={palette.lineStroke} />
+      <Path path={paths.vertical} style="stroke" strokeWidth={1.2} color={palette.lineStroke} />
+      <Path path={paths.horizontal} style="stroke" strokeWidth={1.2} color={palette.lineStroke} />
+
+      {/* 3. Garis Silsilah Pria (Male Line: F -> H / Ungu) + label & arrowhead */}
+      <Path
+        path={paths.maleLine}
+        style="stroke"
+        strokeWidth={2.8}
+        color={palette.maleLine}
+        strokeCap="round"
+      />
+      <Path path={arrowheadPath(maleEnd, maleAngle)} style="fill" color={palette.maleLine} />
+      {renderGenLabel('Fathers Lineage', maleLabelPos, maleAngle, palette.maleLine)}
+
+      {/* 4. Garis Silsilah Wanita (Female Line: G -> I / Merah) + label & arrowhead */}
+      <Path
+        path={paths.femaleLine}
+        style="stroke"
+        strokeWidth={2.8}
+        color={palette.femaleLine}
+        strokeCap="round"
+      />
+      <Path path={arrowheadPath(femaleEnd, femaleAngle)} style="fill" color={palette.femaleLine} />
+      {renderGenLabel('Mothers Lineage', femaleLabelPos, femaleAngle, palette.femaleLine)}
+
+      {/* 5. Garis Putus-putus Kanal Cinta & Keuangan (Love & Money Channel) */}
+      {lovePt && moneyPt && (
+        <Path
+          path={`M${lovePt.x},${lovePt.y} L${moneyPt.x},${moneyPt.y}`}
+          style="stroke"
+          strokeWidth={1.4}
+          color={palette.loveMoneyDash}
+        >
+          <DashPathEffect intervals={[4, 4]} />
+        </Path>
+      )}
+
+      {/* 6. Tracing Usia Aktif (Jika Ada Highlight Path Usia) */}
+      {agePath ? (
+        <Path
+          path={agePath}
+          style="stroke"
+          strokeWidth={1.8}
+          color={palette.goldPrimary}
+          strokeCap="round"
+          opacity={0.65}
+        />
+      ) : null}
+    </>
+  );
+};
+ 

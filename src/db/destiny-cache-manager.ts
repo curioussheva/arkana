@@ -31,15 +31,17 @@ class DestinyCacheManager {
             gte(destinyMatrixResults.expiresAt, new Date())
           )
         )
+        // 🔴 FIX UTAMA: tanpa orderBy, SQLite mengembalikan baris sesuai insertion
+        // order (rowid), sehingga baris TERLAMA yang selalu ditemukan duluan —
+        // bukan baris terbaru hasil kalkulasi ulang setelah version bump.
+        // Ini menyebabkan cache selalu tampak "stale" meski baris valid sudah ada.
+        .orderBy(desc(destinyMatrixResults.calculatedAt))
         .limit(1);
 
       if (cached.length === 0) return null;
 
       const row = cached[0];
 
-      // 🔴 FIX: pointsJson sekarang menyimpan SELURUH objek DestinyMatrix,
-      // bukan hanya `matrix.points`. Baris lama (format lama) akan gagal
-      // divalidasi di bawah dan otomatis diperlakukan sebagai cache miss.
       let parsedMatrix: DestinyMatrix;
       try {
         parsedMatrix = JSON.parse(row.pointsJson) as DestinyMatrix;
@@ -48,14 +50,21 @@ class DestinyCacheManager {
         return null;
       }
 
-      // 🔴 Validasi versi skema — mencegah data arcana/struktur lama
+      // Validasi versi skema — mencegah data arcana/struktur lama
       // (dari sebelum migrasi skema) menyebabkan crash di hilir.
       if (!parsedMatrix || parsedMatrix.version !== MATRIX_VERSION) {
-        console.log('[DestinyCache] Stale version, treating as cache miss');
+        console.log('[DestinyCache] Stale version, treating as cache miss — deleting stale row');
+        // 🔴 FIX: hapus baris usang ini alih-alih membiarkannya menumpuk selamanya
+        // di tabel (baris lama tidak pernah otomatis expired hingga 1 tahun).
+        try {
+          await db.delete(destinyMatrixResults).where(eq(destinyMatrixResults.id, row.id));
+        } catch (deleteErr) {
+          console.warn('[DestinyCache] Gagal menghapus baris stale:', deleteErr);
+        }
         return null;
       }
 
-      // 🔴 Validasi struktural minimal — pastikan field wajib benar-benar ada.
+      // Validasi struktural minimal — pastikan field wajib benar-benar ada.
       if (!parsedMatrix.points || !parsedMatrix.destinies || !parsedMatrix.namedLines) {
         console.warn('[DestinyCache] Incomplete cached matrix, treating as cache miss');
         return null;
@@ -70,13 +79,28 @@ class DestinyCacheManager {
 
   async cacheMatrix(userId: string, matrix: DestinyMatrix): Promise<number> {
     const db = await getDrizzleDb();
+
+    // 🔴 FIX: hapus baris lama untuk kombinasi userId+birthDate yang sama
+    // sebelum insert baris baru — mencegah penumpukan banyak baris duplikat
+    // untuk profil yang sama tiap kali dihitung ulang (mis. tiap version bump).
+    try {
+      await db
+        .delete(destinyMatrixResults)
+        .where(
+          and(
+            eq(destinyMatrixResults.userId, userId),
+            eq(destinyMatrixResults.birthDate, matrix.input.birthDate)
+          )
+        );
+    } catch (cleanupErr) {
+      console.warn('[DestinyCache] Gagal membersihkan baris lama sebelum insert:', cleanupErr);
+    }
+
     const result = await db
       .insert(destinyMatrixResults)
       .values({
         userId,
         birthDate: matrix.input.birthDate,
-        // 🔴 FIX: simpan SELURUH matrix (points + destinies + namedLines + version, dst),
-        // bukan hanya matrix.points seperti sebelumnya.
         pointsJson: JSON.stringify(matrix),
         version: matrix.version,
       })
@@ -98,7 +122,10 @@ class DestinyCacheManager {
     });
   }
 
-  async getHistory(userId: string, limit: number = 50): Promise<typeof destinyUserHistory.$inferSelect[]> {
+  async getHistory(
+    userId: string,
+    limit: number = 50
+  ): Promise<(typeof destinyUserHistory.$inferSelect)[]> {
     const db = await getDrizzleDb();
     return db
       .select()
@@ -116,12 +143,13 @@ class DestinyCacheManager {
 
     return result.changes ?? 0;
   }
- 
+
   /**
-   * 🆕 Hapus semua cache yang bukan versi skema saat ini.
+   * Hapus semua cache yang bukan versi skema saat ini.
    * Berguna dipanggil sekali saat startup setelah migrasi skema besar,
    * untuk membersihkan baris-baris lama daripada dibiarkan menumpuk
-   * (mereka akan tetap diabaikan oleh getCachedMatrix, tapi tidak pernah terhapus).
+   * (mereka akan tetap diabaikan oleh getCachedMatrix, tapi tidak pernah terhapus
+   * kecuali lewat jalur delete-on-read yang baru ditambahkan di atas).
    */
   async cleanupStaleVersions(): Promise<number> {
     const db = await getDrizzleDb();

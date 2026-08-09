@@ -1,29 +1,19 @@
 // src/features/insight/components/InsightHeader.tsx
 
 import React from 'react';
-import {
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { LinearGradient } from 'expo-linear-gradient';
 
 import { useThemeStore } from '@store/theme-store';
 
-import {
-  SPACING,
-  FONT_SIZE,
-  BORDER_RADIUS,
-} from '@constants/theme';
+import { SPACING, FONT_SIZE, BORDER_RADIUS } from '@constants/theme';
 
 interface InsightHeaderProps {
   profileName: string;
 }
 
-export function InsightHeader({
-  profileName,
-}: InsightHeaderProps) {
+export function InsightHeader({ profileName }: InsightHeaderProps) {
   const colors = useThemeStore(state => state.getColors());
 
   const styles = React.useMemo(
@@ -34,24 +24,20 @@ export function InsightHeader({
           paddingVertical: SPACING.xl,
           paddingTop: SPACING.xxl,
 
-          borderBottomLeftRadius:
-            BORDER_RADIUS['3xl'],
+          borderBottomLeftRadius: BORDER_RADIUS['3xl'],
 
-          borderBottomRightRadius:
-            BORDER_RADIUS['3xl'],
+          borderBottomRightRadius: BORDER_RADIUS['3xl'],
         },
 
         badge: {
           alignSelf: 'flex-start',
 
-          backgroundColor:
-            'rgba(255,255,255,0.18)',
+          backgroundColor: 'rgba(255,255,255,0.18)',
 
           paddingHorizontal: SPACING.md,
           paddingVertical: 6,
 
-          borderRadius:
-            BORDER_RADIUS.full,
+          borderRadius: BORDER_RADIUS.full,
 
           marginBottom: SPACING.md,
         },
@@ -84,29 +70,19 @@ export function InsightHeader({
           fontWeight: '700',
         },
       }),
-    [colors.primary],
+    [colors.primary]
   );
 
   return (
-    <LinearGradient
-      colors={colors.gradients.headerGradient}
-      style={styles.container}
-    >
+    <LinearGradient colors={colors.gradients.headerGradient} style={styles.container}>
       <View style={styles.badge}>
-        <Text style={styles.badgeText}>
-          DESTINY MATRIX
-        </Text>
+        <Text style={styles.badgeText}>DESTINY MATRIX</Text>
       </View>
 
-      <Text style={styles.title}>
-        🔮 Spiritual Insight
-      </Text>
+      <Text style={styles.title}>🔮 Spiritual Insight</Text>
 
       <Text style={styles.subtitle}>
-        Blueprint energi dan perjalanan jiwa untuk{' '}
-        <Text style={styles.profile}>
-          {profileName}
-        </Text>
+        Blueprint energi dan perjalanan jiwa untuk <Text style={styles.profile}>{profileName}</Text>
       </Text>
     </LinearGradient>
   );

@@ -1,31 +1,20 @@
 // src/core/arcana/compatibility.ts
 
-import type {
-  ArcanaDefinition,
-  ArcanaElement,
-} from './types';
+import type { ArcanaDefinition, ArcanaElement } from './types';
 
 import { getArcana } from './query';
 
 export interface ArcanaCompatibility {
   score: number;
 
-  level:
-    | 'Sangat Rendah'
-    | 'Rendah'
-    | 'Sedang'
-    | 'Baik'
-    | 'Sangat Baik';
+  level: 'Sangat Rendah' | 'Rendah' | 'Sedang' | 'Baik' | 'Sangat Baik';
 
   strengths: string[];
   challenges: string[];
   advice: string[];
 }
 
-const ELEMENT_COMPATIBILITY: Record<
-  ArcanaElement,
-  Record<ArcanaElement, number>
-> = {
+const ELEMENT_COMPATIBILITY: Record<ArcanaElement, Record<ArcanaElement, number>> = {
   Fire: {
     Fire: 90,
     Air: 85,
@@ -55,9 +44,7 @@ const ELEMENT_COMPATIBILITY: Record<
   },
 };
 
-function getLevel(
-  score: number,
-): ArcanaCompatibility['level'] {
+function getLevel(score: number): ArcanaCompatibility['level'] {
   if (score >= 90) return 'Sangat Baik';
   if (score >= 75) return 'Baik';
   if (score >= 60) return 'Sedang';
@@ -65,116 +52,58 @@ function getLevel(
   return 'Sangat Rendah';
 }
 
-function intersection<T extends string>(
-  first: readonly T[],
-  second: readonly T[],
-): T[] {
-  const set = new Set(
-    second.map((v) => v.toLowerCase()),
-  );
+function intersection<T extends string>(first: readonly T[], second: readonly T[]): T[] {
+  const set = new Set(second.map(v => v.toLowerCase()));
 
-  return first.filter((v) =>
-    set.has(v.toLowerCase()),
-  );
+  return first.filter(v => set.has(v.toLowerCase()));
 }
 
 export function calculateArcanaCompatibility(
   first: ArcanaDefinition,
-  second: ArcanaDefinition,
+  second: ArcanaDefinition
 ): ArcanaCompatibility {
-  let score =
-    ELEMENT_COMPATIBILITY[first.element][second.element];
+  let score = ELEMENT_COMPATIBILITY[first.element][second.element];
 
   // bonus bila memang direkomendasikan
-  if (
-    first.compatibleElements.includes(
-      second.element,
-    )
-  ) {
+  if (first.compatibleElements.includes(second.element)) {
     score += 5;
   }
 
-  if (
-    second.compatibleElements.includes(
-      first.element,
-    )
-  ) {
+  if (second.compatibleElements.includes(first.element)) {
     score += 5;
   }
 
   // penalti elemen sulit
-  if (
-    first.difficultElements.includes(
-      second.element,
-    )
-  ) {
+  if (first.difficultElements.includes(second.element)) {
     score -= 5;
   }
 
-  if (
-    second.difficultElements.includes(
-      first.element,
-    )
-  ) {
+  if (second.difficultElements.includes(first.element)) {
     score -= 5;
   }
 
   // keyword
-  score +=
-    intersection(
-      first.keywords,
-      second.keywords,
-    ).length * 4;
+  score += intersection(first.keywords, second.keywords).length * 4;
 
   // talents
-  score +=
-    intersection(
-      first.talents,
-      second.talents,
-    ).length * 3;
+  score += intersection(first.talents, second.talents).length * 3;
 
   // gifts
-  score +=
-    intersection(
-      first.gifts,
-      second.gifts,
-    ).length * 2;
+  score += intersection(first.gifts, second.gifts).length * 2;
 
   // life mission
-  score +=
-    intersection(
-      first.lifeMission,
-      second.lifeMission,
-    ).length * 3;
+  score += intersection(first.lifeMission, second.lifeMission).length * 3;
 
   // spiritual lesson
-  score +=
-    intersection(
-      first.spiritualLessons,
-      second.spiritualLessons,
-    ).length * 2;
+  score += intersection(first.spiritualLessons, second.spiritualLessons).length * 2;
 
   // karmic lesson sama biasanya berarti tantangan
-  score -=
-    intersection(
-      first.karmicLessons,
-      second.karmicLessons,
-    ).length * 2;
+  score -= intersection(first.karmicLessons, second.karmicLessons).length * 2;
 
   // shadow trait sama
-  score -=
-    intersection(
-      first.shadowTraits,
-      second.shadowTraits,
-    ).length * 3;
+  score -= intersection(first.shadowTraits, second.shadowTraits).length * 3;
 
-  score = Math.max(
-    0,
-    Math.min(
-      100,
-      Math.round(score),
-    ),
-  );
+  score = Math.max(0, Math.min(100, Math.round(score)));
 
   return {
     score,
@@ -183,50 +112,27 @@ export function calculateArcanaCompatibility(
 
     strengths: [
       ...new Set([
-        ...intersection(
-          first.positiveTraits,
-          second.positiveTraits,
-        ),
+        ...intersection(first.positiveTraits, second.positiveTraits),
 
-        ...intersection(
-          first.gifts,
-          second.gifts,
-        ),
+        ...intersection(first.gifts, second.gifts),
 
-        ...intersection(
-          first.lifeMission,
-          second.lifeMission,
-        ),
+        ...intersection(first.lifeMission, second.lifeMission),
       ]),
     ],
 
     challenges: [
       ...new Set([
-        ...intersection(
-          first.shadowTraits,
-          second.shadowTraits,
-        ),
+        ...intersection(first.shadowTraits, second.shadowTraits),
 
-        ...intersection(
-          first.karmicLessons,
-          second.karmicLessons,
-        ),
+        ...intersection(first.karmicLessons, second.karmicLessons),
       ]),
     ],
 
-    advice: [
-      ...new Set([
-        ...first.advice,
-        ...second.advice,
-      ]),
-    ].slice(0, 5),
+    advice: [...new Set([...first.advice, ...second.advice])].slice(0, 5),
   };
 }
 
-export function compatibilityById(
-  firstId: number,
-  secondId: number,
-): ArcanaCompatibility | null {
+export function compatibilityById(firstId: number, secondId: number): ArcanaCompatibility | null {
   const first = getArcana(firstId);
   const second = getArcana(secondId);
 
@@ -234,8 +140,5 @@ export function compatibilityById(
     return null;
   }
 
-  return calculateArcanaCompatibility(
-    first,
-    second,
-  );
+  return calculateArcanaCompatibility(first, second);
 }

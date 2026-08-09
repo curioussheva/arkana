@@ -15,16 +15,19 @@ function addDestinyPoints(val1: number, val2: number): number {
   return res === 0 ? 22 : res;
 }
 
-export function calculateCompositeMatrix(matrix1: DestinyMatrix, matrix2: DestinyMatrix): CompositeMatrixResult {
+export function calculateCompositeMatrix(
+  matrix1: DestinyMatrix,
+  matrix2: DestinyMatrix
+): CompositeMatrixResult {
   const compositePoints: Record<string, number> = {};
-  
+
   // 1. Ambil seluruh key koordinat yang tersedia (A, B, C, D, E, dst)
   const allKeys = Object.keys(matrix1.points) as DestinyPointKey[];
 
-  allKeys.forEach((key) => {
+  allKeys.forEach(key => {
     const p1 = matrix1.points[key]?.value || 0;
     const p2 = matrix2.points[key]?.value || 0;
-    
+
     // Gabungkan dengan rumus khusus
     compositePoints[key] = addDestinyPoints(p1, p2);
   });
@@ -35,10 +38,10 @@ export function calculateCompositeMatrix(matrix1: DestinyMatrix, matrix2: Destin
 
   // 3. Kalkulasi Skor Kecocokan Komposit Sederhana berdasarkan kecocokan elemen & harmoni titik pusat
   // Anda bisa menyesuaikan algoritma ini dengan logic bisnis Anda sendiri
-  let baseScore = 70; 
+  let baseScore = 70;
   if (matrix1.points['E']?.value === matrix2.points['E']?.value) baseScore += 20; // Soulmate indicator
-  if ([3, 6, 10, 17, 19, 21].includes(centerCompositeValue)) baseScore += 10;   // Arketipe harmoni asmara
-  if ([13, 15, 16, 22].includes(centerCompositeValue)) baseScore -= 10;          // Arketipe transformasi/gesekan tinggi
+  if ([3, 6, 10, 17, 19, 21].includes(centerCompositeValue)) baseScore += 10; // Arketipe harmoni asmara
+  if ([13, 15, 16, 22].includes(centerCompositeValue)) baseScore -= 10; // Arketipe transformasi/gesekan tinggi
 
   const overallScore = Math.min(Math.max(baseScore, 30), 100); // Batasi skor minimal 30%, maksimal 100%
 

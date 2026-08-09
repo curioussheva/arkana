@@ -4,12 +4,7 @@ export const ARCANA_COUNT = 22;
 
 export const MASTER_NUMBERS = [11, 22] as const;
 
-export const ARCANA_ELEMENTS = [
-  'Fire',
-  'Water',
-  'Air',
-  'Earth',
-] as const;
+export const ARCANA_ELEMENTS = ['Fire', 'Water', 'Air', 'Earth'] as const;
 
 export const ARCANA_CHAKRAS = [
   'Root',

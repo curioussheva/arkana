@@ -85,10 +85,10 @@ async function runMigrations(db: SQLiteDatabase): Promise<void> {
   // Add future migration blocks here, e.g.:
   // if (fromVersion < '3') { ... }
 
-  await db.runAsync(
-    'INSERT OR REPLACE INTO destiny_schema_meta (key, value) VALUES (?, ?)',
-    [SCHEMA_VERSION_KEY, CURRENT_SCHEMA_VERSION]
-  );
+  await db.runAsync('INSERT OR REPLACE INTO destiny_schema_meta (key, value) VALUES (?, ?)', [
+    SCHEMA_VERSION_KEY,
+    CURRENT_SCHEMA_VERSION,
+  ]);
 }
 
 export async function getDatabase(): Promise<SQLiteDatabase> {

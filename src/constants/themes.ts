@@ -16,48 +16,48 @@ export const THEMES: Record<ThemeVariant, Theme> = {
       accent: '#F59E0B',
       accentLight: '#FBBF24',
       accentDark: '#D97706',
-      
+
       background: '#0F172A',
       backgroundLight: '#1E293B',
       backgroundLighter: '#334155',
-      
+
       surface: '#1E293B',
       surfaceLight: '#334155',
       surfaceDark: '#0F172A',
-      
+
       text: '#F8FAFC',
       textSecondary: '#CBD5E1',
       textMuted: '#64748B',
-      
+
       border: '#334155',
       borderLight: '#475569',
-      
+
       success: '#10B981',
       warning: '#F59E0B',
       error: '#EF4444',
       info: '#3B82F6',
-      
+
       energy: {
         low: '#60A5FA',
         medium: '#FBBF24',
         high: '#F87171',
         peak: '#A78BFA',
       },
-      
+
       elements: {
         fire: '#F87171',
         water: '#60A5FA',
         air: '#94A3B8',
         earth: '#34D399',
       },
-      
+
       tarot: {
         majorArcana: '#C084FC',
         minorArcana: '#94A3B8',
         cardBorder: '#4C1D95',
         mysticalGlow: 'rgba(139, 92, 246, 0.3)',
       },
-      
+
       gradients: {
         cardGradient: ['#1E1B4B', '#312E81'],
         headerGradient: ['#2E1065', '#1E1B4B'],
@@ -72,7 +72,7 @@ export const THEMES: Record<ThemeVariant, Theme> = {
       crystal: 'Amethyst',
     },
   },
-  
+
   celestialGold: {
     id: 'celestialGold',
     name: 'Celestial Gold',
@@ -87,48 +87,48 @@ export const THEMES: Record<ThemeVariant, Theme> = {
       accent: '#FFD700',
       accentLight: '#FFE44D',
       accentDark: '#CCA600',
-      
+
       background: '#1A1110',
       backgroundLight: '#2C1810',
       backgroundLighter: '#3D2015',
-      
+
       surface: '#2C1810',
       surfaceLight: '#3D2015',
       surfaceDark: '#1A1110',
-      
+
       text: '#FFF8DC',
       textSecondary: '#DAA520',
       textMuted: '#8B7355',
-      
+
       border: '#3D2015',
       borderLight: '#5C3A28',
-      
+
       success: '#228B22',
       warning: '#DAA520',
       error: '#8B0000',
       info: '#4169E1',
-      
+
       energy: {
         low: '#4169E1',
         medium: '#DAA520',
         high: '#DC143C',
         peak: '#D4AF37',
       },
-      
+
       elements: {
         fire: '#DC143C',
         water: '#4169E1',
         air: '#C0C0C0',
         earth: '#228B22',
       },
-      
+
       tarot: {
         majorArcana: '#FFD700',
         minorArcana: '#C0C0C0',
         cardBorder: '#D4AF37',
         mysticalGlow: 'rgba(212, 175, 55, 0.4)',
       },
-      
+
       gradients: {
         cardGradient: ['#2C1810', '#1A1110'],
         headerGradient: ['#3D2015', '#2C1810'],
@@ -143,7 +143,7 @@ export const THEMES: Record<ThemeVariant, Theme> = {
       crystal: 'Citrine',
     },
   },
-  
+
   etherealLight: {
     id: 'etherealLight',
     name: 'Ethereal Light',
@@ -158,48 +158,48 @@ export const THEMES: Record<ThemeVariant, Theme> = {
       accent: '#FDE68A',
       accentLight: '#FEF3C7',
       accentDark: '#F59E0B',
-      
+
       background: '#FAF5FF',
       backgroundLight: '#F3E8FF',
       backgroundLighter: '#E9D5FF',
-      
+
       surface: '#FFFFFF',
       surfaceLight: '#FAF5FF',
       surfaceDark: '#F3E8FF',
-      
+
       text: '#4A1D96',
       textSecondary: '#7C3AED',
       textMuted: '#A78BFA',
-      
+
       border: '#E9D5FF',
       borderLight: '#D8B4FE',
-      
+
       success: '#059669',
       warning: '#D97706',
       error: '#DC2626',
       info: '#2563EB',
-      
+
       energy: {
         low: '#60A5FA',
         medium: '#FBBF24',
         high: '#F87171',
         peak: '#A78BFA',
       },
-      
+
       elements: {
         fire: '#EF4444',
         water: '#3B82F6',
         air: '#9CA3AF',
         earth: '#10B981',
       },
-      
+
       tarot: {
         majorArcana: '#8B5CF6',
         minorArcana: '#9CA3AF',
         cardBorder: '#C084FC',
         mysticalGlow: 'rgba(192, 132, 252, 0.3)',
       },
-      
+
       gradients: {
         cardGradient: ['#F3E8FF', '#E9D5FF'],
         headerGradient: ['#E9D5FF', '#D8B4FE'],
@@ -214,7 +214,7 @@ export const THEMES: Record<ThemeVariant, Theme> = {
       crystal: 'Rose Quartz',
     },
   },
-  
+
   voidAbyss: {
     id: 'voidAbyss',
     name: 'Void Abyss',
@@ -229,48 +229,48 @@ export const THEMES: Record<ThemeVariant, Theme> = {
       accent: '#A855F7',
       accentLight: '#C084FC',
       accentDark: '#7E22CE',
-      
+
       background: '#000000',
       backgroundLight: '#09090B',
       backgroundLighter: '#18181B',
-      
+
       surface: '#09090B',
       surfaceLight: '#18181B',
       surfaceDark: '#000000',
-      
+
       text: '#FAFAFA',
       textSecondary: '#A1A1AA',
       textMuted: '#52525B',
-      
+
       border: '#27272A',
       borderLight: '#3F3F46',
-      
+
       success: '#22C55E',
       warning: '#EAB308',
       error: '#EF4444',
       info: '#3B82F6',
-      
+
       energy: {
         low: '#3B82F6',
         medium: '#EAB308',
         high: '#EF4444',
         peak: '#A855F7',
       },
-      
+
       elements: {
         fire: '#EF4444',
         water: '#3B82F6',
         air: '#71717A',
         earth: '#22C55E',
       },
-      
+
       tarot: {
         majorArcana: '#A855F7',
         minorArcana: '#71717A',
         cardBorder: '#6B21A8',
         mysticalGlow: 'rgba(107, 33, 168, 0.4)',
       },
-      
+
       gradients: {
         cardGradient: ['#09090B', '#000000'],
         headerGradient: ['#18181B', '#09090B'],
@@ -285,7 +285,7 @@ export const THEMES: Record<ThemeVariant, Theme> = {
       crystal: 'Obsidian',
     },
   },
-  
+
   forestWisdom: {
     id: 'forestWisdom',
     name: 'Forest Wisdom',
@@ -300,48 +300,48 @@ export const THEMES: Record<ThemeVariant, Theme> = {
       accent: '#D97706',
       accentLight: '#F59E0B',
       accentDark: '#B45309',
-      
+
       background: '#0F1F0F',
       backgroundLight: '#1A2E1A',
       backgroundLighter: '#243524',
-      
+
       surface: '#1A2E1A',
       surfaceLight: '#243524',
       surfaceDark: '#0F1F0F',
-      
+
       text: '#ECFDF5',
       textSecondary: '#A7F3D0',
       textMuted: '#6EE7B7',
-      
+
       border: '#064E3B',
       borderLight: '#065F46',
-      
+
       success: '#10B981',
       warning: '#F59E0B',
       error: '#EF4444',
       info: '#3B82F6',
-      
+
       energy: {
         low: '#6EE7B7',
         medium: '#FCD34D',
         high: '#FCA5A5',
         peak: '#10B981',
       },
-      
+
       elements: {
         fire: '#EF4444',
         water: '#3B82F6',
         air: '#9CA3AF',
         earth: '#059669',
       },
-      
+
       tarot: {
         majorArcana: '#34D399',
         minorArcana: '#6B7280',
         cardBorder: '#047857',
         mysticalGlow: 'rgba(5, 150, 105, 0.3)',
       },
-      
+
       gradients: {
         cardGradient: ['#1A2E1A', '#0F1F0F'],
         headerGradient: ['#064E3B', '#065F46'],
@@ -356,7 +356,7 @@ export const THEMES: Record<ThemeVariant, Theme> = {
       crystal: 'Moss Agate',
     },
   },
-  
+
   oceanMystery: {
     id: 'oceanMystery',
     name: 'Ocean Mystery',
@@ -371,48 +371,48 @@ export const THEMES: Record<ThemeVariant, Theme> = {
       accent: '#06B6D4',
       accentLight: '#22D3EE',
       accentDark: '#0891B2',
-      
+
       background: '#0F1729',
       backgroundLight: '#1E3A5F',
       backgroundLighter: '#1E4D6B',
-      
+
       surface: '#1E3A5F',
       surfaceLight: '#1E4D6B',
       surfaceDark: '#0F1729',
-      
+
       text: '#F0F9FF',
       textSecondary: '#BAE6FD',
       textMuted: '#7DD3FC',
-      
+
       border: '#0C4A6E',
       borderLight: '#0369A1',
-      
+
       success: '#10B981',
       warning: '#F59E0B',
       error: '#EF4444',
       info: '#0EA5E9',
-      
+
       energy: {
         low: '#7DD3FC',
         medium: '#FCD34D',
         high: '#F87171',
         peak: '#0EA5E9',
       },
-      
+
       elements: {
         fire: '#EF4444',
         water: '#0EA5E9',
         air: '#94A3B8',
         earth: '#10B981',
       },
-      
+
       tarot: {
         majorArcana: '#22D3EE',
         minorArcana: '#6B7280',
         cardBorder: '#0369A1',
         mysticalGlow: 'rgba(3, 105, 161, 0.4)',
       },
-      
+
       gradients: {
         cardGradient: ['#1E3A5F', '#0F1729'],
         headerGradient: ['#0C4A6E', '#075985'],
@@ -427,7 +427,7 @@ export const THEMES: Record<ThemeVariant, Theme> = {
       crystal: 'Aquamarine',
     },
   },
-  
+
   crystalDawn: {
     id: 'crystalDawn',
     name: 'Crystal Dawn',
@@ -442,48 +442,48 @@ export const THEMES: Record<ThemeVariant, Theme> = {
       accent: '#F59E0B',
       accentLight: '#FCD34D',
       accentDark: '#D97706',
-      
+
       background: '#F0F9FF',
       backgroundLight: '#E0F2FE',
       backgroundLighter: '#BAE6FD',
-      
+
       surface: '#FFFFFF',
       surfaceLight: '#F0F9FF',
       surfaceDark: '#E0F2FE',
-      
+
       text: '#0C4A6E',
       textSecondary: '#0369A1',
       textMuted: '#38BDF8',
-      
+
       border: '#BAE6FD',
       borderLight: '#7DD3FC',
-      
+
       success: '#10B981',
       warning: '#F59E0B',
       error: '#EF4444',
       info: '#3B82F6',
-      
+
       energy: {
         low: '#60A5FA',
         medium: '#FBBF24',
         high: '#F87171',
         peak: '#A78BFA',
       },
-      
+
       elements: {
         fire: '#EF4444',
         water: '#3B82F6',
         air: '#9CA3AF',
         earth: '#10B981',
       },
-      
+
       tarot: {
         majorArcana: '#7C3AED',
         minorArcana: '#9CA3AF',
         cardBorder: '#0284C7',
         mysticalGlow: 'rgba(2, 132, 199, 0.25)',
       },
-      
+
       gradients: {
         cardGradient: ['#E0F2FE', '#BAE6FD'],
         headerGradient: ['#7DD3FC', '#38BDF8'],
@@ -498,7 +498,7 @@ export const THEMES: Record<ThemeVariant, Theme> = {
       crystal: 'Clear Quartz',
     },
   },
-  
+
   crimsonShadow: {
     id: 'crimsonShadow',
     name: 'Crimson Shadow',
@@ -513,48 +513,48 @@ export const THEMES: Record<ThemeVariant, Theme> = {
       accent: '#F97316',
       accentLight: '#FB923C',
       accentDark: '#EA580C',
-      
+
       background: '#1A0A0A',
       backgroundLight: '#2D0F0F',
       backgroundLighter: '#3F1515',
-      
+
       surface: '#2D0F0F',
       surfaceLight: '#3F1515',
       surfaceDark: '#1A0A0A',
-      
+
       text: '#FEF2F2',
       textSecondary: '#FECACA',
       textMuted: '#FCA5A5',
-      
+
       border: '#450A0A',
       borderLight: '#7F1D1D',
-      
+
       success: '#22C55E',
       warning: '#F59E0B',
       error: '#DC2626',
       info: '#3B82F6',
-      
+
       energy: {
         low: '#60A5FA',
         medium: '#FBBF24',
         high: '#EF4444',
         peak: '#F97316',
       },
-      
+
       elements: {
         fire: '#EF4444',
         water: '#3B82F6',
         air: '#9CA3AF',
         earth: '#22C55E',
       },
-      
+
       tarot: {
         majorArcana: '#F87171',
         minorArcana: '#9CA3AF',
         cardBorder: '#991B1B',
         mysticalGlow: 'rgba(220, 38, 38, 0.4)',
       },
-      
+
       gradients: {
         cardGradient: ['#2D0F0F', '#1A0A0A'],
         headerGradient: ['#450A0A', '#2D0F0F'],
@@ -569,441 +569,517 @@ export const THEMES: Record<ThemeVariant, Theme> = {
       crystal: 'Garnet',
     },
   },
-  
+
   // ─── 6 Tema Light Baru ─────────────────────────────
   goldenDawn: {
-  id: 'goldenDawn',
-  name: 'Golden Dawn',
-  mode: 'light',
-  colors: {
-    primary: '#B8860B',
-    primaryLight: '#DAA520',
-    primaryDark: '#8B6508',
-    secondary: '#CD853F',
-    secondaryLight: '#DEB887',
-    secondaryDark: '#A0522D',
-    accent: '#FFD700',
-    accentLight: '#FFE44D',
-    accentDark: '#CCA600',
-    background: '#FFFEF5',
-    backgroundLight: '#FFF8DC',
-    backgroundLighter: '#FFE4B5',
-    surface: '#FFFFFF',
-    surfaceLight: '#FFFEF5',
-    surfaceDark: '#FFF8DC',
-    text: '#5C4033',
-    textSecondary: '#8B7355',
-    textMuted: '#A0522D',
-    border: '#DEB887',
-    borderLight: '#D2B48C',
-    success: '#228B22',
-    warning: '#DAA520',
-    error: '#CD5C5C',
-    info: '#4682B4',
-    energy: {
-      low: '#4682B4',
-      medium: '#DAA520',
-      high: '#CD5C5C',
-      peak: '#B8860B',
+    id: 'goldenDawn',
+    name: 'Golden Dawn',
+    mode: 'light',
+    colors: {
+      primary: '#B8860B',
+      primaryLight: '#DAA520',
+      primaryDark: '#8B6508',
+      secondary: '#CD853F',
+      secondaryLight: '#DEB887',
+      secondaryDark: '#A0522D',
+      accent: '#FFD700',
+      accentLight: '#FFE44D',
+      accentDark: '#CCA600',
+      background: '#FFFEF5',
+      backgroundLight: '#FFF8DC',
+      backgroundLighter: '#FFE4B5',
+      surface: '#FFFFFF',
+      surfaceLight: '#FFFEF5',
+      surfaceDark: '#FFF8DC',
+      text: '#5C4033',
+      textSecondary: '#8B7355',
+      textMuted: '#A0522D',
+      border: '#DEB887',
+      borderLight: '#D2B48C',
+      success: '#228B22',
+      warning: '#DAA520',
+      error: '#CD5C5C',
+      info: '#4682B4',
+      energy: {
+        low: '#4682B4',
+        medium: '#DAA520',
+        high: '#CD5C5C',
+        peak: '#B8860B',
+      },
+      elements: {
+        fire: '#CD5C5C',
+        water: '#4682B4',
+        air: '#A9A9A9',
+        earth: '#228B22',
+      },
+      tarot: {
+        majorArcana: '#B8860B',
+        minorArcana: '#A9A9A9',
+        cardBorder: '#DAA520',
+        mysticalGlow: 'rgba(184, 134, 11, 0.2)',
+      },
+      gradients: {
+        cardGradient: ['#FFF8DC', '#FFE4B5'],
+        headerGradient: ['#FFE4B5', '#FFD700'],
+        buttonGradient: ['#B8860B', '#8B6508'],
+      },
     },
-    elements: {
-      fire: '#CD5C5C',
-      water: '#4682B4',
-      air: '#A9A9A9',
-      earth: '#228B22',
-    },
-    tarot: {
-      majorArcana: '#B8860B',
-      minorArcana: '#A9A9A9',
-      cardBorder: '#DAA520',
-      mysticalGlow: 'rgba(184, 134, 11, 0.2)',
-    },
-    gradients: {
-      cardGradient: ['#FFF8DC', '#FFE4B5'],
-      headerGradient: ['#FFE4B5', '#FFD700'],
-      buttonGradient: ['#B8860B', '#8B6508'],
+    metadata: {
+      description: 'Golden morning light with timeless elegance',
+      icon: '🌅',
+      preview: '#DAA520',
+      planet: 'Sun',
+      crystal: 'Golden Tiger Eye',
     },
   },
-  metadata: {
-    description: 'Golden morning light with timeless elegance',
-    icon: '🌅',
-    preview: '#DAA520',
-    planet: 'Sun',
-    crystal: 'Golden Tiger Eye',
-  },
-},
 
   springBloom: {
-  id: 'springBloom',
-  name: 'Spring Bloom',
-  mode: 'light',
-  colors: {
-    primary: '#4CAF50',
-    primaryLight: '#81C784',
-    primaryDark: '#388E3C',
-    secondary: '#FF9800',
-    secondaryLight: '#FFB74D',
-    secondaryDark: '#F57C00',
-    accent: '#FFC107',
-    accentLight: '#FFD54F',
-    accentDark: '#FFA000',
-    background: '#F1F8E9',
-    backgroundLight: '#DCEDC8',
-    backgroundLighter: '#C5E1A5',
-    surface: '#FFFFFF',
-    surfaceLight: '#F1F8E9',
-    surfaceDark: '#DCEDC8',
-    text: '#33691E',
-    textSecondary: '#558B2F',
-    textMuted: '#689F38',
-    border: '#AED581',
-    borderLight: '#C5E1A5',
-    success: '#4CAF50',
-    warning: '#FF9800',
-    error: '#F44336',
-    info: '#2196F3',
-    energy: {
-      low: '#64B5F6',
-      medium: '#FFB74D',
-      high: '#E57373',
-      peak: '#81C784',
+    id: 'springBloom',
+    name: 'Spring Bloom',
+    mode: 'light',
+    colors: {
+      primary: '#4CAF50',
+      primaryLight: '#81C784',
+      primaryDark: '#388E3C',
+      secondary: '#FF9800',
+      secondaryLight: '#FFB74D',
+      secondaryDark: '#F57C00',
+      accent: '#FFC107',
+      accentLight: '#FFD54F',
+      accentDark: '#FFA000',
+      background: '#F1F8E9',
+      backgroundLight: '#DCEDC8',
+      backgroundLighter: '#C5E1A5',
+      surface: '#FFFFFF',
+      surfaceLight: '#F1F8E9',
+      surfaceDark: '#DCEDC8',
+      text: '#33691E',
+      textSecondary: '#558B2F',
+      textMuted: '#689F38',
+      border: '#AED581',
+      borderLight: '#C5E1A5',
+      success: '#4CAF50',
+      warning: '#FF9800',
+      error: '#F44336',
+      info: '#2196F3',
+      energy: {
+        low: '#64B5F6',
+        medium: '#FFB74D',
+        high: '#E57373',
+        peak: '#81C784',
+      },
+      elements: {
+        fire: '#E57373',
+        water: '#64B5F6',
+        air: '#BDBDBD',
+        earth: '#4CAF50',
+      },
+      tarot: {
+        majorArcana: '#4CAF50',
+        minorArcana: '#BDBDBD',
+        cardBorder: '#81C784',
+        mysticalGlow: 'rgba(76, 175, 80, 0.2)',
+      },
+      gradients: {
+        cardGradient: ['#DCEDC8', '#C5E1A5'],
+        headerGradient: ['#C5E1A5', '#AED581'],
+        buttonGradient: ['#4CAF50', '#388E3C'],
+      },
     },
-    elements: {
-      fire: '#E57373',
-      water: '#64B5F6',
-      air: '#BDBDBD',
-      earth: '#4CAF50',
-    },
-    tarot: {
-      majorArcana: '#4CAF50',
-      minorArcana: '#BDBDBD',
-      cardBorder: '#81C784',
-      mysticalGlow: 'rgba(76, 175, 80, 0.2)',
-    },
-    gradients: {
-      cardGradient: ['#DCEDC8', '#C5E1A5'],
-      headerGradient: ['#C5E1A5', '#AED581'],
-      buttonGradient: ['#4CAF50', '#388E3C'],
+    metadata: {
+      description: 'Fresh spring garden with renewal energy',
+      icon: '🌸',
+      preview: '#4CAF50',
+      planet: 'Venus',
+      crystal: 'Green Aventurine',
     },
   },
-  metadata: {
-    description: 'Fresh spring garden with renewal energy',
-    icon: '🌸',
-    preview: '#4CAF50',
-    planet: 'Venus',
-    crystal: 'Green Aventurine',
-  },
-},
 
   roseQuartz: {
-  id: 'roseQuartz',
-  name: 'Rose Quartz',
-  mode: 'light',
-  colors: {
-    primary: '#E91E63',
-    primaryLight: '#F06292',
-    primaryDark: '#C2185B',
-    secondary: '#9C27B0',
-    secondaryLight: '#BA68C8',
-    secondaryDark: '#7B1FA2',
-    accent: '#FF4081',
-    accentLight: '#FF80AB',
-    accentDark: '#F50057',
-    background: '#FFF0F3',
-    backgroundLight: '#FFCDD2',
-    backgroundLighter: '#EF9A9A',
-    surface: '#FFFFFF',
-    surfaceLight: '#FFF0F3',
-    surfaceDark: '#FFCDD2',
-    text: '#880E4F',
-    textSecondary: '#AD1457',
-    textMuted: '#C2185B',
-    border: '#F48FB1',
-    borderLight: '#F8BBD0',
-    success: '#4CAF50',
-    warning: '#FFC107',
-    error: '#F44336',
-    info: '#2196F3',
-    energy: {
-      low: '#64B5F6',
-      medium: '#FFB74D',
-      high: '#E57373',
-      peak: '#F06292',
+    id: 'roseQuartz',
+    name: 'Rose Quartz',
+    mode: 'light',
+    colors: {
+      primary: '#E91E63',
+      primaryLight: '#F06292',
+      primaryDark: '#C2185B',
+      secondary: '#9C27B0',
+      secondaryLight: '#BA68C8',
+      secondaryDark: '#7B1FA2',
+      accent: '#FF4081',
+      accentLight: '#FF80AB',
+      accentDark: '#F50057',
+      background: '#FFF0F3',
+      backgroundLight: '#FFCDD2',
+      backgroundLighter: '#EF9A9A',
+      surface: '#FFFFFF',
+      surfaceLight: '#FFF0F3',
+      surfaceDark: '#FFCDD2',
+      text: '#880E4F',
+      textSecondary: '#AD1457',
+      textMuted: '#C2185B',
+      border: '#F48FB1',
+      borderLight: '#F8BBD0',
+      success: '#4CAF50',
+      warning: '#FFC107',
+      error: '#F44336',
+      info: '#2196F3',
+      energy: {
+        low: '#64B5F6',
+        medium: '#FFB74D',
+        high: '#E57373',
+        peak: '#F06292',
+      },
+      elements: {
+        fire: '#E57373',
+        water: '#64B5F6',
+        air: '#BDBDBD',
+        earth: '#4CAF50',
+      },
+      tarot: {
+        majorArcana: '#E91E63',
+        minorArcana: '#BDBDBD',
+        cardBorder: '#F06292',
+        mysticalGlow: 'rgba(233, 30, 99, 0.2)',
+      },
+      gradients: {
+        cardGradient: ['#FFCDD2', '#EF9A9A'],
+        headerGradient: ['#EF9A9A', '#F48FB1'],
+        buttonGradient: ['#E91E63', '#C2185B'],
+      },
     },
-    elements: {
-      fire: '#E57373',
-      water: '#64B5F6',
-      air: '#BDBDBD',
-      earth: '#4CAF50',
-    },
-    tarot: {
-      majorArcana: '#E91E63',
-      minorArcana: '#BDBDBD',
-      cardBorder: '#F06292',
-      mysticalGlow: 'rgba(233, 30, 99, 0.2)',
-    },
-    gradients: {
-      cardGradient: ['#FFCDD2', '#EF9A9A'],
-      headerGradient: ['#EF9A9A', '#F48FB1'],
-      buttonGradient: ['#E91E63', '#C2185B'],
+    metadata: {
+      description: 'Soft pink love and compassion energy',
+      icon: '💖',
+      preview: '#E91E63',
+      planet: 'Venus',
+      crystal: 'Rose Quartz',
     },
   },
-  metadata: {
-    description: 'Soft pink love and compassion energy',
-    icon: '💖',
-    preview: '#E91E63',
-    planet: 'Venus',
-    crystal: 'Rose Quartz',
-  },
-},
 
   azureMist: {
-  id: 'azureMist',
-  name: 'Azure Mist',
-  mode: 'light',
-  colors: {
-    primary: '#03A9F4',
-    primaryLight: '#4FC3F7',
-    primaryDark: '#0288D1',
-    secondary: '#00BCD4',
-    secondaryLight: '#4DD0E1',
-    secondaryDark: '#0097A7',
-    accent: '#FF9800',
-    accentLight: '#FFB74D',
-    accentDark: '#F57C00',
-    background: '#F0F8FF',
-    backgroundLight: '#E3F2FD',
-    backgroundLighter: '#BBDEFB',
-    surface: '#FFFFFF',
-    surfaceLight: '#F0F8FF',
-    surfaceDark: '#E3F2FD',
-    text: '#01579B',
-    textSecondary: '#0277BD',
-    textMuted: '#0288D1',
-    border: '#90CAF9',
-    borderLight: '#BBDEFB',
-    success: '#4CAF50',
-    warning: '#FFC107',
-    error: '#F44336',
-    info: '#2196F3',
-    energy: {
-      low: '#64B5F6',
-      medium: '#FFB74D',
-      high: '#E57373',
-      peak: '#4FC3F7',
+    id: 'azureMist',
+    name: 'Azure Mist',
+    mode: 'light',
+    colors: {
+      primary: '#03A9F4',
+      primaryLight: '#4FC3F7',
+      primaryDark: '#0288D1',
+      secondary: '#00BCD4',
+      secondaryLight: '#4DD0E1',
+      secondaryDark: '#0097A7',
+      accent: '#FF9800',
+      accentLight: '#FFB74D',
+      accentDark: '#F57C00',
+      background: '#F0F8FF',
+      backgroundLight: '#E3F2FD',
+      backgroundLighter: '#BBDEFB',
+      surface: '#FFFFFF',
+      surfaceLight: '#F0F8FF',
+      surfaceDark: '#E3F2FD',
+      text: '#01579B',
+      textSecondary: '#0277BD',
+      textMuted: '#0288D1',
+      border: '#90CAF9',
+      borderLight: '#BBDEFB',
+      success: '#4CAF50',
+      warning: '#FFC107',
+      error: '#F44336',
+      info: '#2196F3',
+      energy: {
+        low: '#64B5F6',
+        medium: '#FFB74D',
+        high: '#E57373',
+        peak: '#4FC3F7',
+      },
+      elements: {
+        fire: '#E57373',
+        water: '#4FC3F7',
+        air: '#BDBDBD',
+        earth: '#4CAF50',
+      },
+      tarot: {
+        majorArcana: '#03A9F4',
+        minorArcana: '#BDBDBD',
+        cardBorder: '#4FC3F7',
+        mysticalGlow: 'rgba(3, 169, 244, 0.2)',
+      },
+      gradients: {
+        cardGradient: ['#E3F2FD', '#BBDEFB'],
+        headerGradient: ['#BBDEFB', '#90CAF9'],
+        buttonGradient: ['#03A9F4', '#0288D1'],
+      },
     },
-    elements: {
-      fire: '#E57373',
-      water: '#4FC3F7',
-      air: '#BDBDBD',
-      earth: '#4CAF50',
-    },
-    tarot: {
-      majorArcana: '#03A9F4',
-      minorArcana: '#BDBDBD',
-      cardBorder: '#4FC3F7',
-      mysticalGlow: 'rgba(3, 169, 244, 0.2)',
-    },
-    gradients: {
-      cardGradient: ['#E3F2FD', '#BBDEFB'],
-      headerGradient: ['#BBDEFB', '#90CAF9'],
-      buttonGradient: ['#03A9F4', '#0288D1'],
+    metadata: {
+      description: 'Misty morning sky with clarity & calm',
+      icon: '🌤️',
+      preview: '#03A9F4',
+      planet: 'Uranus',
+      crystal: 'Blue Lace Agate',
     },
   },
-  metadata: {
-    description: 'Misty morning sky with clarity & calm',
-    icon: '🌤️',
-    preview: '#03A9F4',
-    planet: 'Uranus',
-    crystal: 'Blue Lace Agate',
-  },
-},
 
   warmSand: {
-  id: 'warmSand',
-  name: 'Warm Sand',
-  mode: 'light',
-  colors: {
-    primary: '#FF9800',
-    primaryLight: '#FFB74D',
-    primaryDark: '#F57C00',
-    secondary: '#8D6E63',
-    secondaryLight: '#A1887F',
-    secondaryDark: '#6D4C41',
-    accent: '#FFC107',
-    accentLight: '#FFD54F',
-    accentDark: '#FFA000',
-    background: '#FFF8F0',
-    backgroundLight: '#FFE0B2',
-    backgroundLighter: '#FFCC80',
-    surface: '#FFFFFF',
-    surfaceLight: '#FFF8F0',
-    surfaceDark: '#FFE0B2',
-    text: '#4E342E',
-    textSecondary: '#5D4037',
-    textMuted: '#795548',
-    border: '#BCAAA4',
-    borderLight: '#D7CCC8',
-    success: '#4CAF50',
-    warning: '#FF9800',
-    error: '#F44336',
-    info: '#2196F3',
-    energy: {
-      low: '#64B5F6',
-      medium: '#FFB74D',
-      high: '#E57373',
-      peak: '#FF9800',
+    id: 'warmSand',
+    name: 'Warm Sand',
+    mode: 'light',
+    colors: {
+      primary: '#FF9800',
+      primaryLight: '#FFB74D',
+      primaryDark: '#F57C00',
+      secondary: '#8D6E63',
+      secondaryLight: '#A1887F',
+      secondaryDark: '#6D4C41',
+      accent: '#FFC107',
+      accentLight: '#FFD54F',
+      accentDark: '#FFA000',
+      background: '#FFF8F0',
+      backgroundLight: '#FFE0B2',
+      backgroundLighter: '#FFCC80',
+      surface: '#FFFFFF',
+      surfaceLight: '#FFF8F0',
+      surfaceDark: '#FFE0B2',
+      text: '#4E342E',
+      textSecondary: '#5D4037',
+      textMuted: '#795548',
+      border: '#BCAAA4',
+      borderLight: '#D7CCC8',
+      success: '#4CAF50',
+      warning: '#FF9800',
+      error: '#F44336',
+      info: '#2196F3',
+      energy: {
+        low: '#64B5F6',
+        medium: '#FFB74D',
+        high: '#E57373',
+        peak: '#FF9800',
+      },
+      elements: {
+        fire: '#E57373',
+        water: '#64B5F6',
+        air: '#BDBDBD',
+        earth: '#FF9800',
+      },
+      tarot: {
+        majorArcana: '#FF9800',
+        minorArcana: '#BDBDBD',
+        cardBorder: '#FFB74D',
+        mysticalGlow: 'rgba(255, 152, 0, 0.2)',
+      },
+      gradients: {
+        cardGradient: ['#FFE0B2', '#FFCC80'],
+        headerGradient: ['#FFCC80', '#FFB74D'],
+        buttonGradient: ['#FF9800', '#F57C00'],
+      },
     },
-    elements: {
-      fire: '#E57373',
-      water: '#64B5F6',
-      air: '#BDBDBD',
-      earth: '#FF9800',
-    },
-    tarot: {
-      majorArcana: '#FF9800',
-      minorArcana: '#BDBDBD',
-      cardBorder: '#FFB74D',
-      mysticalGlow: 'rgba(255, 152, 0, 0.2)',
-    },
-    gradients: {
-      cardGradient: ['#FFE0B2', '#FFCC80'],
-      headerGradient: ['#FFCC80', '#FFB74D'],
-      buttonGradient: ['#FF9800', '#F57C00'],
+    metadata: {
+      description: 'Warm sandy beach with grounding energy',
+      icon: '🏖️',
+      preview: '#FF9800',
+      planet: 'Mars',
+      crystal: 'Carnelian',
     },
   },
-  metadata: {
-    description: 'Warm sandy beach with grounding energy',
-    icon: '🏖️',
-    preview: '#FF9800',
-    planet: 'Mars',
-    crystal: 'Carnelian',
-  },
-},
 
   lilacHaze: {
-  id: 'lilacHaze',
-  name: 'Lilac Haze',
-  mode: 'light',
-  colors: {
-    primary: '#9C27B0',
-    primaryLight: '#BA68C8',
-    primaryDark: '#7B1FA2',
-    secondary: '#E91E63',
-    secondaryLight: '#F06292',
-    secondaryDark: '#C2185B',
-    accent: '#FFC107',
-    accentLight: '#FFD54F',
-    accentDark: '#FFA000',
-    background: '#FAF0FC',
-    backgroundLight: '#F3E5F5',
-    backgroundLighter: '#E1BEE7',
-    surface: '#FFFFFF',
-    surfaceLight: '#FAF0FC',
-    surfaceDark: '#F3E5F5',
-    text: '#4A148C',
-    textSecondary: '#6A1B9A',
-    textMuted: '#8E24AA',
-    border: '#CE93D8',
-    borderLight: '#E1BEE7',
-    success: '#4CAF50',
-    warning: '#FFC107',
-    error: '#F44336',
-    info: '#2196F3',
-    energy: {
-      low: '#64B5F6',
-      medium: '#FFB74D',
-      high: '#E57373',
-      peak: '#BA68C8',
+    id: 'lilacHaze',
+    name: 'Lilac Haze',
+    mode: 'light',
+    colors: {
+      primary: '#9C27B0',
+      primaryLight: '#BA68C8',
+      primaryDark: '#7B1FA2',
+      secondary: '#E91E63',
+      secondaryLight: '#F06292',
+      secondaryDark: '#C2185B',
+      accent: '#FFC107',
+      accentLight: '#FFD54F',
+      accentDark: '#FFA000',
+      background: '#FAF0FC',
+      backgroundLight: '#F3E5F5',
+      backgroundLighter: '#E1BEE7',
+      surface: '#FFFFFF',
+      surfaceLight: '#FAF0FC',
+      surfaceDark: '#F3E5F5',
+      text: '#4A148C',
+      textSecondary: '#6A1B9A',
+      textMuted: '#8E24AA',
+      border: '#CE93D8',
+      borderLight: '#E1BEE7',
+      success: '#4CAF50',
+      warning: '#FFC107',
+      error: '#F44336',
+      info: '#2196F3',
+      energy: {
+        low: '#64B5F6',
+        medium: '#FFB74D',
+        high: '#E57373',
+        peak: '#BA68C8',
+      },
+      elements: {
+        fire: '#E57373',
+        water: '#64B5F6',
+        air: '#BDBDBD',
+        earth: '#4CAF50',
+      },
+      tarot: {
+        majorArcana: '#9C27B0',
+        minorArcana: '#BDBDBD',
+        cardBorder: '#BA68C8',
+        mysticalGlow: 'rgba(156, 39, 176, 0.2)',
+      },
+      gradients: {
+        cardGradient: ['#F3E5F5', '#E1BEE7'],
+        headerGradient: ['#E1BEE7', '#CE93D8'],
+        buttonGradient: ['#9C27B0', '#7B1FA2'],
+      },
     },
-    elements: {
-      fire: '#E57373',
-      water: '#64B5F6',
-      air: '#BDBDBD',
-      earth: '#4CAF50',
-    },
-    tarot: {
-      majorArcana: '#9C27B0',
-      minorArcana: '#BDBDBD',
-      cardBorder: '#BA68C8',
-      mysticalGlow: 'rgba(156, 39, 176, 0.2)',
-    },
-    gradients: {
-      cardGradient: ['#F3E5F5', '#E1BEE7'],
-      headerGradient: ['#E1BEE7', '#CE93D8'],
-      buttonGradient: ['#9C27B0', '#7B1FA2'],
+    metadata: {
+      description: 'Soft lilac mist with intuitive insight',
+      icon: '💜',
+      preview: '#9C27B0',
+      planet: 'Jupiter',
+      crystal: 'Amethyst',
     },
   },
-  metadata: {
-    description: 'Soft lilac mist with intuitive insight',
-    icon: '💜',
-    preview: '#9C27B0',
-    planet: 'Jupiter',
-    crystal: 'Amethyst',
-  },
-},
-  
+
   auroraNight: {
-  id: 'auroraNight',
-  name: 'Aurora Night',
-  mode: 'dark',
-  colors: {
-    primary: '#7C3AED',
-    primaryLight: '#8B5CF6',
-    primaryDark: '#6D28D9',
-    secondary: '#06B6D4',
-    secondaryLight: '#22D3EE',
-    secondaryDark: '#0891B2',
-    accent: '#F59E0B',
-    accentLight: '#FBBF24',
-    accentDark: '#D97706',
-    background: '#0C0A1D',
-    backgroundLight: '#1A1530',
-    backgroundLighter: '#2D2348',
-    surface: '#1A1530',
-    surfaceLight: '#2D2348',
-    surfaceDark: '#0C0A1D',
-    text: '#F5F3FF',
-    textSecondary: '#C4B5FD',
-    textMuted: '#8B5CF6',
-    border: '#2D2348',
-    borderLight: '#3C2E5C',
-    success: '#10B981',
-    warning: '#F59E0B',
-    error: '#EF4444',
-    info: '#3B82F6',
-    energy: {
-      low: '#60A5FA',
-      medium: '#FBBF24',
-      high: '#F87171',
-      peak: '#8B5CF6',
+    id: 'auroraNight',
+    name: 'Aurora Night',
+    mode: 'dark',
+    colors: {
+      primary: '#7C3AED',
+      primaryLight: '#8B5CF6',
+      primaryDark: '#6D28D9',
+      secondary: '#06B6D4',
+      secondaryLight: '#22D3EE',
+      secondaryDark: '#0891B2',
+      accent: '#F59E0B',
+      accentLight: '#FBBF24',
+      accentDark: '#D97706',
+      background: '#0C0A1D',
+      backgroundLight: '#1A1530',
+      backgroundLighter: '#2D2348',
+      surface: '#1A1530',
+      surfaceLight: '#2D2348',
+      surfaceDark: '#0C0A1D',
+      text: '#F5F3FF',
+      textSecondary: '#C4B5FD',
+      textMuted: '#8B5CF6',
+      border: '#2D2348',
+      borderLight: '#3C2E5C',
+      success: '#10B981',
+      warning: '#F59E0B',
+      error: '#EF4444',
+      info: '#3B82F6',
+      energy: {
+        low: '#60A5FA',
+        medium: '#FBBF24',
+        high: '#F87171',
+        peak: '#8B5CF6',
+      },
+      elements: {
+        fire: '#F87171',
+        water: '#60A5FA',
+        air: '#94A3B8',
+        earth: '#34D399',
+      },
+      tarot: {
+        majorArcana: '#A78BFA',
+        minorArcana: '#94A3B8',
+        cardBorder: '#6D28D9',
+        mysticalGlow: 'rgba(124, 58, 237, 0.4)',
+      },
+      gradients: {
+        cardGradient: ['#1A1530', '#0C0A1D'],
+        headerGradient: ['#2D2348', '#1A1530'],
+        buttonGradient: ['#7C3AED', '#6D28D9'],
+      },
     },
-    elements: {
-      fire: '#F87171',
-      water: '#60A5FA',
-      air: '#94A3B8',
-      earth: '#34D399',
-    },
-    tarot: {
-      majorArcana: '#A78BFA',
-      minorArcana: '#94A3B8',
-      cardBorder: '#6D28D9',
-      mysticalGlow: 'rgba(124, 58, 237, 0.4)',
-    },
-    gradients: {
-      cardGradient: ['#1A1530', '#0C0A1D'],
-      headerGradient: ['#2D2348', '#1A1530'],
-      buttonGradient: ['#7C3AED', '#6D28D9'],
+    metadata: {
+      description: 'Deep night sky illuminated by purple-green aurora',
+      icon: '🌌',
+      preview: '#7C3AED',
+      planet: 'Uranus',
+      crystal: 'Labradorite',
     },
   },
-  metadata: {
-    description: 'Deep night sky illuminated by purple-green aurora',
-    icon: '🌌',
-    preview: '#7C3AED',
-    planet: 'Uranus',
-    crystal: 'Labradorite',
+
+  victoriaGold: {
+    id: 'victoriaGold',
+    name: 'Victoria Gold',
+    mode: 'dark',
+    colors: {
+      // Warna emas sebagai aksen utama
+      primary: '#D4AF37', // Emas Murni
+      primaryLight: '#F3E5AB', // Emas Terang
+      primaryDark: '#8C6D23', // Emas Gelap
+      // Warna sekunder anggur untuk kontras
+      secondary: '#9B2242', // Merah Anggur
+      secondaryLight: '#C73D5E', // Merah Anggur Terang
+      secondaryDark: '#72162E', // Merah Anggur Gelap
+      accent: '#D4AF37', // Emas (sama dengan primary)
+      accentLight: '#F3E5AB',
+      accentDark: '#8C6D23',
+
+      // Latar belakang gelap, hampir hitam
+      background: '#0B0A0E', // Hitam Lembut
+      backgroundLight: '#131218', // Abu-abu Gelap
+      backgroundLighter: '#1A1821', // Abu-abu Gelap Terang
+
+      // Permukaan untuk kartu dan elemen
+      surface: '#131218',
+      surfaceLight: '#1A1821',
+      surfaceDark: '#0B0A0E',
+
+      // Teks dengan kontras tinggi
+      text: '#F3E5AB', // Emas Terang untuk teks utama
+      textSecondary: '#9E9AA8', // Abu-abu Mistis untuk teks sekunder
+      textMuted: '#6E6A78', // Abu-abu Redup untuk teks muted
+
+      border: '#2A2832',
+      borderLight: '#3E3A46',
+
+      success: '#10B981',
+      warning: '#F59E0B',
+      error: '#EF4444',
+      info: '#3B82F6',
+
+      energy: {
+        low: '#3B82F6',
+        medium: '#F59E0B',
+        high: '#EF4444',
+        peak: '#D4AF37',
+      },
+
+      elements: {
+        fire: '#F87171',
+        water: '#60A5FA',
+        air: '#A78BFA',
+        earth: '#34D399',
+      },
+
+      tarot: {
+        majorArcana: '#D4AF37',
+        minorArcana: '#9E9AA8',
+        cardBorder: '#8C6D23',
+        mysticalGlow: 'rgba(212, 175, 55, 0.4)',
+      },
+
+      gradients: {
+        cardGradient: ['#1A1821', '#131218'],
+        headerGradient: ['#2A2832', '#1A1821'],
+        buttonGradient: ['#D4AF37', '#8C6D23'],
+      },
+    },
+    metadata: {
+      description: 'Dark Victorian elegance with rich gold accents',
+      icon: '🏛️',
+      preview: '#D4AF37',
+      planet: 'Sun',
+      crystal: 'Pyrite',
+    },
   },
-},
 };
 
 export const DEFAULT_THEME: ThemeVariant = 'mysticMidnight';

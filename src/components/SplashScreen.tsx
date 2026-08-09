@@ -1,20 +1,24 @@
-// src/components/SplashScreen.tsx
 import React from 'react';
 import { View, Text, StyleSheet, Image } from 'react-native';
-import Animated, { FadeIn } from 'react-native-reanimated';
-
+import Animated, { FadeInUp, ZoomIn } from 'react-native-reanimated';
+import { useThemeStore } from '@store/theme-store';
 import { ARKANA_ICON } from '@constants/images';
+import { FONT_SIZE, SPACING } from '@constants/theme';
 
 export function SplashScreen() {
+  const colors = useThemeStore(state => state.getColors());
+
   return (
-    <View style={styles.container}>
-      <Animated.View entering={FadeIn.duration(1200)}>
-        <Image 
-          source={ARKANA_ICON}
-          style={styles.logo}
-        />
-        <Text style={styles.title}>Arkana</Text>
-        <Text style={styles.subtitle}>Ungkap Rahasia Takdirmu</Text>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <Animated.View entering={ZoomIn.duration(800)} style={styles.logoWrapper}>
+        <Image source={ARKANA_ICON} style={styles.logo} resizeMode="contain" />
+      </Animated.View>
+
+      <Animated.View entering={FadeInUp.delay(300).duration(800)} style={styles.textWrapper}>
+        <Text style={[styles.title, { color: colors.text }]}>Arkana</Text>
+        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
+          Ungkap Rahasia Takdirmu
+        </Text>
       </Animated.View>
     </View>
   );
@@ -23,24 +27,31 @@ export function SplashScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0f172a',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  logoWrapper: {
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   logo: {
     width: 120,
     height: 120,
-    marginBottom: 24,
+    marginBottom: SPACING.md,
+  },
+  textWrapper: {
+    alignItems: 'center',
   },
   title: {
-    fontSize: 42,
+    fontSize: FONT_SIZE['4xl'] || 36,
     fontWeight: '800',
-    color: '#fff',
     letterSpacing: 2,
   },
   subtitle: {
-    fontSize: 16,
-    color: '#94a3b8',
-    marginTop: 8,
+    fontSize: FONT_SIZE.md,
+    marginTop: SPACING.xs,
+    letterSpacing: 0.5,
   },
-}); 
+});
+
+export default SplashScreen;

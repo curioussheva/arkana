@@ -22,7 +22,7 @@ export function calculatePersonalYearArcana(
   year: number = new Date().getFullYear() // Dinamis mengambil tahun saat ini (2026)
 ): PersonalYearArcana {
   const date = parseBirthDate(birthDate);
-  
+
   const day = reduceToArcana(date.day);
   const month = reduceToArcana(date.month);
   const universalYearValue = reduceToArcana(sumDigits(year));
@@ -32,9 +32,8 @@ export function calculatePersonalYearArcana(
     year,
     universalYearValue,
     personalYearValue,
-    // 💡 PERBAIKAN: Langsung gunakan personalYearValue tanpa modulo (%) 
+    // 💡 PERBAIKAN: Langsung gunakan personalYearValue tanpa modulo (%)
     // karena fungsi reduceToArcana di atas sudah menjamin output berada di rentang aman (1-22).
     arcana: getArcanaByNumber(personalYearValue),
   };
 }
- 

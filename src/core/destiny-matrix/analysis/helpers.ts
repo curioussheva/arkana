@@ -8,9 +8,7 @@ export function firstSentence(text: string): string {
 
   const sentence = text.split('. ')[0].trim();
 
-  return sentence.endsWith('.')
-    ? sentence
-    : `${sentence}.`;
+  return sentence.endsWith('.') ? sentence : `${sentence}.`;
 }
 
 /**
@@ -35,10 +33,7 @@ export function pickRandom<T>(items: readonly T[]): T {
  * Contoh:
  * "{card} adalah {meaning}"
  */
-export function replaceTemplate(
-  template: string,
-  values: Record<string, string>,
-): string {
+export function replaceTemplate(template: string, values: Record<string, string>): string {
   let result = template;
 
   for (const [key, value] of Object.entries(values)) {
@@ -52,23 +47,15 @@ export function replaceTemplate(
  * Membersihkan whitespace berlebih.
  */
 export function normalizeText(text: string): string {
-  return text
-    .replace(/\s+/g, ' ')
-    .trim();
+  return text.replace(/\s+/g, ' ').trim();
 }
 
 /**
  * Menggabungkan beberapa paragraf tanpa menghasilkan spasi kosong.
  */
-export function joinParagraphs(
-  ...paragraphs: Array<string | undefined | null>
-): string {
+export function joinParagraphs(...paragraphs: Array<string | undefined | null>): string {
   return paragraphs
-    .filter(
-      (text): text is string =>
-        typeof text === 'string' &&
-        text.trim().length > 0,
-    )
+    .filter((text): text is string => typeof text === 'string' && text.trim().length > 0)
     .map(normalizeText)
     .join(' ');
 }
@@ -76,20 +63,13 @@ export function joinParagraphs(
 /**
  * Mengambil meaning Arcana dengan aman.
  */
-export function safeMeaning(
-  meaning?: string | null,
-): string {
+export function safeMeaning(meaning?: string | null): string {
   return firstSentence(meaning ?? '');
 }
 
 /**
  * Menghasilkan string fallback jika kosong.
  */
-export function fallbackText(
-  value: string | undefined | null,
-  fallback = 'Unknown',
-): string {
-  return value?.trim()
-    ? value
-    : fallback;
+export function fallbackText(value: string | undefined | null, fallback = 'Unknown'): string {
+  return value?.trim() ? value : fallback;
 }

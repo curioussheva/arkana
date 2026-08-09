@@ -1,83 +1,184 @@
 // src/core/destiny-matrix/types.ts
+
 import type { ArcanaDefinition } from '../arcana/types';
 
+import type { DestinyLevels } from './calculator/types';
+
+export type { DestinyLevels };
+
+/* -------------------------------------------------------------------------- */
+/*                            DESTINY POINT KEYS                              */
+/* -------------------------------------------------------------------------- */
+
 export type DestinyPointKey =
-  | 'A' | 'B' | 'C' | 'D' | 'E'
-  | 'F' | 'G' | 'H' | 'I' | 'J' | 'K' | 'L' | 'M'
-  | 'N' | 'O' | 'P' | 'Q' | 'R' | 'S' | 'T'
-  // Tambahan untuk MatrixScreen
-  | 'A1' | 'A2' | 'A3'
-  | 'B1' | 'B2' | 'B3'
-  | 'C1' | 'C2' | 'C3'
-  | 'D1' | 'D2' | 'D3'
-  | 'E1' | 'E2';
+  | 'A'
+  | 'B'
+  | 'C'
+  | 'D'
+  | 'E'
+  | 'F'
+  | 'G'
+  | 'H'
+  | 'I'
+  | 'J'
+  | 'K'
+  | 'L'
+  | 'M'
+  | 'A1'
+  | 'B1'
+  | 'C1'
+  | 'D1'
+  | 'F1'
+  | 'G1'
+  | 'H1'
+  | 'I1'
+  | 'HeartDesirePhysical'
+  | 'HeartDesireSpiritual'
+  | 'LM_Center'
+  | 'Money'
+  | 'Love'
+  | 'N'
+  | 'O'
+  | 'P'
+  | 'Q'
+  | 'R'
+  | 'S'
+  | 'T'
+  | 'SubA'
+  | 'SubB'
+  | 'SubC'
+  | 'SubD'
+  | 'SubF'
+  | 'SubG'
+  | 'SubH'
+  | 'SubI'
+  | 'T10'
+  | 'T15'
+  | 'T20'
+  | 'T25'
+  | 'T30'
+  | 'T35'
+  | 'T40'
+  | 'T45'
+  | 'T50'
+  | 'T55'
+  | 'T60'
+  | 'T65'
+  | 'T70'
+  | 'T75'
+  // Level Takdir & Pusat Kekuatan — sebelumnya tidak terdaftar, walau
+  // sudah dihasilkan calculator/main.ts sejak awal
+  | 'Heaven'
+  | 'Earth'
+  | 'PersonalDestiny'
+  | 'FatherLine'
+  | 'MotherLine'
+  | 'SocialDestiny'
+  | 'SpiritualDestiny'
+  | 'GlobalMission'
+  | 'PersonalCenter'
+  | 'FamilyCenter'
+  | 'UnifiedCenter';
 
 export interface DestinyPoint {
-  key: DestinyPointKey;
+  key: DestinyPointKey | string;
   label: string;
   value: number;
   arcana: ArcanaDefinition;
+  category: 'main' | 'ancestral' | 'inner' | 'channel' | 'companion' | 'timeline';
+  // ← dikembalikan ke 6 nilai semula, GreenZonePhysical/Spiritual dihapus dari sini
 }
 
-export interface DestinyLevels {
-  personal: number;
-  social: number;
-  spiritual: number;
-}
+/**
+ * Peta seluruh titik hasil kalkulasi Matriks Takdir.
+ * Menggunakan indeks parsial untuk mendukung akses dinamis titik-titik kustom/timeline.
+ */
+export type DestinyMatrixPoints = Partial<Record<DestinyPointKey, DestinyPoint>> & {
+  [key: string]: DestinyPoint | undefined;
+};
 
-export interface DestinyMatrixPoints {
-  A: DestinyPoint; B: DestinyPoint; C: DestinyPoint; D: DestinyPoint; E: DestinyPoint;
-  F: DestinyPoint; G: DestinyPoint; H: DestinyPoint; I: DestinyPoint;
-  J: DestinyPoint; K: DestinyPoint; L: DestinyPoint; M: DestinyPoint;
-  N: DestinyPoint; O: DestinyPoint; P: DestinyPoint;
-  Q: DestinyPoint; R: DestinyPoint; S: DestinyPoint; T: DestinyPoint;
-  A1: DestinyPoint; A2: DestinyPoint; A3: DestinyPoint;
-  B1: DestinyPoint; B2: DestinyPoint; B3: DestinyPoint;
-  C1: DestinyPoint; C2: DestinyPoint; C3: DestinyPoint;
-  D1: DestinyPoint; D2: DestinyPoint; D3: DestinyPoint;
-  E1: DestinyPoint; E2: DestinyPoint;
-}
+/* -------------------------------------------------------------------------- */
+/*                              DESTINY LEVELS                                */
+/* -------------------------------------------------------------------------- */
 
-// ==================== NAMED LINES ====================
+/* -------------------------------------------------------------------------- */
+/*                                NAMED LINES                                 */
+/* -------------------------------------------------------------------------- */
+
 export interface NamedLines {
   karmicTail: {
-    points: DestinyPoint[];
-    pattern: string;
-    title: string;
-    meaning: string;
-    resolution: string;
+    // Tuple ketat: [Garis Jangkar D, Garis Tengah M (D1), Garis Ujung T (D2)] Sesuai Pakem Ladini
+    points: [DestinyPoint, DestinyPoint, DestinyPoint];
+    pattern: string; // e.g. "18-6-15"
+    title: string; // e.g. "The Rebel / Broken Family Line"
+    meaning: string; // Deskripsi utang masa lalu & manifestasi
+    resolution: string; // Solusi penguraian karma & teks afirmasi
   };
-  loveLine: {
-    past: DestinyPoint;
-    present: DestinyPoint;
-    future: DestinyPoint;
+
+  familyLine?: {
+    points: DestinyPoint[];
+    pattern?: string;
+    title?: string;
+    meaning?: string;
+    resolution?: string;
+  };
+
+  loveLine?: {
+    entry?: DestinyPoint; // LM_Center / N
+    partner?: DestinyPoint; // Love / P
+    outcome?: DestinyPoint; // M (Gerbang Pintu Hubungan)
+    past?: DestinyPoint; // D (Karmic Anchor)
     meaning: string;
     keyLesson: string;
   };
+
   moneyLine: {
-    entry: DestinyPoint;
-    core: DestinyPoint;
-    exit: DestinyPoint;
+    // Dipetakan linear dari: LM_Center -> Money -> C (Atau C1)
+    entry: DestinyPoint; // LM_Center / N (Gerbang pembuka arus)
+    core: DestinyPoint; // Money / O (Aktivitas bisnis/profesi makro)
+    exit: DestinyPoint; // C (Tujuan penyimpanan/Aset silsilah bumi)
     meaning: string;
     advice: string;
   };
 }
 
-export interface DestinyMatrixInput {
-  birthDate: string;
+/* -------------------------------------------------------------------------- */
+/*                            KARMIC TAIL VALUES                              */
+/* -------------------------------------------------------------------------- */
+
+export interface KarmicTailValues {
+  anchor: number;
+  extension1: number;
+  extension2: number;
+  D?: number;
+  M?: number;
+  T?: number;
+  D1?: number;
+  D2?: number;
+  N?: number;
+  O?: number;
+  P?: number;
+  [key: string]: number | undefined; // Index signature aman untuk lookup fallback dinamis
 }
 
-// ==================== CONSOLIDATED MATRIX INTERFACE ====================
+export interface DestinyMatrixInput {
+  birthDate: string; // Format ISO: YYYY-MM-DD
+}
+
+/* -------------------------------------------------------------------------- */
+/*                        CONSOLIDATED MATRIX INTERFACE                       */
+/* -------------------------------------------------------------------------- */
+
 export interface DestinyMatrix {
   version: string;
   calculatedAt: string;
-  birthDate: string;               // Menyediakan akses langsung string tanggal ke hook/UI
+  birthDate: string;
   input: DestinyMatrixInput;
   points: DestinyMatrixPoints;
   destinies: DestinyLevels;
   namedLines: NamedLines;
-  
-  // Memetakan struktur A, B, C, D, E murni untuk Canvas & Header Stat
+  karmicTailCode: string;
+
   primaryPoints?: {
     A: number;
     B: number;
@@ -85,8 +186,38 @@ export interface DestinyMatrix {
     D: number;
     E: number;
   };
-  
-  // Mengakomodasi mapping data kategorikal di UI Presentasi
-  groupedPoints?: Record<string, any>; 
+
+  groupedPoints?: Record<string, unknown>;
 }
- 
+
+/* -------------------------------------------------------------------------- */
+/*                        DAILY ELEMENT RESONANCE                             */
+/* -------------------------------------------------------------------------- */
+
+export type TotemKey = 'Angel' | 'Eagle' | 'Lion' | 'Ox';
+
+export interface DailyElementSummary {
+  icon: string;
+  name: string;
+  color: string;
+  totem: string;
+  totemKey: TotemKey;
+  gem: string;
+  cardName?: string;
+  cardId?: number;
+}
+
+export interface DailyResonance {
+  element: string;
+  icon: string;
+  color: string;
+  totem: string;
+  totemKey: TotemKey;
+  gemstone: string;
+  luckyColor: string;
+  direction: string;
+  doAction: string;
+  dontAction: string;
+  cardName?: string;
+  cardId?: number;
+}

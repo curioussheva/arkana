@@ -19,9 +19,7 @@ export interface AdvancedAnalysis {
  * - Karmic Tail
  * - Chakra
  */
-export function analyzeAdvanced(
-  matrix: DestinyMatrix
-): AdvancedAnalysis {
+export function analyzeAdvanced(matrix: DestinyMatrix): AdvancedAnalysis {
   return {
     yinYang: analyzeYinYang(matrix),
     karmicTail: analyzeKarmicTail(matrix),

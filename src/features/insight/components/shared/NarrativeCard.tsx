@@ -1,11 +1,7 @@
 // Berkas: src/features/insight/components/shared/NarrativeCard.tsx
 
 import React, { useMemo, useState } from 'react';
-import {
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-} from 'react-native';
+import { StyleSheet, Text, TouchableOpacity } from 'react-native';
 
 import Animated, {
   useAnimatedStyle,
@@ -21,16 +17,12 @@ import { useThemeStore } from '@store/theme-store';
 
 import type { DestinyInsight } from '@core/destiny-matrix';
 
-import {
-  BORDER_RADIUS,
-  FONT_SIZE,
-  SPACING
-} from '@constants/theme';
+import { BORDER_RADIUS, FONT_SIZE, SPACING } from '@constants/theme';
 
 // 🎯 KOREKSI PATH: Jika InsightCard berada di folder yang sama (components/shared/)
-import { InsightCard } from './InsightCard'; 
+import { InsightCard } from './InsightCard';
 
-// 💡 CATATAN HINT: Jika Metro bundler masih protes setelah kode di atas, 
+// 💡 CATATAN HINT: Jika Metro bundler masih protes setelah kode di atas,
 // artinya InsightCard berada di folder luar (components/). Ubah baris 33 menjadi:
 // import { InsightCard } from '../InsightCard';
 
@@ -42,11 +34,7 @@ interface Props {
   title?: string;
 }
 
-export function NarrativeCard({
-  insight,
-  customText,
-  title = 'Narasi Spiritual',
-}: Props) {
+export function NarrativeCard({ insight, customText, title = 'Narasi Spiritual' }: Props) {
   const colors = useThemeStore(s => s.getColors());
   const [expanded, setExpanded] = useState(false);
 
@@ -54,12 +42,9 @@ export function NarrativeCard({
 
   React.useEffect(() => {
     glow.value = withRepeat(
-      withSequence(
-        withTiming(0.45, { duration: 1800 }),
-        withTiming(0.15, { duration: 1800 }),
-      ),
+      withSequence(withTiming(0.45, { duration: 1800 }), withTiming(0.15, { duration: 1800 })),
       -1,
-      true,
+      true
     );
   }, []);
 
@@ -86,9 +71,7 @@ export function NarrativeCard({
         style={[StyleSheet.absoluteFillObject, styles.glow, glowStyle]}
       />
 
-      <Text style={[styles.text, { color: colors.text }]}>
-        {text}
-      </Text>
+      <Text style={[styles.text, { color: colors.text }]}>{text}</Text>
 
       {showButton && (
         <TouchableOpacity style={styles.button} onPress={() => setExpanded(!expanded)}>
@@ -118,5 +101,5 @@ const styles = StyleSheet.create({
     fontSize: FONT_SIZE.sm,
   },
 });
- 
+
 export default NarrativeCard;

@@ -29,7 +29,7 @@ type NarrativeTemplate = (
   personality: string,
   direction: string,
   opening: string,
-  yearlyCard: string,
+  yearlyCard: string
 ) => string;
 
 const TEMPLATES: NarrativeTemplate[] = [
@@ -81,18 +81,12 @@ export function buildNarrative(
   coreEssenceCard: string,
   personalityCard: string,
   lifeDirectionCard: string,
-  yearlyCard: string,
+  yearlyCard: string
 ): string {
   const opening = random(ELEMENT_OPENINGS[dominantElement]);
   const template = random(TEMPLATES);
 
-  return template(
-    coreEssenceCard,
-    personalityCard,
-    lifeDirectionCard,
-    opening,
-    yearlyCard,
-  );
+  return template(coreEssenceCard, personalityCard, lifeDirectionCard, opening, yearlyCard);
 }
 
 /**
@@ -114,9 +108,10 @@ export function generateNarrative(
   // Format tahunan secara aman
   const yearlyTarot = matrix.yearlyArcana?.tarotName;
   const yearlyMatrix = matrix.yearlyArcana?.matrixName;
-  const yearlyCard = yearlyTarot && yearlyMatrix 
-    ? `${yearlyTarot} ("${yearlyMatrix}")` 
-    : (yearlyTarot || 'Arcana Tahunan');
+  const yearlyCard =
+    yearlyTarot && yearlyMatrix
+      ? `${yearlyTarot} ("${yearlyMatrix}")`
+      : yearlyTarot || 'Arcana Tahunan';
 
   return buildNarrative(
     dominantElement,

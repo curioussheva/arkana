@@ -1,19 +1,11 @@
 // src/features/insight-analytics/components/ShareButton.tsx
 
 import React from 'react';
-import {
-  TouchableOpacity,
-  Text,
-  StyleSheet,
-} from 'react-native';
+import { TouchableOpacity, Text, StyleSheet } from 'react-native';
 
 import * as Haptics from 'expo-haptics';
 
-import {
-  SPACING,
-  FONT_SIZE,
-  BORDER_RADIUS,
-} from '@constants/theme';
+import { SPACING, FONT_SIZE, BORDER_RADIUS } from '@constants/theme';
 
 import { useThemeStore } from '@store/theme-store';
 
@@ -21,10 +13,8 @@ interface Props {
   onPress(): void;
 }
 
-export function ShareButton({
-  onPress,
-}: Props) {
-  const colors = useThemeStore((s) => s.getColors());
+export function ShareButton({ onPress }: Props) {
+  const colors = useThemeStore(s => s.getColors());
 
   const styles = StyleSheet.create({
     button: {
@@ -59,16 +49,12 @@ export function ShareButton({
       activeOpacity={0.85}
       style={styles.button}
       onPress={() => {
-        Haptics.impactAsync(
-          Haptics.ImpactFeedbackStyle.Light,
-        );
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 
         onPress();
       }}
     >
-      <Text style={styles.text}>
-        📤 Bagikan Insight Takdir
-      </Text>
+      <Text style={styles.text}>📤 Bagikan Insight Takdir</Text>
     </TouchableOpacity>
   );
 }

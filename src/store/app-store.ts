@@ -5,10 +5,7 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import type { DestinyMatrix } from '@core/destiny-matrix';
-import {
-  generateInsight,
-  type DestinyInsight,
-} from '@core/destiny-matrix';
+import { generateInsight, type DestinyInsight } from '@core/destiny-matrix';
 
 const DEFAULT_PROFILE_ID = 'default';
 const DEFAULT_PROFILE_NAME = 'Profil Utama';
@@ -18,7 +15,7 @@ const DEFAULT_PROFILE_NAME = 'Profil Utama';
  * DestinyMatrix, atau struktur titik (points) berubah.
  * Ini satu-satunya cara memaksa `migrate()` membuang data lama yang stale.
  */
-const PERSIST_VERSION = 6;
+const PERSIST_VERSION = 8;
 
 interface AppState {
   currentMatrix: DestinyMatrix | null;
@@ -69,13 +66,11 @@ export const useAppStore = create<AppState>()(
 
       error: null,
 
-      setMatrix: (matrix) =>
+      setMatrix: matrix =>
         set({
           currentMatrix: matrix,
           insight: matrix ? generateInsight(matrix) : null,
-          lastCalculatedAt: matrix
-            ? new Date().toISOString()
-            : null,
+          lastCalculatedAt: matrix ? new Date().toISOString() : null,
           error: null,
         }),
 
@@ -94,12 +89,12 @@ export const useAppStore = create<AppState>()(
           lastCalculatedAt: null,
         }),
 
-      setCalculating: (isCalculating) =>
+      setCalculating: isCalculating =>
         set({
           isCalculating,
         }),
 
-      setError: (error) =>
+      setError: error =>
         set({
           error,
           isCalculating: false,
@@ -135,23 +130,9 @@ export const useAppStore = create<AppState>()(
     }),
     {
       name: 'destiny-matrix-app-storage',
-
       version: PERSIST_VERSION,
-
       storage: createJSONStorage(() => AsyncStorage),
 
-      /**
-       * 🔴 FIX UTAMA:
-       * Setiap kali versi tersimpan di disk LEBIH RENDAH dari PERSIST_VERSION saat ini,
-       * kita TIDAK BOLEH mempercayai `currentMatrix` yang lama — terutama field
-       * `arcana` di dalam setiap titik, karena skema ArcanaDefinition bisa saja
-       * sudah berubah total sejak data itu disimpan (mismatch field seperti
-       * 'card'/'number' vs 'tarotName'/'id' menyebabkan crash runtime yang sulit dilacak).
-       *
-       * Solusi paling aman: buang currentMatrix sepenuhnya dan paksa
-       * regenerasi/kalkulasi ulang dari input lahir user, alih-alih mencoba
-       * "menyembuhkan" struktur lama secara manual.
-       */
       migrate: (persistedState, version) => {
         const state = persistedState as Partial<AppState>;
 
@@ -159,7 +140,7 @@ export const useAppStore = create<AppState>()(
           if (__DEV__) {
             console.warn(
               `[AppStore] 🔄 Migrasi dari versi ${version} ke ${PERSIST_VERSION}. ` +
-              `currentMatrix lama dibuang untuk mencegah stale-schema crash.`
+                `currentMatrix lama dibuang untuk mencegah stale-schema crash.`
             );
           }
 
@@ -178,12 +159,15 @@ export const useAppStore = create<AppState>()(
         };
       },
 
-      partialize: (state) => ({
-        /**
-         * Hanya persist source of truth.
-         */
-        currentMatrix: state.currentMatrix,
+      onRehydrateStorage: () => state => {
+        // Regenerasi insight saat rehidrasi storage selesai jika matrix tersedia
+        if (state && state.currentMatrix) {
+          state.regenerateInsight();
+        }
+      },
 
+      partialize: state => ({
+        currentMatrix: state.currentMatrix,
         activeProfileId: state.activeProfileId,
         activeProfileName: state.activeProfileName,
       }),
@@ -193,35 +177,24 @@ export const useAppStore = create<AppState>()(
 
 // ---------------- Selectors ----------------
 
-export const selectMatrix = (state: AppState) =>
-  state.currentMatrix;
+export const selectMatrix = (state: AppState) => state.currentMatrix;
 
-export const selectInsight = (state: AppState) =>
-  state.insight;
+export const selectInsight = (state: AppState) => state.insight;
 
-export const selectAdvancedAnalysis = (state: AppState) =>
-  state.insight?.advanced ?? null;
+export const selectAdvancedAnalysis = (state: AppState) => state.insight?.advanced ?? null;
 
-export const selectNarrative = (state: AppState) =>
-  state.insight?.narrative ?? null;
+export const selectNarrative = (state: AppState) => state.insight?.narrative ?? null;
 
-export const selectElements = (state: AppState) =>
-  state.insight?.elements ?? null;
+export const selectElements = (state: AppState) => state.insight?.elements ?? null;
 
-export const selectNamedLines = (state: AppState) =>
-  state.insight?.namedLines ?? null;
+export const selectNamedLines = (state: AppState) => state.insight?.namedLines ?? null;
 
-export const selectIsCalculating = (state: AppState) =>
-  state.isCalculating;
+export const selectIsCalculating = (state: AppState) => state.isCalculating;
 
-export const selectError = (state: AppState) =>
-  state.error;
+export const selectError = (state: AppState) => state.error;
 
-export const selectActiveProfileId = (state: AppState) =>
-  state.activeProfileId;
+export const selectActiveProfileId = (state: AppState) => state.activeProfileId;
 
-export const selectActiveProfileName = (state: AppState) =>
-  state.activeProfileName;
+export const selectActiveProfileName = (state: AppState) => state.activeProfileName;
 
-export const selectLastCalculatedAt = (state: AppState) =>
-  state.lastCalculatedAt; 
+export const selectLastCalculatedAt = (state: AppState) => state.lastCalculatedAt;

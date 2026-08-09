@@ -1,81 +1,82 @@
-// App.tsx
 import React, { useEffect, useState, useCallback } from 'react';
-import { StyleSheet, View } from 'react-native';
-import * as SplashScreen from 'expo-splash-screen';
+import { StyleSheet, View, useColorScheme } from 'react-native';
+import * as SplashScreenModule from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { NavigationContainer } from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage'; // 🔥 BARU
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import { AppNavigator } from '@navigation/AppNavigator';
 import { ErrorBoundary } from '@components/ui/ErrorBoundary';
 import { getDatabase } from '@db/index';
+import { destinyCacheManager } from '@db/destiny-cache-manager';
 import { SplashScreen as CustomSplash } from '@components/SplashScreen';
 import { OnboardingScreen } from '@screens/OnboardingScreen';
 
-import { useColorScheme } from 'react-native';
 import { useThemeStore } from '@store/theme-store';
 
 const ONBOARDING_STORAGE_KEY = '@arkana_has_launched';
 
-SplashScreen.preventAutoHideAsync();
+SplashScreenModule.preventAutoHideAsync().catch(() => {});
 
 export default function App() {
   const colorScheme = useColorScheme();
   const syncSystemTheme = useThemeStore((state) => state.syncSystemTheme);
-
-  useEffect(() => {
-  if (colorScheme) {
-    syncSystemTheme(colorScheme);
-  }
-}, [colorScheme]);
+  const isDark = useThemeStore((state) => state.isDark);
 
   const [appIsReady, setAppIsReady] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
 
+  // Sinkronisasi tema sistem
+  useEffect(() => {
+    if (colorScheme) {
+      syncSystemTheme(colorScheme);
+    }
+  }, [colorScheme, syncSystemTheme]);
+
+  // Bootstrapping
   useEffect(() => {
     async function prepare() {
       try {
-        // 1. Inisialisasi basis data SQLite lokal
         await getDatabase();
-        console.log('[App] Database initialized');
 
-        // 2. 🔥 Cek apakah ini peluncuran aplikasi pertama kali (fresh install)
+        // 🔴 Bersihkan cache matrix versi lama (skema stale) sekali di setiap
+        // startup. Baris usang juga sudah otomatis terhapus saat query miss
+        // di destinyCacheManager, tapi ini jaring pengaman tambahan agar
+        // baris lama tidak sempat sama sekali diakses/dibaca.
+        destinyCacheManager.cleanupStaleVersions().catch(err => {
+          console.warn('[App] Gagal membersihkan cache matrix lama:', err);
+        });
+
         const hasLaunched = await AsyncStorage.getItem(ONBOARDING_STORAGE_KEY);
-        if (hasLaunched === 'true') {
-          setShowOnboarding(false); // Sudah pernah onboarding, skip langsung masuk
-        } else {
-          setShowOnboarding(true);  // Peluncuran perdana, wajib onboarding
-        }
-
-        // Penahan waktu kosmetik agar transisi splash smooth
-        await new Promise(resolve => setTimeout(resolve, 800));
+        setShowOnboarding(hasLaunched !== 'true');
+        await new Promise((resolve) => setTimeout(resolve, 600)); // kosmetik
       } catch (e) {
-        console.warn('[App] Initialization error:', e);
+        console.warn('[App] Bootstrapping error:', e);
       } finally {
         setAppIsReady(true);
       }
     }
-
     prepare();
   }, []);
 
-  // Callback penanda user menekan tombol selesai di slide onboarding terakhir
-  const handleOnboardingComplete = useCallback(async () => {
-    try {
-      await AsyncStorage.setItem(ONBOARDING_STORAGE_KEY, 'true'); // Kunci status di storage
-      setShowOnboarding(false); // Alihkan view ke navigasi utama
-    } catch (e) {
-      console.warn('[App] Gagal menyimpan status onboarding:', e);
-      setShowOnboarding(false); // Fallback aman agar user tidak stuck
-    }
-  }, []);
-
-  const onLayoutRootView = useCallback(async () => {
+  // ⭐ Sembunyikan native splash screen begitu data siap
+  useEffect(() => {
     if (appIsReady) {
-      await SplashScreen.hideAsync();
+      SplashScreenModule.hideAsync().catch(() => {});
     }
   }, [appIsReady]);
+
+  const handleOnboardingComplete = useCallback(async () => {
+    try {
+      await AsyncStorage.setItem(ONBOARDING_STORAGE_KEY, 'true');
+      setShowOnboarding(false);
+    } catch (e) {
+      console.warn('[App] Gagal menyimpan status onboarding:', e);
+      setShowOnboarding(false);
+    }
+  }, []);
 
   if (!appIsReady) {
     return <CustomSplash />;
@@ -85,7 +86,7 @@ export default function App() {
     <GestureHandlerRootView style={styles.container}>
       <SafeAreaProvider>
         <NavigationContainer>
-          <View style={styles.container} onLayout={onLayoutRootView}>
+          <View style={styles.container}>
             <ErrorBoundary componentName="RootErrorBoundary">
               {showOnboarding ? (
                 <OnboardingScreen onComplete={handleOnboardingComplete} />
@@ -93,7 +94,7 @@ export default function App() {
                 <AppNavigator />
               )}
             </ErrorBoundary>
-            <StatusBar style="light" />
+            <StatusBar style={isDark() ? 'light' : 'dark'} />
           </View>
         </NavigationContainer>
       </SafeAreaProvider>
@@ -103,5 +104,4 @@ export default function App() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-});
- 
+}); 

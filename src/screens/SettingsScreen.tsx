@@ -1,14 +1,6 @@
 // src/screens/SettingsScreen.tsx
 import React, { useState, useCallback, useMemo } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-  Alert,
-  Switch,
-} from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, Switch } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -68,43 +60,37 @@ function ThemeDetailCard({ themeId, onClose, colors }: ThemeDetailCardProps) {
 
 // ─── Main Screen ──────────────────────────────────────
 export function SettingsScreen() {
-  const {
-    currentTheme,
-    setTheme,
-    useSystemTheme,
-    toggleUseSystemTheme,
-    isDark,
-    getColors,
-  } = useThemeStore();
+  const { currentTheme, setTheme, useSystemTheme, toggleUseSystemTheme, isDark, getColors } =
+    useThemeStore();
 
-  const resetStore = useAppStore((state) => state.reset);
+  const resetStore = useAppStore(state => state.reset);
   const [showThemeDetail, setShowThemeDetail] = useState<ThemeVariant | null>(null);
 
   const colors = useMemo(() => {
-  return THEMES[currentTheme].colors;
+    return THEMES[currentTheme].colors;
   }, [currentTheme]);
 
   // ✅ Memoisasi theme entries agar tidak re-create setiap render
   const themeEntries = useMemo(
     () => Object.entries(THEMES) as [ThemeVariant, (typeof THEMES)[ThemeVariant]][],
-    [],
+    []
   );
-  
+
   const darkThemes = useMemo(
-  () => themeEntries.filter(([_, themeData]) => themeData.mode === 'dark'),
-  [themeEntries]
-);
+    () => themeEntries.filter(([_, themeData]) => themeData.mode === 'dark'),
+    [themeEntries]
+  );
   const lightThemes = useMemo(
-  () => themeEntries.filter(([_, themeData]) => themeData.mode === 'light'),
-  [themeEntries]
-);
+    () => themeEntries.filter(([_, themeData]) => themeData.mode === 'light'),
+    [themeEntries]
+  );
 
   const handleThemeSelect = useCallback(
     (themeId: ThemeVariant) => {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
       setTheme(themeId);
     },
-    [setTheme],
+    [setTheme]
   );
 
   const handleClearCache = useCallback(() => {
@@ -129,7 +115,7 @@ export function SettingsScreen() {
             }
           },
         },
-      ],
+      ]
     );
   }, [resetStore]);
 
@@ -177,90 +163,92 @@ export function SettingsScreen() {
           </View>
 
           {/* Theme Grid – Dark */}
-<Text style={[styles.groupTitle, { color: colors.text }]}>🌙 Tema Gelap</Text>
-<View style={styles.themeGrid}>
-  {darkThemes.map(([themeId, themeData]) => {
-    const isSelected = currentTheme === themeId;
-    const tc = themeData.colors;
+          <Text style={[styles.groupTitle, { color: colors.text }]}>🌙 Tema Gelap</Text>
+          <View style={styles.themeGrid}>
+            {darkThemes.map(([themeId, themeData]) => {
+              const isSelected = currentTheme === themeId;
+              const tc = themeData.colors;
 
-    return (
-      <TouchableOpacity
-        key={themeId}
-        style={[
-          styles.themeCard,
-          {
-            backgroundColor: tc.backgroundLight,
-            borderColor: isSelected ? tc.primary : 'transparent',
-            borderWidth: isSelected ? 2 : 0,
-          },
-        ]}
-        onPress={() => handleThemeSelect(themeId)}
-        onLongPress={() => setShowThemeDetail(themeId)}
-        activeOpacity={0.8}
-      >
-        <LinearGradient colors={tc.gradients.cardGradient} style={styles.themePreview}>
-          <Text style={styles.themeIcon}>{themeData.metadata.icon}</Text>
-          {isSelected && (
-            <View style={[styles.selectedBadge, { backgroundColor: tc.primary }]}>
-              <Text style={styles.selectedText}>✓</Text>
-            </View>
-          )}
-        </LinearGradient>
-        <Text style={[styles.themeName, { color: tc.text }]} numberOfLines={1}>
-          {themeData.name}
-        </Text>
-        <View style={styles.themeColors}>
-          {[tc.primary, tc.secondary, tc.accent, tc.text].map((color, i) => (
-            <View key={i} style={[styles.colorDot, { backgroundColor: color }]} />
-          ))}
-        </View>
-      </TouchableOpacity>
-    );
-  })}
-</View>
+              return (
+                <TouchableOpacity
+                  key={themeId}
+                  style={[
+                    styles.themeCard,
+                    {
+                      backgroundColor: tc.backgroundLight,
+                      borderColor: isSelected ? tc.primary : 'transparent',
+                      borderWidth: isSelected ? 2 : 0,
+                    },
+                  ]}
+                  onPress={() => handleThemeSelect(themeId)}
+                  onLongPress={() => setShowThemeDetail(themeId)}
+                  activeOpacity={0.8}
+                >
+                  <LinearGradient colors={tc.gradients.cardGradient} style={styles.themePreview}>
+                    <Text style={styles.themeIcon}>{themeData.metadata.icon}</Text>
+                    {isSelected && (
+                      <View style={[styles.selectedBadge, { backgroundColor: tc.primary }]}>
+                        <Text style={styles.selectedText}>✓</Text>
+                      </View>
+                    )}
+                  </LinearGradient>
+                  <Text style={[styles.themeName, { color: tc.text }]} numberOfLines={1}>
+                    {themeData.name}
+                  </Text>
+                  <View style={styles.themeColors}>
+                    {[tc.primary, tc.secondary, tc.accent, tc.text].map((color, i) => (
+                      <View key={i} style={[styles.colorDot, { backgroundColor: color }]} />
+                    ))}
+                  </View>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
 
-{/* Theme Grid – Light */}
-<Text style={[styles.groupTitle, { color: colors.text, marginTop: SPACING.lg }]}>☀️ Tema Terang</Text>
-<View style={styles.themeGrid}>
-  {lightThemes.map(([themeId, themeData]) => {
-    const isSelected = currentTheme === themeId;
-    const tc = themeData.colors;
+          {/* Theme Grid – Light */}
+          <Text style={[styles.groupTitle, { color: colors.text, marginTop: SPACING.lg }]}>
+            ☀️ Tema Terang
+          </Text>
+          <View style={styles.themeGrid}>
+            {lightThemes.map(([themeId, themeData]) => {
+              const isSelected = currentTheme === themeId;
+              const tc = themeData.colors;
 
-    return (
-      <TouchableOpacity
-        key={themeId}
-        style={[
-          styles.themeCard,
-          {
-            backgroundColor: tc.backgroundLight,
-            borderColor: isSelected ? tc.primary : 'transparent',
-            borderWidth: isSelected ? 2 : 0,
-          },
-        ]}
-        onPress={() => handleThemeSelect(themeId)}
-        onLongPress={() => setShowThemeDetail(themeId)}
-        activeOpacity={0.8}
-      >
-        <LinearGradient colors={tc.gradients.cardGradient} style={styles.themePreview}>
-          <Text style={styles.themeIcon}>{themeData.metadata.icon}</Text>
-          {isSelected && (
-            <View style={[styles.selectedBadge, { backgroundColor: tc.primary }]}>
-              <Text style={styles.selectedText}>✓</Text>
-            </View>
-          )}
-        </LinearGradient>
-        <Text style={[styles.themeName, { color: tc.text }]} numberOfLines={1}>
-          {themeData.name}
-        </Text>
-        <View style={styles.themeColors}>
-          {[tc.primary, tc.secondary, tc.accent, tc.text].map((color, i) => (
-            <View key={i} style={[styles.colorDot, { backgroundColor: color }]} />
-          ))}
-        </View>
-      </TouchableOpacity>
-    );
-  })}
-</View>
+              return (
+                <TouchableOpacity
+                  key={themeId}
+                  style={[
+                    styles.themeCard,
+                    {
+                      backgroundColor: tc.backgroundLight,
+                      borderColor: isSelected ? tc.primary : 'transparent',
+                      borderWidth: isSelected ? 2 : 0,
+                    },
+                  ]}
+                  onPress={() => handleThemeSelect(themeId)}
+                  onLongPress={() => setShowThemeDetail(themeId)}
+                  activeOpacity={0.8}
+                >
+                  <LinearGradient colors={tc.gradients.cardGradient} style={styles.themePreview}>
+                    <Text style={styles.themeIcon}>{themeData.metadata.icon}</Text>
+                    {isSelected && (
+                      <View style={[styles.selectedBadge, { backgroundColor: tc.primary }]}>
+                        <Text style={styles.selectedText}>✓</Text>
+                      </View>
+                    )}
+                  </LinearGradient>
+                  <Text style={[styles.themeName, { color: tc.text }]} numberOfLines={1}>
+                    {themeData.name}
+                  </Text>
+                  <View style={styles.themeColors}>
+                    {[tc.primary, tc.secondary, tc.accent, tc.text].map((color, i) => (
+                      <View key={i} style={[styles.colorDot, { backgroundColor: color }]} />
+                    ))}
+                  </View>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
 
           {/* Theme Detail Modal Trigger */}
           {showThemeDetail && (
@@ -443,8 +431,9 @@ const styles = StyleSheet.create({
   dangerAction: { fontSize: FONT_SIZE.xl, fontWeight: '700' },
   footer: { textAlign: 'center', padding: SPACING.xl, fontSize: FONT_SIZE.xs, lineHeight: 20 },
   groupTitle: {
-  fontSize: FONT_SIZE.md,
-  fontWeight: '700',
-  marginBottom: SPACING.sm,
-  marginLeft: SPACING.xs, },
-}); 
+    fontSize: FONT_SIZE.md,
+    fontWeight: '700',
+    marginBottom: SPACING.sm,
+    marginLeft: SPACING.xs,
+  },
+});

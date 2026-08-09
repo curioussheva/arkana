@@ -3,12 +3,15 @@
 
 export type ElementType = 'Fire' | 'Water' | 'Air' | 'Earth';
 
-export const ELEMENT_STYLES: Record<ElementType, {
-  color: string;
-  gradient: [string, string];
-  icon: string;
-  aura: string;
-}> = {
+export const ELEMENT_STYLES: Record<
+  ElementType,
+  {
+    color: string;
+    gradient: [string, string];
+    icon: string;
+    aura: string;
+  }
+> = {
   Fire: {
     color: '#FF6B35',
     gradient: ['#FF6B35', '#FF8C42'],

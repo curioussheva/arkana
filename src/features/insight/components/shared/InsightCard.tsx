@@ -1,21 +1,11 @@
 // src/features/insight/components/InsightCard.tsx
 
 import React from 'react';
-import {
-  StyleSheet,
-  Text,
-  View,
-  type ViewStyle,
-} from 'react-native';
+import { StyleSheet, Text, View, type ViewStyle } from 'react-native';
 
 import { useThemeStore } from '@store/theme-store';
 
-import {
-  BORDER_RADIUS,
-  FONT_SIZE,
-  SHADOWS,
-  SPACING,
-} from '@constants/theme';
+import { BORDER_RADIUS, FONT_SIZE, SHADOWS, SPACING } from '@constants/theme';
 
 interface InsightCardProps {
   title?: string;
@@ -27,13 +17,7 @@ interface InsightCardProps {
   style?: ViewStyle;
 }
 
-export function InsightCard({
-  title,
-  subtitle,
-  icon,
-  children,
-  style,
-}: InsightCardProps) {
+export function InsightCard({ title, subtitle, icon, children, style }: InsightCardProps) {
   const colors = useThemeStore(state => state.getColors());
 
   const styles = React.useMemo(
@@ -87,37 +71,20 @@ export function InsightCard({
           lineHeight: 20,
         },
       }),
-    [colors],
+    [colors]
   );
 
   return (
-    <View
-      style={[
-        styles.card,
-        style,
-      ]}
-    >
+    <View style={[styles.card, style]}>
       {(title || subtitle) && (
         <View style={styles.header}>
           <View style={styles.titleRow}>
-            {!!icon && (
-              <Text style={styles.icon}>
-                {icon}
-              </Text>
-            )}
+            {!!icon && <Text style={styles.icon}>{icon}</Text>}
 
-            {!!title && (
-              <Text style={styles.title}>
-                {title}
-              </Text>
-            )}
+            {!!title && <Text style={styles.title}>{title}</Text>}
           </View>
 
-          {!!subtitle && (
-            <Text style={styles.subtitle}>
-              {subtitle}
-            </Text>
-          )}
+          {!!subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
         </View>
       )}
 

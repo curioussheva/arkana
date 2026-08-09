@@ -3,7 +3,7 @@
 import type { DestinyMatrix } from './types';
 
 // 🚀 Fix: Use the correct function name from the elements file!
-import { buildElementSummary } from './analysis/elements'; 
+import { buildElementSummary } from './analysis/elements';
 import { generateNarrative } from './analysis/narrative';
 import { analyzeAdvanced } from './analysis/advanced';
 import { analyzeNamedLines } from './analysis/named-lines';
@@ -20,7 +20,7 @@ export interface DestinyInsight {
 
   generatedAt: string;
   version: string;
-} 
+}
 
 // src/core/destiny-matrix/insight.ts
 

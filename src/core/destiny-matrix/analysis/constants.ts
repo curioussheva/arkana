@@ -5,14 +5,12 @@ import type { ArcanaDefinition } from '../../arcana/types';
 /* -------------------------------------------------------------------------- */
 
 export const ELEMENT_ADVICE: Record<ArcanaDefinition['element'], string> = {
-  Fire:
-    'Salurkan energi apimu melalui olahraga, seni, atau proyek yang menantang. Hindari keputusan impulsif; gunakan kekuatanmu untuk menginspirasi orang lain.',
+  Fire: 'Salurkan energi apimu melalui olahraga, seni, atau proyek yang menantang. Hindari keputusan impulsif; gunakan kekuatanmu untuk menginspirasi orang lain.',
 
   Water:
     'Luangkan waktu untuk berefleksi dan bermeditasi. Percayai intuisimu, tetapi jangan biarkan dirimu tenggelam terlalu dalam dalam emosi. Ekspresikan perasaanmu melalui karya seni.',
 
-  Air:
-    'Asah kemampuan komunikasimu melalui diskusi, menulis, atau mengajar. Hindari overthinking dan seimbangkan pikiran yang aktif dengan tindakan nyata.',
+  Air: 'Asah kemampuan komunikasimu melalui diskusi, menulis, atau mengajar. Hindari overthinking dan seimbangkan pikiran yang aktif dengan tindakan nyata.',
 
   Earth:
     'Bangun fondasi hidupmu melalui rutinitas yang sehat, disiplin, dan perencanaan yang matang. Nikmati setiap prosesnya serta rayakan pencapaian-pencapaian kecilmu.',
@@ -22,10 +20,7 @@ export const ELEMENT_ADVICE: Record<ArcanaDefinition['element'], string> = {
 /*                            Element Opening                                 */
 /* -------------------------------------------------------------------------- */
 
-export const ELEMENT_OPENINGS: Record<
-  ArcanaDefinition['element'],
-  readonly string[]
-> = {
+export const ELEMENT_OPENINGS: Record<ArcanaDefinition['element'], readonly string[]> = {
   Fire: [
     'Api dalam dirimu sedang menyala terang, mendorong keberanian untuk mengambil aksi nyata.',
     'Ada semangat membara yang mengalir di setiap langkahmu saat ini—saatnya melangkah maju.',
@@ -56,35 +51,17 @@ export const ELEMENT_OPENINGS: Record<
 /* -------------------------------------------------------------------------- */
 
 export const NARRATIVE_TEMPLATES = [
-  (
-    essence: string,
-    personality: string,
-    direction: string,
-    element: string,
-    year: string,
-  ) =>
+  (essence: string, personality: string, direction: string, element: string, year: string) =>
     `Perjalanan spiritualmu bermula dari inti jiwa **${essence}**. ` +
     `Karakter **${personality}** menjadi fondasi utama yang mendorongmu bergerak maju menuju **${direction}**. ` +
     `${element} Khusus tahun ini, getaran energi dari **${year}** hadir untuk membimbing serta menguji langkahmu.`,
 
-  (
-    essence: string,
-    personality: string,
-    direction: string,
-    element: string,
-    year: string,
-  ) =>
+  (essence: string, personality: string, direction: string, element: string, year: string) =>
     `Kekuatan terbesarmu memancar penuh ketika esensi batin **${essence}** berpadu selaras dengan karakter **${personality}** yang kamu tunjukkan ke dunia. ` +
     `Kombinasi inilah yang mengarahkan jalan hidupmu menuju kelimpahan **${direction}**. ` +
     `${element} Di tahun dengan energi **${year}** ini, kamu sedang dipanggil untuk bertumbuh lebih dewasa.`,
 
-  (
-    essence: string,
-    personality: string,
-    direction: string,
-    element: string,
-    year: string,
-  ) =>
+  (essence: string, personality: string, direction: string, element: string, year: string) =>
     `Melalui inti jiwa **${essence}**, kamu diajarkan untuk mengenali jati dirimu yang paling autentik, sementara energi **${personality}** membentuk caramu untuk hadir dan bersinar di dunia. ` +
     `Arah hidup **${direction}** merupakan panggilan jiwamu yang sesungguhnya. ` +
     `${element} Energi dari **${year}** di tahun ini siap membawakan pelajaran hidup yang sangat berharga bagimu.`,
@@ -153,12 +130,10 @@ export const STRENGTHS: Record<number, string> = {
 /* -------------------------------------------------------------------------- */
 
 export const CHAKRA_DESCRIPTIONS = {
-  Balanced:
-    'Energi mengalir dengan harmonis dan seimbang.',
+  Balanced: 'Energi mengalir dengan harmonis dan seimbang.',
 
   Overactive:
     'Energi bergerak terlalu berlebihan dan membutuhkan grounding (penyelarasan ke bumi).',
 
-  Blocked:
-    'Energi tersumbat dan membutuhkan pemulihan batin serta penyembuhan emosional.',
+  Blocked: 'Energi tersumbat dan membutuhkan pemulihan batin serta penyembuhan emosional.',
 } as const;

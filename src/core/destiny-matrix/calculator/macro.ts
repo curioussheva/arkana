@@ -1,35 +1,26 @@
 import { reduceToArcana } from '../utils';
+import type { MainPoints, BridgePoints, MacroPoints } from './types';
+import { calculateSvadhisthana } from './shared-formulas';
 
-import type {
-  MainPoints,
-  BridgePoints,
-  MacroPoints,
-} from './types';
-
-export function calculateMacroPoints(
-  main: MainPoints,
-  bridge: BridgePoints,
-): MacroPoints {
-
-  const { A, B, C, D } = main;
+export function calculateMacroPoints(main: MainPoints, bridge: BridgePoints): MacroPoints {
+  const { A, B, C, D, E } = main;
   const { J, K, L, M } = bridge;
 
-  const N = reduceToArcana(M + L);
+  // Svadhisthana Garis Bumi (Horizontal Center-Right: E + C)
+  // const svadhisthanaEarth = reduceToArcana(E + C);
+  const { earth: svadhisthanaEarth } = calculateSvadhisthana(main);
+  // N: Pusat Pertemuan Keuangan dan Pasangan
+  const N = reduceToArcana(M + svadhisthanaEarth);
 
-  return {
+  // O & P: Channel Points
+  const O = reduceToArcana(M + N); // Entri/Jalur Pasangan (Garis Surga)
+  const P = reduceToArcana(svadhisthanaEarth + N); // Entri/Jalur Keuangan (Garis Bumi)
 
-    N,
+  // Q, R, S, T: Companion Sub-Nodes pada Persegi Utama
+  const Q = reduceToArcana(A + J); // Garis Kiri -> Center
+  const R = reduceToArcana(B + K); // Garis Atas -> Center
+  const S = reduceToArcana(C + L); // Garis Kanan -> Center
+  const T = reduceToArcana(D + M); // Garis Bawah -> Center
 
-    O: reduceToArcana(M + N),
-
-    P: reduceToArcana(L + N),
-
-    Q: reduceToArcana(A + J),
-
-    R: reduceToArcana(B + K),
-
-    S: reduceToArcana(C + L),
-
-    T: reduceToArcana(D + M),
-  };
-} 
+  return { N, O, P, Q, R, S, T };
+}

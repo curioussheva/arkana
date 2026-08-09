@@ -30,21 +30,14 @@ export function capitalize(value: string): string {
 /**
  * Menggabungkan beberapa array string menjadi satu.
  */
-export function mergeKeywords(
-  ...arrays: (string[] | undefined)[]
-): string[] {
-  return unique(
-    arrays.flatMap((v) => v ?? [])
-  );
+export function mergeKeywords(...arrays: (string[] | undefined)[]): string[] {
+  return unique(arrays.flatMap(v => v ?? []));
 }
 
 /**
  * Menghitung skor kecocokan sederhana.
  */
-export function keywordScore(
-  arcana: ArcanaDefinition,
-  query: string,
-): number {
+export function keywordScore(arcana: ArcanaDefinition, query: string): number {
   const q = normalizeText(query);
 
   const fields = [
@@ -67,9 +60,7 @@ export function keywordScore(
   ];
 
   return fields.reduce((score, value) => {
-    return normalizeText(value).includes(q)
-      ? score + 1
-      : score;
+    return normalizeText(value).includes(q) ? score + 1 : score;
   }, 0);
 }
 

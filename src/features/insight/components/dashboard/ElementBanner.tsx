@@ -73,4 +73,4 @@ const styles = StyleSheet.create({
   actionPrompt: { fontSize: 11, fontWeight: '700', marginTop: SPACING.xs },
 });
 
-export default ElementBanner; 
+export default ElementBanner;

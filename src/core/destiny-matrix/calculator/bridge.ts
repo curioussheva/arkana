@@ -1,25 +1,20 @@
 import { reduceToArcana } from '../utils';
+import type { MainPoints, BridgePoints } from './types';
 
-import type {
-  MainPoints,
-  BridgePoints,
-} from './types';
-
-export function calculateBridgePoints(
-  main: MainPoints,
-): BridgePoints {
-
+export function calculateBridgePoints(main: MainPoints): BridgePoints {
   const { A, B, C, D, E } = main;
 
-  return {
-    F: reduceToArcana(A + B),
-    G: reduceToArcana(B + C),
-    H: reduceToArcana(C + D),
-    I: reduceToArcana(D + A),
+  // 1. 4 Sudut Persegi Leluhur (Ancestral Square)
+  const F = reduceToArcana(A + B); // Kiri-Atas (Ancestral Ayah Spiritual)
+  const G = reduceToArcana(B + C); // Kanan-Atas (Ancestral Ibu Spiritual)
+  const H = reduceToArcana(C + D); // Kanan-Bawah (Ancestral Ayah Material)
+  const I = reduceToArcana(D + A); // Kiri-Bawah (Ancestral Ibu Material)
 
-    J: reduceToArcana(A + E),
-    K: reduceToArcana(B + E),
-    L: reduceToArcana(C + E),
-    M: reduceToArcana(D + E),
-  };
-} 
+  // 2. 4 Titik Inner Cross (Jembatan Aksis Utama ke Pusat E)
+  const J = reduceToArcana(A + E); // Inner Kiri   (Karakter A + Center E)  --> Dipeta ke A1
+  const K = reduceToArcana(B + E); // Inner Atas   (Spiritual B + Center E) --> Dipeta ke B1
+  const L = reduceToArcana(C + E); // Inner Kanan  (Materi C + Center E)    --> Dipeta ke C1
+  const M = reduceToArcana(D + E); // Inner Bawah  (Karma D + Center E)     --> Dipeta ke D1
+
+  return { F, G, H, I, J, K, L, M };
+}

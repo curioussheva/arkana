@@ -1,72 +1,110 @@
 // src/hooks/useDestinyMatrix.ts
 
 import { useCallback } from 'react';
-import { useAppStore } from '@store/app-store';
+import {
+  useAppStore,
+  selectMatrix,
+  selectInsight,
+  selectActiveProfileName,
+  selectIsCalculating,
+  selectError,
+} from '@store/app-store';
 import { getDestinyMatrixEngine } from '@core/destiny-matrix/engine';
 import { MATRIX_VERSION } from '@core/destiny-matrix/constants';
 import { destinyCacheManager } from '@db/destiny-cache-manager';
 import type { DestinyMatrix, DestinyMatrixInput } from '@core/destiny-matrix/types';
- 
+
 export function useDestinyMatrix() {
-  const store = useAppStore();
+  const matrix = useAppStore(selectMatrix);
+  const insight = useAppStore(selectInsight);
+  const isLoading = useAppStore(selectIsCalculating);
+  const error = useAppStore(selectError);
+  const activeProfileName = useAppStore(selectActiveProfileName);
+
+  const setMatrix = useAppStore(state => state.setMatrix);
+  const setCalculating = useAppStore(state => state.setCalculating);
+  const setError = useAppStore(state => state.setError);
+  const clearError = useAppStore(state => state.clearError);
 
   const calculate = useCallback(
     async (input: DestinyMatrixInput, userId: string = 'default'): Promise<DestinyMatrix> => {
-      store.setCalculating(true);
-      store.clearError();
+      if (!input?.birthDate) {
+        const validationError = 'Tanggal lahir wajib diisi (YYYY-MM-DD).';
+        setError(validationError);
+        throw new Error(validationError);
+      }
+
+      setCalculating(true);
+      clearError();
 
       try {
-        const cached = await destinyCacheManager.getCachedMatrix(userId, input.birthDate);
+        // 1. Coba baca dari Cache (dengan penanganan error storage terisolasi)
+        let cached: DestinyMatrix | null = null;
+        try {
+          cached = await destinyCacheManager.getCachedMatrix(userId, input.birthDate);
+        } catch (cacheReadError) {
+          console.warn(
+            '[DestinyMatrix] Gagal membaca cache, melanjutkan kalkulasi langsung:',
+            cacheReadError
+          );
+        }
 
-        // 🔴 Validasi tambahan di layer hook, sebagai lapis pertahanan kedua
-        // selain validasi yang sudah dilakukan di dalam destinyCacheManager.
+        // 2. Evaluasi Validitas Cache
         if (cached && cached.version === MATRIX_VERSION) {
-          console.log('[DestinyMatrix] Cache hit');
-          store.setMatrix(cached);
+          console.log('[DestinyMatrix] Cache Hit');
+          setMatrix(cached);
           return cached;
         }
 
         if (cached) {
-          console.log('[DestinyMatrix] Cache stale (version mismatch), recalculating...');
+          console.log('[DestinyMatrix] Cache usang (perbedaan versi), menghitung ulang...');
         } else {
-          console.log('[DestinyMatrix] Cache miss, calculating new matrix...');
+          console.log('[DestinyMatrix] Cache Miss, menghitung matriks baru...');
         }
 
+        // 3. Kalkulasi Matriks menggunakan Singleton Engine
         const engine = getDestinyMatrixEngine();
         const result = engine.calculate(input);
 
-        await destinyCacheManager.cacheMatrix(userId, result);
-        await destinyCacheManager.logAction(userId, 'calculate', {
-          birthDate: input.birthDate,
+        // 4. Simpan ke Cache dan Log Aktivitas secara Asinkron (Non-blocking)
+        destinyCacheManager.cacheMatrix(userId, result).catch(err => {
+          console.warn('[DestinyMatrix] Gagal menyimpan hasil ke cache:', err);
         });
 
-        store.setMatrix(result);
+        destinyCacheManager
+          .logAction(userId, 'calculate', {
+            birthDate: input.birthDate,
+          })
+          .catch(err => {
+            console.warn('[DestinyMatrix] Gagal mencatat log aktivitas:', err);
+          });
+
+        // 5. Update Global Store State
+        setMatrix(result);
         return result;
       } catch (err) {
-        const message = err instanceof Error ? err.message : 'Calculation failed';
-        store.setError(message);
+        const message = err instanceof Error ? err.message : 'Kalkulasi Matriks Takdir gagal.';
+        setError(message);
         throw err;
       } finally {
-        store.setCalculating(false);
+        setCalculating(false);
       }
     },
-    [store]
+    [setMatrix, setCalculating, setError, clearError]
   );
 
   return {
     calculate,
-    isLoading: store.isCalculating,
-    matrix: store.currentMatrix,
-    error: store.error,
+    isLoading,
+    matrix,
+    error,
 
-    // ==========================================================
-    // TAMBAHAN DATA NARASI DAN WAWASAN MENDALAM (INSIGHT)
-    // ==========================================================
-    insight: store.insight,
-    narrative: store.insight?.narrative ?? null,
-    advancedAnalysis: store.insight?.advanced ?? null,
-    namedLines: store.insight?.namedLines ?? null,
-    elements: store.insight?.elements ?? null,
-    activeProfileName: store.activeProfileName,
+    // DATA INSIGHT & NARASI UNTUK REUSABLE UI
+    insight,
+    narrative: insight?.narrative ?? null,
+    advancedAnalysis: insight?.advanced ?? null,
+    namedLines: insight?.namedLines ?? null,
+    elements: insight?.elements ?? null,
+    activeProfileName,
   };
 }

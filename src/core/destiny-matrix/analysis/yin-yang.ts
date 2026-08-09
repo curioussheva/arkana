@@ -1,6 +1,6 @@
 // src/core/destiny-matrix/analysis/yin-yang.ts
 
-import type { DestinyMatrix } from '../types';
+import type { DestinyMatrix, DestinyPoint } from '../types';
 
 export interface YinYangAnalysis {
   yinPercentage: number;
@@ -14,13 +14,12 @@ export interface YinYangAnalysis {
  *
  * Angka genap  = Yin
  * Angka ganjil = Yang
+ * Titik dengan value 0 dikecualikan dari total (bukan Yin maupun Yang).
  */
-export function analyzeYinYang(
-  matrix: DestinyMatrix,
-): YinYangAnalysis {
+export function analyzeYinYang(matrix: DestinyMatrix): YinYangAnalysis {
   const values = Object.values(matrix.points)
-    .map(point => point.value)
-    .filter(value => value > 0);
+    .filter((p): p is DestinyPoint => p !== undefined && p.value !== 0)
+    .map(point => point.value);
 
   if (values.length === 0) {
     return {
@@ -34,10 +33,7 @@ export function analyzeYinYang(
   const yangCount = values.filter(value => value % 2 !== 0).length;
   const _yinCount = values.length - yangCount;
 
-  const yangPercentage = Math.round(
-    (yangCount / values.length) * 100,
-  );
-
+  const yangPercentage = Math.round((yangCount / values.length) * 100);
   const yinPercentage = 100 - yangPercentage;
 
   let dominant: YinYangAnalysis['dominant'] = 'Balanced';
@@ -45,12 +41,10 @@ export function analyzeYinYang(
 
   if (yangPercentage > 55) {
     dominant = 'Yang';
-    archetype =
-      'The Dynamic Doer (Inisiator & Pemimpin Aktif)';
+    archetype = 'The Dynamic Doer (Inisiator & Pemimpin Aktif)';
   } else if (yinPercentage > 55) {
     dominant = 'Yin';
-    archetype =
-      'The Intuitive Reflector (Pengamat Bijak & Empatis)';
+    archetype = 'The Intuitive Reflector (Pengamat Bijak & Empatis)';
   }
 
   return {

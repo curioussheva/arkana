@@ -1,85 +1,85 @@
+// Berkas: src/core/evolution/evolutionEngine.ts
+
 import type { ArcanaDefinition } from '../arcana/types';
 import type { AssessmentState } from '../assessment/assessmentEngine';
 
 export interface EvolutionPointsInput {
-  D: ArcanaDefinition; // Karma Masa Lalu (Akar Masalah)
-  B: ArcanaDefinition; // Kekuatan Mental (Proses Pikir)
-  A: ArcanaDefinition; // Titik Uji (Ujian Karakter Nyata)
-  E: ArcanaDefinition; // Inti Jiwa / Comfort Zone (Katalis Roda)
-  C: ArcanaDefinition; // Goal / Hasil Finansial Akhir (Puncak Sukses)
+  D: ArcanaDefinition; // Karma Masa Lalu (Akar Pola)
+  B: ArcanaDefinition; // Kekuatan Mental (Pikiran/Bakat)
+  A: ArcanaDefinition; // Ujian Karakter (Titik Balik)
+  E: ArcanaDefinition; // Inti Jiwa / Comfort Zone
+  C: ArcanaDefinition; // Puncak Finansial / Misi Hidup
 }
 
 /**
- * Helper internal untuk menyamakan format penulisan nama kartu: Tarot Name ("Matrix Name")
+ * Helper internal untuk menyamakan penulisan nama kartu: Tarot Name ("Matrix Name")
  */
 function formatCardName(arcana: ArcanaDefinition, fallback: string): string {
   if (!arcana) return fallback;
   const tarot = arcana.tarotName;
   const matrix = arcana.matrixName;
+  const cleanId = arcana.id === 0 ? 22 : arcana.id;
 
   if (tarot && matrix) {
-    return `${tarot} ("${matrix}")`;
+    return `#${cleanId} ${tarot} ("${matrix}")`;
   }
-  return tarot || matrix || fallback;
+  return `#${cleanId} ${tarot || matrix || fallback}`;
 }
 
 /**
- * Pustaka Kalimat Penyambung (Modular Narrative Weaver).
- * Kini menggunakan helper formatCardName agar narasinya mengalir selaras dengan layar lainnya.
+ * Pustaka Narasi Penyambung (Modular Narrative Weaver) dengan alur storytelling alami.
  */
 const NARRATIVE_BRIDGES = {
-  intro: (d: ArcanaDefinition) => 
-    `## 🔴 Tahap 1: Akar Pola Masa Lalu\n\n` +
-    `Perjalanan hidupmu saat ini sangat dipengaruhi oleh sebuah pola emosional bawah sadar yang mendalam, yang diwakili oleh energi **${formatCardName(d, 'Arcana Karma')}**. ` +
-    `Ini adalah jangkar masalah yang perlu kamu urai terlebih dahulu. Kebanyakan tantangan berulang yang kamu hadapi bersumber dari satu pelajaran hidup yang belum tuntas, yaitu tentang **${d.karmicLessons[0] || 'pendewasaan diri'}**. Selama ini belum disadari, kamu akan merasa seperti berjalan di tempat.`,
+  intro: (d: ArcanaDefinition) =>
+    `## 🔴 Phase 1: Urai Akar Pola Masa Lalu\n\n` +
+    `Perjalananmu dimulai dari memahami kecenderungan emosional bawah sadar yang diwakili oleh **${formatCardName(d, 'Arcana Karma')}**. ` +
+    `Ini adalah jangkar pembalajaran utama jiwamu. Kebanyakan konflik berulang yang kamu alami bersumber dari satu pelajaran penting yang belum tuntas, yaitu tentang **${d.karmicLessons?.[0] || 'pendewasaan kesadaran batin'}**. Tanpa menyadari pola ini, kamu akan merasa terus mengulangi siklus yang sama.`,
 
-  dToB: (b: ArcanaDefinition) => 
-    `\n\n## 🧠 Tahap 2: Senjata Mental & Bakatmu\n\n` +
-    `Kabar baiknya, untuk memutus lingkaran setan tersebut, jiwamu dibekali dengan kekuatan mental yang luar biasa melalui arketipe **${formatCardName(b, 'Arcana Mental')}**. ` +
-    `Pikiranmu akan bekerja paling tajam dan membawa solusi ketika kamu berani mengandalkan bakat alami dirimu dalam **${b.talents[0] || 'menganalisis keadaan'}**. ` +
-    `Langkah praktis terbaik untuk mengaktifkan kekuatan ini adalah fokus untuk **${b.advice[0] || 'menjaga kejernihan pikiran'}**.`,
+  dToB: (b: ArcanaDefinition) =>
+    `\n\n## 🧠 Phase 2: Senjata Pikiran & Bakat Alami\n\n` +
+    `Untuk memutus rantai masalah tersebut, kamu dibekali oleh ketajaman pola pikir melalui arketipe **${formatCardName(b, 'Arcana Mental')}**. ` +
+    `Perspektifmu bekerja paling jernih ketika kamu berani mengandalkan bakat alamimu dalam **${b.talents?.[0] || 'memahami esensi masalah'}**. ` +
+    `Kunci penguat tahap ini adalah menjaga konsistensi untuk **${b.advice?.[0] || 'menjaga kestabilan pikiran'}**.`,
 
-  bToA: (a: ArcanaDefinition) => 
-    `\n\n## ⚖️ Tahap 3: Ujian Karakter Nyata\n\n` +
-    `Namun, teori dan bakat mental saja tidak cukup. Semuanya akan diuji secara nyata dalam kehidupan sehari-hari lewat energi **${formatCardName(a, 'Arcana Ujian')}**. ` +
-    `Di sinilah dunia luar menguji seberapa kuat prinsipmu, terutama dalam menghadapi situasi di mana ego dan emosimu ditantang secara langsung.`,
+  bToA: (a: ArcanaDefinition) =>
+    `\n\n## ⚖️ Phase 3: Gerbang Ujian Karakter Nyata\n\n` +
+    `Teori dan bakat mental kemudian diuji secara riil dalam panggung kehidupan melalui **${formatCardName(a, 'Arcana Ujian')}**. ` +
+    `Di sinilah dunia nyata menguji seberapa kokoh prinsipmu, terutama saat berhadapan dengan situasi yang memicu ego dan dorongan emosional.`,
 
-  // 🔴 ALUR BLOKADE (Siklus Terjebak / Stuck Loop)
-  stuckLoop: (a: ArcanaDefinition, d: ArcanaDefinition, e: ArcanaDefinition, c: ArcanaDefinition) => 
-    `\n\n---\n\n### ⚠️ Kondisi Saat Ini: Siklus Terhambat\n\n` +
-    `Dari refleksi yang kamu lakukan, energi takdirmu saat ini **sedang mengalami penyumbatan**. Kamu cenderung terseret ke sisi bayangan energimu, seperti: *${a.shadowTraits.slice(0, 3).join(', ')}*.\n\n` +
-    `**Dampak yang Kamu Rasakan:**\n` +
-    `Karena ujian di tahap ini belum terlewati, energimu memantul kembali ke bawah. Ini menjelaskan mengapa kamu sering merasa frustrasi karena menghadapi konflik yang itu-itu saja, serta kembali menghidupkan rasa takut lamamu terhadap **${d.fears[0] || 'kegagalan'}**.\n\n` +
-    `🔒 **Dampak ke Finansial & Kedamaian:**\n` +
-    `Selama sumbatan emosional ini belum kamu urai dengan belajar untuk **${a.advice[0] || 'menerima kenyataan'}**, akses menuju rasa damai terdalammu (**${formatCardName(e, 'Inti Jiwa')}**) serta pintu kelimpahan finansialmu (**${formatCardName(c, 'Puncak Finansial')}**) akan terasa **terkunci dan sulit dijangkau**. Kamu sedang menghalangi potensimu sendiri karena pola lama ini.`,
+  // 🔴 ALUR BLOKADE (Stuck Loop)
+  stuckLoop: (a: ArcanaDefinition, d: ArcanaDefinition, e: ArcanaDefinition, c: ArcanaDefinition) =>
+    `\n\n---\n\n### ⚠️ Status Dinamika Batin: Siklus Terhambat\n\n` +
+    `Berdasarkan refleksi dirimu, aliran energimu saat ini **mengalami hambatan di tahap Ujian Karakter**. Kamu cenderung tertarik ke sisi bayangan energimu: *${a.shadowTraits?.slice(0, 3).join(', ') || 'reaksi defensif'}*.\n\n` +
+    `**Dampak pada Realitas:**\n` +
+    `Karena ujian di titik ini belum terselesaikan dengan tenang, energi takdirmu memantul kembali ke bawah. Hal ini menjelaskan mengapa kamu sering merasa kewalahan dan kembali mengundang rasa takut lama terhadap **${d.fears?.[0] || 'kegagalan'}**.\n\n` +
+    `🔒 **Akses Inti Jiwa & Rezeki:**\n` +
+    `Selama hambatan ini belum kamu sadari dengan belajar **${a.advice?.[0] || 'menerima kenyataan tanpa menghakimi'}**, jalan menuju kedamaian batin (**${formatCardName(e, 'Inti Jiwa')}**) serta potensi kelimpahan materi (**${formatCardName(c, 'Puncak Finansial')}**) akan terasa tertutup atau tertahan sementara.`,
 
-  // 🟡 ALUR TRANSISI (Proses Pembersihan / Kuesioner Netral)
+  // 🟡 ALUR TRANSISI (Cleaning Phase)
   partialFlow: (e: ArcanaDefinition, c: ArcanaDefinition) =>
-    `\n\n---\n\n### 🌗 Kondisi Saat Ini: Fase Transisi & Pembersihan\n\n` +
-    `Kabar yang sangat melegakan! Kamu mulai berhasil mengurai sumbatan di tahap ujian karakter. Perlahan, pintu menuju kedamaian sejati jiwamu (**${formatCardName(e, 'Inti Jiwa')}**) mulai terbuka. Kamu sedang berada di fase transisi yang sangat penting.\n\n` +
-    `**Apa yang Sedang Terjadi pada Dirimu?**\n` +
-    `Kamu mulai mengenali polamu yang salah di masa lalu dan berusaha memperbaikinya. Karunia alamimu berupa **${e.gifts.slice(0, 2).join(' dan ')}** sudah mulai muncul ke permukaan, meskipun getarannya terkadang masih naik-turun karena sisa-sisa kebiasaan lama.\n\n` +
+    `\n\n---\n\n### 🌗 Status Dinamika Batin: Fase Transisi & Pembersihan\n\n` +
+    `Kabar baik! Kamu mulai berhasil mengurai sumbatan di gerbang ujian karakter. Pintu menuju rumah batin sejatimu (**${formatCardName(e, 'Inti Jiwa')}**) kini mulai terbuka.\n\n` +
+    `**Dinamika yang Sedang Berlangsung:**\n` +
+    `Kamu mulai peka terhadap pola masa lalu dan berusaha memperbaikinya. Karunia alamimu dalam hal **${e.gifts?.slice(0, 2).join(' dan ') || 'intuisi & kesadaran'}** mulai aktif memancar, meski getarannya terkadang masih naik-turun tergantung kedamaian batin harianmu.\n\n` +
     `🔒 **Status Energi Finansial:**\n` +
-    `Jalur kelimpahan menuju **${formatCardName(c, 'Puncak Finansial')}** saat ini statusnya adalah **tertunda (menunggu kesiapanmu)**, bukan tertutup. Begitu kamu bisa lebih konsisten dan stabil menjaga ketenangan batin, energi kemakmuran ini akan langsung mengalir deras secara alami.\n\n` +
-    `💡 **Langkah Navigasi Berikutnya:**\n` +
-    `Fokuskan harimu pada pemulihan batin dan spiritual, terutama dalam hal **${e.narrative.spirituality.toLowerCase()}**. Ini adalah obat penenang sekaligus booster tercepat untuk menuntaskan fase transisimu.`,
+    `Gerbang menuju **${formatCardName(c, 'Puncak Finansial')}** saat ini berstatus **dalam proses penyesuaian (menunggu kestabilanmu)**. Begitu kamu konsisten menjaga ketenangan batin, potensi rezeki ini akan mengalir lebih deras.\n\n` +
+    `💡 **Penyelarasan Diri:**\n` +
+    `Fokuskan harimu pada pemulihan kedamaian internal, khususnya mengolah aspek **${e.narrative?.spirituality?.toLowerCase() || 'keheningan batin'}**.`,
 
-  // 🟢 ALUR MENGALIR (Siklus Mulus / Flow State)
-  flowToE: (e: ArcanaDefinition) => 
-    `\n\n---\n\n### ✨ Kondisi Saat Ini: Energi Mengalir Selaras (Flow State)\n\n` +
-    `Luar biasa! Kamu telah berhasil memenangkan ujian karaktermu dengan matang. Aliran energimu kini menembus inti terdalam jiwa, membuatmu berhasil pulang ke 'rumah batin' sejatimu sebagai pemilik energi **${formatCardName(e, 'Inti Jiwa')}** yang autentik.\n\n` +
-    `Saat ini, karunia **${e.gifts.slice(0, 2).join(' dan ')}** aktif sepenuhnya menjadi magnet pelindung dalam hidupmu. Kamu merasakan kedamaian batin yang kokoh karena kamu telah mampu menyelaraskan hidup dengan **${e.narrative.spirituality.toLowerCase()}**.`,
+  // 🟢 ALUR MENGALIR (Flow State)
+  flowToE: (e: ArcanaDefinition) =>
+    `\n\n---\n\n### ✨ Status Dinamika Batin: Energi Mengalir Selaras (Flow State)\n\n` +
+    `Luar biasa! Kamu telah berhasil melalui ujian karakter dengan keheningan batin yang matang. Energimu kini menembus inti jiwa sejati sebagai pemilik arketipe **${formatCardName(e, 'Inti Jiwa')}** yang autentik.\n\n` +
+    `Saat ini, karunia **${e.gifts?.slice(0, 2).join(' dan ') || 'kekuatan batin'}** aktif penuh sebagai magnet pelindung. Kamu merasakan kedamaian yang kokoh karena telah menyelaraskan hidup dengan **${e.narrative?.spirituality?.toLowerCase() || 'kesadaran murni'}**.`,
 
-  eToC: (c: ArcanaDefinition) => 
-    `\n\n## 🚀 Tahap Akhir: Kelimpahan Finansial & Misi Hidup\n\n` +
-    `Ketika jiwamu sudah berada di frekuensi yang tenang dan selaras, roda takdir secara otomatis akan menarik kemakmuran materi ke hidupmu tanpa perlu kamu kejar dengan stres. Puncak perwujudan rezeki dan kesuksesan finansialmu akan terbuka sangat lebar melalui bidang: **${c.career.slice(0, 3).join(', ')}**.\n\n` +
-    `Kamu akan mampu menjalankan misi besar hidupmu untuk **${c.lifeMission[0] || 'membawa kebaikan bagi sesama'}** dengan penuh kelonggaran. Kunci getaran kemakmuran ini setiap pagi dengan menegaskan dalam hati: *"${c.affirmations[0] || 'Saya selaras dengan kelimpahan alam semesta.'}"*`
+  eToC: (c: ArcanaDefinition) =>
+    `\n\n## 🚀 Phase 4: Kelimpahan Realitas & Misi Jiwa\n\n` +
+    `Ketika batinmu berada dalam frekuensi yang tenang dan selaras, rezeki materi akan tertarik secara alami tanpa perlu dikejar dengan stres berlebih. Puncak manifestasi finansial dan karyamu terbuka lebar di jalur: **${c.career?.slice(0, 3).join(', ') || 'pengembangan potensi murni'}**.\n\n` +
+    `Kamu dipanggil untuk menjalankan misi membawa manfaat nyata melalui **${c.lifeMission?.[0] || 'kebaikan bagi sesama'}**. Tanamkan afirmasi penguat setiap pagi: *"${c.affirmations?.[0] || 'Saya terbuka menerima segala kelimpahan dan keberkahan semesta.'}"*`,
 };
 
-
 /**
- * FUNGSI UTAMA: Merangkai potongan string secara struktural (Deterministic Text Assembly).
- * Sangat ringan, berjalan 100% offline, bebas alokasi memori berlebih.
+ * Merangkai narasi evolusi secara deterministik & offline.
  */
 export function compileEvolutionCycle(
   points: EvolutionPointsInput,
@@ -94,14 +94,11 @@ export function compileEvolutionCycle(
   if (currentState === 'NEGATIF') {
     narrativeOutput += NARRATIVE_BRIDGES.stuckLoop(A, D, E, C);
   } else if (currentState === 'NETRAL') {
-    // 🆕 Fase transisi: E terbuka, C masih tertunda
     narrativeOutput += NARRATIVE_BRIDGES.partialFlow(E, C);
   } else {
-    // POSITIF: siklus penuh terbuka
     narrativeOutput += NARRATIVE_BRIDGES.flowToE(E);
     narrativeOutput += NARRATIVE_BRIDGES.eToC(C);
   }
 
   return narrativeOutput;
 }
- 

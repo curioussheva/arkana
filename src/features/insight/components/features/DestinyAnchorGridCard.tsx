@@ -7,9 +7,9 @@ import { FONT_SIZE, SPACING, BORDER_RADIUS } from '@constants/theme';
 import type { ArcanaDefinition } from '@core/arcana/types';
 
 interface MatrixPoint {
-  key: string;            // Contoh: 'A', 'B', 'J', 'Q' (Position Key Asli dari Engine)
-  label: string;          // Contoh: 'Hari Lahir', 'Titik Pusat'
-  arcana: ArcanaDefinition; 
+  key: string; // Contoh: 'A', 'B', 'J', 'Q' (Position Key Asli dari Engine)
+  label: string; // Contoh: 'Hari Lahir', 'Titik Pusat'
+  arcana: ArcanaDefinition;
   interpretation: string;
 }
 
@@ -25,26 +25,49 @@ interface Props {
 
 // 🎯 SINKRONISASI PETA KOMPAS SEJATI: Menyelaraskan translasi alfabet mesin ke kode spasial
 const GEOMETRIC_KEY_MAP: Record<string, string> = {
-  'A': 'A', 'B': 'B', 'C': 'C', 'D': 'D', 'E': 'E',
-  'J': 'A2', 'K': 'B2', 'L': 'C2', 'M': 'D2',
-  'I': 'A3', 'F': 'B3', 'G': 'C3', 'H': 'D3',
-  'Q': 'A1', 'R': 'B1', 'S': 'C1', 'T': 'D1',
-  'N': 'N',  'O': 'O',  'P': 'P',
-  'A1': 'A1', 'A2': 'A2', 'A3': 'A3',
-  'B1': 'B1', 'B2': 'B2', 'B3': 'B3',
-  'C1': 'C1', 'C2': 'C2', 'C3': 'C3',
-  'D1': 'D1', 'D2': 'D2', 'D3': 'D3',
+  A: 'A',
+  B: 'B',
+  C: 'C',
+  D: 'D',
+  E: 'E',
+  J: 'A2',
+  K: 'B2',
+  L: 'C2',
+  M: 'D2',
+  I: 'A3',
+  F: 'B3',
+  G: 'C3',
+  H: 'D3',
+  Q: 'A1',
+  R: 'B1',
+  S: 'C1',
+  T: 'D1',
+  N: 'N',
+  O: 'O',
+  P: 'P',
+  A1: 'A1',
+  A2: 'A2',
+  A3: 'A3',
+  B1: 'B1',
+  B2: 'B2',
+  B3: 'B3',
+  C1: 'C1',
+  C2: 'C2',
+  C3: 'C3',
+  D1: 'D1',
+  D2: 'D2',
+  D3: 'D3',
 };
 
 export function DestinyAnchorGridCard({ points, onPress }: Props) {
-  const colors = useThemeStore((state) => state.getColors());
-  
+  const colors = useThemeStore(state => state.getColors());
+
   // 🎯 NORMALISASI DATA DATA SEBELUM DI-FIND: Translasikan key mentah ke spatialKey
   const normalizedPoints = useMemo((): NormalizedMatrixPoint[] => {
     if (!points) return [];
     return points.map(p => ({
       ...p,
-      spatialKey: GEOMETRIC_KEY_MAP[p.key] || p.key
+      spatialKey: GEOMETRIC_KEY_MAP[p.key] || p.key,
     }));
   }, [points]);
 
@@ -66,7 +89,9 @@ export function DestinyAnchorGridCard({ points, onPress }: Props) {
     return (
       <View style={styles.anchorRow}>
         {/* 1. POSITION: Koordinat Geometris Hasil Translasi Bersih (A, B, E) */}
-        <View style={[styles.positionBadge, { backgroundColor: badgeColor || colors.backgroundLight }]}>
+        <View
+          style={[styles.positionBadge, { backgroundColor: badgeColor || colors.backgroundLight }]}
+        >
           <Text style={[styles.positionKey, { color: colors.text }]}>{node.spatialKey}</Text>
         </View>
 
@@ -76,12 +101,18 @@ export function DestinyAnchorGridCard({ points, onPress }: Props) {
             {node.label}
           </Text>
           <Text style={[styles.arcanaName, { color: colors.textSecondary }]} numberOfLines={1}>
-            Arkana {displayId} - {node.arcana?.matrixName || node.arcana?.tarotName || 'Getaran Kosmik'}
+            Arkana {displayId} -{' '}
+            {node.arcana?.matrixName || node.arcana?.tarotName || 'Getaran Kosmik'}
           </Text>
         </View>
 
         {/* 3. SEQUENCE VALUE: Skor Energi Kanan */}
-        <View style={[styles.valueBadge, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+        <View
+          style={[
+            styles.valueBadge,
+            { backgroundColor: colors.surface, borderColor: colors.border },
+          ]}
+        >
           <Text style={[styles.valueText, { color: colors.primary }]}>{displayId ?? '—'}</Text>
         </View>
       </View>
@@ -116,16 +147,16 @@ export function DestinyAnchorGridCard({ points, onPress }: Props) {
         <View style={styles.listContainer}>
           {renderAnchorRow(nodeA, 'rgba(6, 182, 212, 0.15)')}
           <View style={[styles.connectorLine, { backgroundColor: colors.border }]} />
-          
+
           {renderAnchorRow(nodeB, 'rgba(249, 115, 22, 0.15)')}
           <View style={[styles.connectorLine, { backgroundColor: colors.border }]} />
-          
+
           {renderAnchorRow(nodeE, 'rgba(236, 72, 153, 0.18)')}
           <View style={[styles.connectorLine, { backgroundColor: colors.border }]} />
-          
+
           {renderAnchorRow(nodeC, 'rgba(16, 185, 129, 0.15)')}
           <View style={[styles.connectorLine, { backgroundColor: colors.border }]} />
-          
+
           {renderAnchorRow(nodeD, 'rgba(132, 204, 22, 0.15)')}
         </View>
       ) : (
@@ -159,7 +190,13 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.md,
   },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  iconBadge: { width: 36, height: 36, borderRadius: 18, justifyContent: 'center', alignItems: 'center' },
+  iconBadge: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   icon: { fontSize: 18 },
   tag: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: BORDER_RADIUS.md },
   tagText: { fontSize: 9, fontWeight: '800', letterSpacing: 0.8 },
@@ -208,4 +245,3 @@ const styles = StyleSheet.create({
   },
   actionPrompt: { fontSize: 12, fontWeight: '700', textAlign: 'right' },
 });
- 

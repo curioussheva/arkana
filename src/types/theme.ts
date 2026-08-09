@@ -16,7 +16,8 @@ export type ThemeVariant =
   | 'azureMist'
   | 'warmSand'
   | 'lilacHaze'
-  | 'auroraNight'; // dark baru
+  | 'auroraNight'
+  | 'victoriaGold';
 
 export interface ThemeColors {
   primary: string;

@@ -1,3 +1,5 @@
+// Berkas: src/core/assessment/assessmentEngine.ts
+
 import type { ArcanaDefinition } from '../arcana/types';
 
 export type AssessmentState = 'NEGATIF' | 'NETRAL' | 'POSITIF';
@@ -16,43 +18,41 @@ export interface DynamicAssessment {
 
 /**
  * Membentuk opsi pertanyaan refleksi psikologis secara deterministik
- * dengan bahasa yang lebih membumi, mengalir, dan berfokus pada gejala emosional nyata.
+ * dengan konteks batin yang lebih dekat dengan kenyataan emosional pengguna.
  */
 export function generateAssessmentForTitikE(arcanaE: ArcanaDefinition): DynamicAssessment {
-  // 1. Ekstraksi data mentah dengan fallback yang aman
-  const shadow = arcanaE.shadowTraits?.[0] || 'kehilangan arah';
-  const fear = arcanaE.fears?.[0] || 'situasi yang tidak pasti';
-  const trait = arcanaE.positiveTraits?.[0] || 'percaya diri';
+  // Safe extraction dengan fallback ramah pengguna
+  const shadow = arcanaE.shadowTraits?.[0] || 'kehilangan kendali batin';
+  const fear = arcanaE.fears?.[0] || 'ketidakpastian masa depan';
+  const trait = arcanaE.positiveTraits?.[0] || 'percaya pada proses';
   const gift = arcanaE.gifts?.[0] || 'potensi terbaik diri';
-  
-  // Ambil karakter utama arkana untuk dijadikan subjek kalimat yang ramah
-  const energyName = arcanaE.matrixName || arcanaE.tarotName;
-  const archetype = arcanaE.archetype ? ` si ${arcanaE.archetype}` : '';
+
+  const energyName = arcanaE.matrixName || arcanaE.tarotName || 'Inti Jiwa';
+  const archetype = arcanaE.archetype ? ` (${arcanaE.archetype})` : '';
 
   return {
-    cardId: arcanaE.id,
+    cardId: arcanaE.id === 0 ? 22 : arcanaE.id,
     tarotName: arcanaE.tarotName,
-    
-    // 🔮 Pertanyaan dibuat lebih personal & tidak terlalu teoretis
-    questionTitle: `Jujur pada dirimu sendiri, bagaimana kondisi batinmu saat ini ketika menghadapi energi "${energyName}"${archetype} dalam keseharian?`,
-    
+
+    // Pertanyaan difokuskan pada refleksi langsung
+    questionTitle: `Jujur pada dirimu, bagaimana relasi batinmu saat ini saat berhadapan dengan cermin energi "${energyName}"${archetype}?`,
+
     options: [
       {
-        // 🔴 NEGATIF: Fokus pada "Gejala Frustrasi & Stuck" (Shadow & Fear)
-        text: `Jujur, saya sedang merasa stuck. Saya sering terjebak dalam kondisi ${shadow.toLowerCase()} dan dipicu oleh rasa takut akan ${fear.toLowerCase()}.`,
+        // 🔴 NEGATIF: Gejala Kebuntuan & Reaksi Defensif
+        text: `Saya merasa buntu dan lelah. Sering kali saya terjebak dalam rasa ${shadow.toLowerCase()} akibat dorongan pemicu takut akan ${fear.toLowerCase()}.`,
         score: 'NEGATIF',
       },
       {
-        // 🟡 NETRAL: Fokus pada "Kesadaran Tanpa Aksi / Bingung Arah" (Fase Transisi)
-        text: `Saya tahu ada potensi besar di dalam diri saya, tapi saat ini saya masih merasa di persimpangan jalan—mulai paham polanya, tapi masih bingung menentukan langkah nyata.`,
+        // 🟡 NETRAL: Kesadaran Transisi & Proses Penyelarasan
+        text: `Saya menyadari potensi besar di dalam diri, namun masih berada di persimpangan jalan—mulai memahami polanya, tetapi belum sepenuhnya konsisten melangkah.`,
         score: 'NETRAL',
       },
       {
-        // 🟢 POSITIF: Fokus pada "Keberdayaan & Sinkronisitas" (Trait & Gift)
-        text: `Saya merasa sangat nyaman menjadi diri sendiri. Energi saya mengalir ${trait.toLowerCase()}, dan saya bisa mengarahkan karunia ${gift.toLowerCase()} ini untuk menciptakan peluang nyata.`,
+        // 🟢 POSITIF: Keberdayaan & Aliran Kesadaran Utuh
+        text: `Saya merasa selaras dan tenang. Energi saya mengalir ${trait.toLowerCase()}, dan saya mampu memanfaatkan karunia ${gift.toLowerCase()} ini untuk hal-hal produktif.`,
         score: 'POSITIF',
       },
     ],
   };
 }
- 

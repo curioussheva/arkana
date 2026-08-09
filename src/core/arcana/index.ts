@@ -12,4 +12,4 @@ export * from './service';
 export * from './search';
 export * from './compatibility';
 export * from './narratives';
-export * from './insight'; 
+export * from './insight';

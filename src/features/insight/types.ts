@@ -1,15 +1,12 @@
 // src/features/insight/types.ts
 
-import type {
-  DestinyInsight,
-  DestinyMatrix,
-} from '@core/destiny-matrix';
+import type { DestinyInsight, DestinyMatrix } from '@core/destiny-matrix';
 
 import type { ChakraData } from '@core/destiny-matrix/analysis/chakra';
 import type { YinYangAnalysis } from '@core/destiny-matrix/analysis/yin-yang';
 import type { KarmicTailAnalysis } from '@core/destiny-matrix/analysis/karmic-tail';
 
-export type InsightTab = 'blueprint' | 'energy' | 'evolution'; 
+export type InsightTab = 'blueprint' | 'energy' | 'evolution';
 
 export interface InsightViewModel {
   matrix: DestinyMatrix;

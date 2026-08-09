@@ -1,29 +1,29 @@
 // src/core/arcana/database/index.ts
 
-import type { ArcanaDefinition } from "../types";
+import type { ArcanaDefinition } from '../types';
 
-import { ARCANA_00 } from "./00";
-import { ARCANA_01 } from "./01";
-import { ARCANA_02 } from "./02";
-import { ARCANA_03 } from "./03";
-import { ARCANA_04 } from "./04";
-import { ARCANA_05 } from "./05";
-import { ARCANA_06 } from "./06";
-import { ARCANA_07 } from "./07";
-import { ARCANA_08 } from "./08";
-import { ARCANA_09 } from "./09";
-import { ARCANA_10 } from "./10";
-import { ARCANA_11 } from "./11";
-import { ARCANA_12 } from "./12";
-import { ARCANA_13 } from "./13";
-import { ARCANA_14 } from "./14";
-import { ARCANA_15 } from "./15";
-import { ARCANA_16 } from "./16";
-import { ARCANA_17 } from "./17";
-import { ARCANA_18 } from "./18";
-import { ARCANA_19 } from "./19";
-import { ARCANA_20 } from "./20";
-import { ARCANA_21 } from "./21";
+import { ARCANA_00 } from './00';
+import { ARCANA_01 } from './01';
+import { ARCANA_02 } from './02';
+import { ARCANA_03 } from './03';
+import { ARCANA_04 } from './04';
+import { ARCANA_05 } from './05';
+import { ARCANA_06 } from './06';
+import { ARCANA_07 } from './07';
+import { ARCANA_08 } from './08';
+import { ARCANA_09 } from './09';
+import { ARCANA_10 } from './10';
+import { ARCANA_11 } from './11';
+import { ARCANA_12 } from './12';
+import { ARCANA_13 } from './13';
+import { ARCANA_14 } from './14';
+import { ARCANA_15 } from './15';
+import { ARCANA_16 } from './16';
+import { ARCANA_17 } from './17';
+import { ARCANA_18 } from './18';
+import { ARCANA_19 } from './19';
+import { ARCANA_20 } from './20';
+import { ARCANA_21 } from './21';
 
 // ==========================================================
 // Individual Exports
@@ -88,23 +88,16 @@ export const ARCANA_DATABASE: readonly ArcanaDefinition[] = [
 // ==========================================================
 
 export const ARCANA_BY_ID = new Map<number, ArcanaDefinition>(
-  ARCANA_DATABASE.map((arcana) => [arcana.id, arcana]),
+  ARCANA_DATABASE.map(arcana => [arcana.id, arcana])
 );
 
 export const ARCANA_BY_TAROT_NAME = new Map<string, ArcanaDefinition>(
-  ARCANA_DATABASE.map((arcana) => [
-    arcana.tarotName.toLowerCase(),
-    arcana,
-  ]),
+  ARCANA_DATABASE.map(arcana => [arcana.tarotName.toLowerCase(), arcana])
 );
 
 export const ARCANA_BY_MATRIX_NAME = new Map<string, ArcanaDefinition>(
-  ARCANA_DATABASE.map((arcana) => [
-    arcana.matrixName.toLowerCase(),
-    arcana,
-  ]),
+  ARCANA_DATABASE.map(arcana => [arcana.matrixName.toLowerCase(), arcana])
 );
-
 
 // ==========================================================
 // Default Export

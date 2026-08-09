@@ -1,14 +1,30 @@
 // src/constants/theme.ts
-export const COLORS = {
+
+export const LIGHT_COLORS = {
   primary: '#6366F1',
   primaryLight: '#818CF8',
   primaryDark: '#4F46E5',
   secondary: '#10B981',
-  secondaryLight: '#34D399',
-  secondaryDark: '#059669',
   accent: '#F59E0B',
-  accentLight: '#FBBF24',
-  accentDark: '#D97706',
+  background: '#F8FAFC',
+  backgroundLight: '#FFFFFF',
+  backgroundLighter: '#F1F5F9',
+  surface: '#FFFFFF',
+  surfaceLight: '#F1F5F9',
+  surfaceDark: '#E2E8F0',
+  text: '#0F172A',
+  textSecondary: '#475569',
+  textMuted: '#64748B',
+  border: '#E2E8F0',
+  borderLight: '#CBD5E1',
+};
+
+export const DARK_COLORS = {
+  primary: '#6366F1',
+  primaryLight: '#818CF8',
+  primaryDark: '#4F46E5',
+  secondary: '#10B981',
+  accent: '#F59E0B',
   background: '#0F172A',
   backgroundLight: '#1E293B',
   backgroundLighter: '#334155',
@@ -20,6 +36,9 @@ export const COLORS = {
   textMuted: '#64748B',
   border: '#334155',
   borderLight: '#475569',
+};
+
+export const COMMON_COLORS = {
   success: '#10B981',
   warning: '#F59E0B',
   error: '#EF4444',
@@ -30,10 +49,24 @@ export const COLORS = {
     high: '#EF4444',
     peak: '#8B5CF6',
   },
-  fire: '#EF4444',
-  water: '#3B82F6',
-  air: '#94A3B8',
-  earth: '#10B981',
+  elements: {
+    fire: '#EF4444',
+    water: '#3B82F6',
+    air: '#94A3B8',
+    earth: '#10B981',
+  },
+  tarot: {
+    mysticalGlow: 'rgba(212, 175, 55, 0.45)',
+  },
+};
+
+export const COLORS = {
+  ...DARK_COLORS,
+  ...COMMON_COLORS,
+  fire: COMMON_COLORS.elements.fire,
+  water: COMMON_COLORS.elements.water,
+  air: COMMON_COLORS.elements.air,
+  earth: COMMON_COLORS.elements.earth,
 };
 
 export const SPACING = {

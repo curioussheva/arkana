@@ -47,9 +47,7 @@ export function NamedLinesGridCard({ data, onPress }: Props) {
         <Text style={[styles.emptyText, { color: colors.textMuted }]}>Menunggu kalkulasi...</Text>
       )}
 
-      <Text style={[styles.actionPrompt, { color: colors.primary }]}>
-        Buka rincian garis →
-      </Text>
+      <Text style={[styles.actionPrompt, { color: colors.primary }]}>Buka rincian garis →</Text>
     </TouchableOpacity>
   );
 }
@@ -71,12 +69,16 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.xs,
   },
   iconBadge: {
-    width: 32, height: 32, borderRadius: 16,
-    justifyContent: 'center', alignItems: 'center',
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   icon: { fontSize: 16 },
   tag: {
-    paddingHorizontal: 8, paddingVertical: 3,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
     borderRadius: BORDER_RADIUS.sm,
   },
   tagText: { fontSize: 9, fontWeight: '800', letterSpacing: 0.5 },
@@ -101,4 +103,4 @@ const styles = StyleSheet.create({
   actionPrompt: { fontSize: 10, fontWeight: '700', marginTop: SPACING.md },
 });
 
-export default NamedLinesGridCard; 
+export default NamedLinesGridCard;

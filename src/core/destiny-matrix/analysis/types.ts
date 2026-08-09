@@ -1,10 +1,10 @@
 // src/core/destiny-matrix/analysis/types.ts
 
 import type { ArcanaDefinition } from '../../arcana/types';
+import type { DestinyPoint } from '../types';
 import type { KarmicTailDefinition } from '../data/karmic-tails';
-
-// Impor ChakraData dari berkas tempat ia dideklarasikan (chakra.ts)
-import type { ChakraData } from './chakra'; 
+import type { KarmicTailAnalysis } from './karmic-tail';
+import type { ChakraData } from './chakra';
 
 /* -------------------------------------------------------------------------- */
 /*                                Element Stats                               */
@@ -21,6 +21,13 @@ export interface ElementStats {
 /*                               Destiny Insight                              */
 /* -------------------------------------------------------------------------- */
 
+export interface InsightPointDetail {
+  card: string;
+  number: number;
+  meaning: string;
+  advice?: string;
+}
+
 export interface DestinyInsight {
   narrative: string;
 
@@ -29,23 +36,9 @@ export interface DestinyInsight {
   dominantPercentage: number;
   secondaryElement?: ArcanaDefinition['element'];
 
-  coreEssence: {
-    card: string;
-    number: number;
-    meaning: string;
-  };
-
-  personality: {
-    card: string;
-    number: number;
-    meaning: string;
-  };
-
-  lifeDirection: {
-    card: string;
-    number: number;
-    meaning: string;
-  };
+  coreEssence: InsightPointDetail;
+  personality: InsightPointDetail;
+  lifeDirection: InsightPointDetail;
 
   yearlyForecast: {
     year: number;
@@ -70,12 +63,37 @@ export interface YinYangResult {
   yinPercentage: number;
   yangPercentage: number;
 
-  dominant:
-    | 'Yin'
-    | 'Yang'
-    | 'Balanced';
+  dominant: 'Yin' | 'Yang' | 'Balanced';
 
   archetype: string;
+}
+
+/* -------------------------------------------------------------------------- */
+/*                                Named Lines                                 */
+/* -------------------------------------------------------------------------- */
+
+export interface NamedLineDetail {
+  entry?: DestinyPoint | null;
+  partner?: DestinyPoint | null;
+  core?: DestinyPoint | null;
+  exit?: DestinyPoint | null;
+  outcome?: DestinyPoint | null;
+  past?: DestinyPoint | null;
+  meaning: string;
+  keyLesson?: string;
+  advice?: string;
+}
+
+export interface NamedLinesResult {
+  karmicTail: {
+    points: [DestinyPoint, DestinyPoint, DestinyPoint];
+    pattern: string;
+    title: string;
+    meaning: string;
+    resolution: string;
+  };
+  loveLine: NamedLineDetail;
+  moneyLine: NamedLineDetail;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -84,10 +102,10 @@ export interface YinYangResult {
 
 export interface AdvancedAnalysisResult {
   yinYang: YinYangResult;
-  karmicTail: KarmicTailDefinition;
-  
-  // Sekarang bertipe aman karena sudah di-import dari ./chakra
-  chakras: ChakraData[]; 
+  karmicTail: KarmicTailAnalysis | KarmicTailDefinition;
+  namedLines?: NamedLinesResult;
+  chakras: ChakraData[];
+  elementStats?: ElementStats;
 }
 
 /* -------------------------------------------------------------------------- */

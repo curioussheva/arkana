@@ -9,11 +9,7 @@ import {
   ViewStyle,
 } from 'react-native';
 
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-} from 'react-native-reanimated';
+import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 
 import { useThemeStore } from '@store/theme-store';
 import { SPACING, FONT_SIZE, BORDER_RADIUS, SHADOWS } from '@constants/theme';
@@ -47,25 +43,21 @@ export const ArcanaCard = memo(function ArcanaCard({
   imageWidth,
   onPress,
 }: Props) {
-  const colors = useThemeStore((s) => s.getColors());
+  const colors = useThemeStore(s => s.getColors());
   const { width: screenWidth } = useWindowDimensions();
   const scale = useSharedValue(1);
 
   // 1. DETEKSI NAMA KARTU (Fallback Multi-Kunci)
-  const cardNameKey = 
-    arcana.tarotName || 
-    arcana.card || 
-    arcana.name || 
-    arcana.title || 
-    arcana.matrixName || 
+  const cardNameKey =
+    arcana.tarotName ||
+    arcana.card ||
+    arcana.name ||
+    arcana.title ||
+    arcana.matrixName ||
     'Unknown Arcana';
 
   // 2. DETEKSI ID / NOMOR (Fallback Multi-Kunci)
-  const cardId = 
-    arcana.id || 
-    arcana.number || 
-    arcana.arcanaNumber || 
-    '';
+  const cardId = arcana.id || arcana.number || arcana.arcanaNumber || '';
 
   const imageSource = getArcanaImage(cardNameKey);
   const elementColor = ELEMENT_COLORS[arcana.element] ?? colors.primary;
@@ -107,19 +99,27 @@ export const ArcanaCard = memo(function ArcanaCard({
       style={[
         styles.card,
         variant === 'compact' ? styles.compactCard : styles.fullCard,
-        { 
-          borderColor: elementColor, 
-          backgroundColor: colors.surface 
+        {
+          borderColor: elementColor,
+          backgroundColor: colors.surface,
         },
       ]}
     >
       {/* Container Gambar */}
       {showImage && imageDimensions && (
-        <View style={[styles.imageContainer, { width: imageDimensions.width, height: imageDimensions.height }]}>
+        <View
+          style={[
+            styles.imageContainer,
+            { width: imageDimensions.width, height: imageDimensions.height },
+          ]}
+        >
           {imageSource ? (
             <Image
               source={imageSource}
-              style={[styles.cardImage, { width: imageDimensions.width, height: imageDimensions.height }]}
+              style={[
+                styles.cardImage,
+                { width: imageDimensions.width, height: imageDimensions.height },
+              ]}
               resizeMode="cover"
             />
           ) : (
@@ -137,9 +137,7 @@ export const ArcanaCard = memo(function ArcanaCard({
 
       {/* Header Info Kartu */}
       <View style={styles.header}>
-        <Text style={[styles.number, { color: colors.textMuted }]}>
-          #{cardId}
-        </Text>
+        <Text style={[styles.number, { color: colors.textMuted }]}>#{cardId}</Text>
         <View style={[styles.elementBadge, { backgroundColor: elementColor + '30' }]}>
           <Text style={[styles.elementText, { color: elementColor }]}>
             {arcana.element || 'Universal'}
@@ -159,10 +157,11 @@ export const ArcanaCard = memo(function ArcanaCard({
       {showKeywords && variant !== 'compact' && arcana.keywords && (
         <View style={styles.keywords}>
           {arcana.keywords.map((keyword: string, i: number) => (
-            <View key={i} style={[styles.keywordBadge, { backgroundColor: colors.backgroundLight }]}>
-              <Text style={[styles.keywordText, { color: colors.textSecondary }]}>
-                {keyword}
-              </Text>
+            <View
+              key={i}
+              style={[styles.keywordBadge, { backgroundColor: colors.backgroundLight }]}
+            >
+              <Text style={[styles.keywordText, { color: colors.textSecondary }]}>{keyword}</Text>
             </View>
           ))}
         </View>
@@ -270,4 +269,3 @@ const styles = StyleSheet.create({
     lineHeight: FONT_SIZE.md * 1.4,
   },
 });
- 

@@ -12,7 +12,7 @@ export * from './shared/SectionTitle';
 export * from './shared/ShareButton';
 
 // 3. Ekspor Semua Kartu Grid Menu Utama
-export * from './features/ArcanaSequenceGridCard';
+export * from './features/CoreEssenceGridCard';
 export * from './features/KarmicTailGridCard';
 export * from './features/YinYangGridCard';
 export * from './features/ChakraGridCard';
@@ -23,7 +23,7 @@ export * from './features/ImportantPointsGridCard';
 export * from './features/AssessmentQuiz';
 
 // 5. Ekspor Semua Modal Detail (Overlay PageSheets)
-export * from './features/detail-modals/ArcanaSequenceDetailModal';
+export * from './features/detail-modals/CoreEssenceDetailModal';
 export * from './features/detail-modals/KarmicTailDetailModal';
 export * from './features/detail-modals/YinYangDetailModal';
 export * from './features/detail-modals/ChakraDetailModal';

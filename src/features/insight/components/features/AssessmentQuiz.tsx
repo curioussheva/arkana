@@ -12,14 +12,11 @@ interface Props {
   currentState: AssessmentState | null;
   onAnswer: (state: AssessmentState) => void;
 }
- 
+
 export function AssessmentQuiz({ arcanaE, currentState, onAnswer }: Props) {
   const colors = useThemeStore(s => s.getColors());
 
-  const assessment = useMemo(
-    () => generateAssessmentForTitikE(arcanaE),
-    [arcanaE]
-  );
+  const assessment = useMemo(() => generateAssessmentForTitikE(arcanaE), [arcanaE]);
 
   const handleSelect = (score: AssessmentState) => {
     // Jalankan haptics secara asinkron tanpa memblokir thread JavaScript utama
@@ -29,9 +26,7 @@ export function AssessmentQuiz({ arcanaE, currentState, onAnswer }: Props) {
 
   return (
     <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-      <Text style={[styles.title, { color: colors.text }]}>
-        🔮 {assessment.questionTitle}
-      </Text>
+      <Text style={[styles.title, { color: colors.text }]}>🔮 {assessment.questionTitle}</Text>
 
       {assessment.options.map((opt, idx) => {
         // Cek apakah opsi ini adalah kondisi yang sedang aktif di state saat ini
@@ -41,23 +36,25 @@ export function AssessmentQuiz({ arcanaE, currentState, onAnswer }: Props) {
           <TouchableOpacity
             key={`opt-${idx}`} // 💡 HINDARI WARNING: Menggunakan prefix string agar unik bagi React Virtual DOM
             style={[
-              styles.option, 
-              { 
-                borderColor: isSelected ? colors.primary : colors.border, 
+              styles.option,
+              {
+                borderColor: isSelected ? colors.primary : colors.border,
                 backgroundColor: isSelected ? colors.primary + '10' : colors.backgroundLight,
-                borderWidth: isSelected ? 2 : 1 
-              }
+                borderWidth: isSelected ? 2 : 1,
+              },
             ]}
             activeOpacity={0.7}
             onPress={() => handleSelect(opt.score)}
           >
-            <Text style={[
-              styles.optionText, 
-              { 
-                color: isSelected ? colors.primary : colors.text,
-                fontWeight: isSelected ? '700' : '400'
-              }
-            ]}>
+            <Text
+              style={[
+                styles.optionText,
+                {
+                  color: isSelected ? colors.primary : colors.text,
+                  fontWeight: isSelected ? '700' : '400',
+                },
+              ]}
+            >
               {opt.text}
             </Text>
           </TouchableOpacity>
@@ -68,27 +65,26 @@ export function AssessmentQuiz({ arcanaE, currentState, onAnswer }: Props) {
 }
 
 const styles = StyleSheet.create({
-  card: { 
-    borderRadius: BORDER_RADIUS.xl, 
-    padding: SPACING.lg, 
-    borderWidth: 1, 
-    ...SHADOWS.md, 
-    margin: SPACING.md 
+  card: {
+    borderRadius: BORDER_RADIUS.xl,
+    padding: SPACING.lg,
+    borderWidth: 1,
+    ...SHADOWS.md,
+    margin: SPACING.md,
   },
-  title: { 
-    fontSize: FONT_SIZE.md, 
-    fontWeight: '700', 
-    marginBottom: SPACING.md, 
-    lineHeight: 24 
+  title: {
+    fontSize: FONT_SIZE.md,
+    fontWeight: '700',
+    marginBottom: SPACING.md,
+    lineHeight: 24,
   },
-  option: { 
-    borderRadius: BORDER_RADIUS.lg, 
-    padding: SPACING.md, 
-    marginTop: SPACING.sm 
+  option: {
+    borderRadius: BORDER_RADIUS.lg,
+    padding: SPACING.md,
+    marginTop: SPACING.sm,
   },
-  optionText: { 
-    fontSize: FONT_SIZE.sm, 
-    lineHeight: 20 
+  optionText: {
+    fontSize: FONT_SIZE.sm,
+    lineHeight: 20,
   },
 });
- 

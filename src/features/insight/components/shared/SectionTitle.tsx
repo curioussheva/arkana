@@ -1,18 +1,11 @@
 // Berkas: src/features/insight/components/SectionTitle.tsx
 
 import React from 'react';
-import {
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { useThemeStore } from '@store/theme-store';
 
-import {
-  FONT_SIZE,
-  SPACING,
-} from '@constants/theme';
+import { FONT_SIZE, SPACING } from '@constants/theme';
 
 interface SectionTitleProps {
   title: string;
@@ -21,12 +14,7 @@ interface SectionTitleProps {
   centered?: boolean;
 }
 
-export function SectionTitle({
-  title,
-  subtitle,
-  icon,
-  centered = false,
-}: SectionTitleProps) {
+export function SectionTitle({ title, subtitle, icon, centered = false }: SectionTitleProps) {
   const colors = useThemeStore(state => state.getColors());
 
   const styles = React.useMemo(
@@ -63,28 +51,18 @@ export function SectionTitle({
           textAlign: centered ? 'center' : 'left',
         },
       }),
-    [colors, centered],
+    [colors, centered]
   );
 
   return (
     <View style={styles.container}>
       <View style={styles.row}>
-        {!!icon && (
-          <Text style={styles.icon}>
-            {icon}
-          </Text>
-        )}
+        {!!icon && <Text style={styles.icon}>{icon}</Text>}
 
-        <Text style={styles.title}>
-          {title}
-        </Text>
+        <Text style={styles.title}>{title}</Text>
       </View>
 
-      {!!subtitle && (
-        <Text style={styles.subtitle}>
-          {subtitle}
-        </Text>
-      )}
+      {!!subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
     </View>
   );
 }

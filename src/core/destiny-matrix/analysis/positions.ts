@@ -1,121 +1,127 @@
+// src/core/destiny-matrix/analysis/positions.ts
 import type { DestinyPointKey } from '../types';
 
-/**
- * PATH A: DIAGNOSIS STANDAR (Untuk Modal di Matrix Screen)
- * Fokus pada definisi karakter dasar dan apa adanya menggunakan gaya bahasa personal.
- */
-export const POSITION_CONTEXTS: Record<DestinyPointKey, string> = {
+export const POSITION_CONTEXTS: Partial<Record<DestinyPointKey, string>> = {
   A: 'Di posisi Hari Lahir, {card} hadir sebagai identitas dasar dan karakter mental utamamu. {meaning}',
   B: 'Bulan Lahirmu diwakili oleh {card}, menunjukkan perlindungan spiritual serta caramu merespons intuisi. {meaning}',
   C: 'Garis Keturunan Material diisi oleh {card}, membawa pola tantangan keuangan masa lalu dari leluhurmu. {meaning}',
   D: 'Sintesis Pertamamu adalah {card}, menggambarkan gerbang pola karma (karmic tail) yang membentuk arah hidupmu. {meaning}',
   E: 'Esensi Jiwamu adalah {card}. Inilah pusat kenyamanan batin dan jati dirimu yang paling murni. {meaning}',
-  F: 'Zona Nyaman Leluhur Kiri-Atas beresonansi dengan {card}, tempat energi masa lalu berkumpul. {meaning}',
-  G: 'Zona Sosial Leluhur Kanan-Atas diisi oleh {card}, mencerminkan interaksi sosial silsilah keluargamu. {meaning}',
-  H: 'Zona Tantangan Leluhur Bawah-Kanan adalah {card}, pelajaran silsilah materi yang harus diurai. {meaning}',
-  I: 'Zona Keseimbangan Leluhur Bawah-Kiri dijaga oleh {card}, titik harmonisasi konflik masa lalu. {meaning}',
-  J: 'Bakat Tersembunyi di jalur karaktermu diaktifkan melalui simbolisme {card}. {meaning}',
-  K: 'Kekuatan Batin spiritualmu bersumber dari manifestasi {card}. {meaning}',
-  L: 'Potensi Spiritual di jalur finansial dibimbing oleh getaran {card}. {meaning}',
-  M: 'Arah Perkembangan karier dan takdir keuanganmu ditandai oleh {card}. {meaning}',
-  N: 'Ekstensi Keturunan I diwakili oleh {card}, memperdalam makna transformasi garis keturunan. {meaning}',
-  O: 'Ekstensi Keturunan II: {card} memberikan lapisan pemahaman esoteris baru pada karma. {meaning}',
-  P: 'Ekstensi Keturunan III: {card} melengkapi siklus transisi spiritual leluhur. {meaning}',
-  Q: 'Ekstensi Kepribadian luar: {card} memperluas topeng egomu di mata publik. {meaning}',
-  R: 'Ekstensi Tujuan Hidup makro: {card} menguatkan magnet penarik takdirmu. {meaning}',
-  S: 'Ekstensi Garis Keturunan bawah: {card} menambah kedalaman fondasi materialmu. {meaning}',
-  T: 'Ekstensi Sintesis kiri: {card} mengintegrasikan tantangan karma masa lalu. {meaning}',
-  A1: 'Ekstensi Jalur Karakter I: {card} menjembatani manifestasi fisik karakter dari ego luar menuju potensi batin. {meaning}',
-  A2: 'Ekstensi Jalur Karakter II: {card} mengalirkan energi bakat tersembunyi langsung menuju pusat esensi jiwamu. {meaning}',
-  A3: 'Titik Sinkronisasi Karakter-Jiwa: Melalui {card}, ego mental diselaraskan dengan kebenaran batinmu. {meaning}',
-  B1: 'Ekstensi Jalur Spiritual I: {card} memperjelas visi idealis spiritual dari malaikat pelindungmu. {meaning}',
-  B2: 'Ekstensi Jalur Spiritual II: {card} menegaskan panggilan batin untuk menyatu dengan kenyamanan jiwa. {meaning}',
-  B3: 'Titik Sinkronisasi Spiritual-Jiwa: {card} menyempurnakan misi penyembuhan energi maskulin dan feminin dalam dirimu. {meaning}',
-  C1: 'Ekstensi Jalur Finansial I: {card} bertindak sebagai pembuka blokir gerbang rezeki material leluhur. {meaning}',
-  C2: 'Ekstensi Jalur Finansial II: {card} meneruskan kestabilan potensi spiritual ke dalam manajemen aset nyata. {meaning}',
-  C3: 'Titik Sinkronisasi Finansial-Jiwa: {card} menyatukan kelimpahan materi dengan rasa cukup di dalam batinmu. {meaning}',
-  D1: 'Ekstensi Jalur Karma I: {card} bertindak sebagai katalis pengurai lilitan utang karma masa lalu. {meaning}',
-  D2: 'Ekstensi Jalur Karma II: {card} membawa stabilitas mental saat kamu berhadapan dengan ujian kehidupan yang berulang. {meaning}',
-  D3: 'Titik Sinkronisasi Karma-Jiwa: {card} menyelesaikan pembersihan beban jiwa agar kamu dapat melangkah lebih bebas. {meaning}',
-  E1: 'Garis Langit Leluhur: {card} membentuk koneksi spiritual dan kesadaran kolektif dari garis keturunan atas. {meaning}',
-  E2: 'Garis Bumi Leluhur: {card} memengaruhi manifestasi fisik, kesehatan, dan warisan material dari garis keturunan bawah. {meaning}',
+
+  // Penyelarasan Akurat Sudut Kotak Tegak Keluarga (Ancestral Square)
+  F: 'Garis Leluhur Ayah (Spiritual - Top Left) beresonansi dengan {card}. Titik ini menyempurnakan misi penyembuhan energi maskulin spiritual dalam dirimu. {meaning}',
+  G: 'Garis Leluhur Ibu (Spiritual - Top Right) diisi oleh {card}. Titik ini mencerminkan pengembangan potensi feminin intuitif dari garis keturunanmu. {meaning}',
+  H: 'Garis Leluhur Ayah (Material - Bottom Right) adalah {card}. Pelajaran silsilah materi dan pembersihan beban karma fisik yang harus diurai. {meaning}',
+  I: 'Garis Leluhur Ibu (Material - Bottom Left) dijaga oleh {card}. Titik harmonisasi konflik duniawi dan penyeimbang kestabilan emosi material silsilah. {meaning}',
+
+  // Inner Cross Dasar
+  J: 'Bakat Tersembunyi di jalur karaktermu diaktifkan melalui simbolisme {card}, mengalirkan energi langsung menuju pusat esensi jiwamu. {meaning}',
+  K: 'Kekuatan Batin spiritualmu bersumber dari manifestasi {card}, menegaskan panggilan batin untuk menyatu dengan kenyamanan jiwa. {meaning}',
+  L: 'Potensi Spiritual di jalur finansial dibimbing oleh getaran {card}, meneruskan kestabilan potensi spiritual ke dalam manajemen aset nyata. {meaning}',
+  M: 'Arah Perkembangan karier dan takdir keuanganmu ditandai oleh {card}, membawa stabilitas mental saat kamu berhadapan dengan ujian kehidupan yang berulang. {meaning}',
+
+  // Koreksi Konteks Fungsional Money & Love Channel (N, O, P)
+  N: 'Di Pusat Saluran Hubungan & Finansial (LM_Center), {card} hadir sebagai titik temu keseimbangan asmara dan kemakmuran hidupmu. {meaning}',
+  O: 'Pada Jalur Finansial Utama (Money/O), {card} mengontrol potensi rezeki, magnet bisnis, serta ambisi materi duniamu. {meaning}',
+  P: 'Pada Jalur Hubungan Utama (Love/P), {card} mengontrol dinamika asmara, jodoh ideal, serta harmonisasi hubungan sosial. {meaning}',
+
+  // Ekstensi Sub-Nodes Pendamping (Companion Nodes)
+  Q: 'Ekstensi Kepribadian luar: {card} memperluas topeng egomu di mata publik, menjembatani manifestasi fisik karakter dari ego luar menuju potensi batin. {meaning}',
+  R: 'Ekstensi Tujuan Hidup makro: {card} menguatkan magnet penarik takdirmu, memperjelas visi idealis spiritual dari malaikat pelindungmu. {meaning}',
+  S: 'Ekstensi Garis Keturunan bawah: {card} menambah kedalaman fondasi materialmu, bertindak sebagai pembuka blokir gerbang rezeki material leluhur. {meaning}',
+  T: 'Ekstensi Sintesis kiri: {card} mengintegrasikan tantangan karma masa lalu, bertindak sebagai katalis pengurai lilitan utang karma masa lalu. {meaning}',
 };
 
-/**
- * PATH B: NASIHAT & TRANSFORMASI (Koreksi UX Baru Untuk Insight Screen)
- * Fokus pada saran tindakan, mitigasi sisi negatif arcana, dan solusi hidup yang akrab.
- */
-export const POSITION_ADVICES: Record<DestinyPointKey, string> = {
+export const POSITION_ADVICES: Partial<Record<DestinyPointKey, string>> = {
   A: 'Sebagai panduan Hari Lahir, energi {card} memintamu untuk menyadari potensi jebakan egomu. Langkah terbaikmu: {advice}',
   B: 'Tantangan spiritual Bulan Lahirmu ({card}) dapat diatasi dengan melatih intuisi. Nasihat untukmu: {advice}',
   C: 'Untuk mengurai sumbatan finansial leluhur lewat jalur {card}, kamu disarankan untuk mengubah pola pikir materi. Solusinya: {advice}',
   D: 'Kunci pelepasan beban masa lalu (Karmic Tail) milikmu berada pada kendali energi {card}. Langkah penyembuhannya: {advice}',
   E: 'Agar Esensi Jiwamu ({card}) tetap selaras dan damai, luangkan waktu secara rutin untuk melakukan terapi batin ini: {advice}',
-  
-  F: 'Nasihat penyeimbang Zona Leluhur Kiri-Atas ({card}): {advice}',
-  G: 'Nasihat interaksi sosial silsilah ({card}): {advice}',
-  H: 'Solusi tantangan materi leluhur ({card}): {advice}',
-  I: 'Cara harmonisasi konflik masa lalu ({card}): {advice}',
-  J: 'Untuk mengaktifkan Bakat Tersembunyi dari simbol {card}: {advice}',
-  K: 'Guna membangkitkan Kekuatan Batin dari getaran {card}: {advice}',
-  L: 'Arah bimbingan potensi spiritual finansialmu ({card}): {advice}',
-  M: 'Saran navigasi karier dan takdir keuanganmu ({card}): {advice}',
-  N: 'Panduan transformasi garis keturunan melalui {card}: {advice}',
-  O: 'Saran pemahaman esoteris lapisan karma ({card}): {advice}',
-  P: 'Langkah pelengkap siklus transisi spiritual leluhur ({card}): {advice}',
-  Q: 'Cara menyelaraskan topeng ego publikmu ({card}): {advice}',
-  R: 'Saran untuk memperkuat magnet penarik takdir makro ({card}): {advice}',
-  S: 'Panduan memperkokoh pondasi material bawah ({card}): {advice}',
-  T: 'Cara mengintegrasikan tantangan karma masa lalu ({card}): {advice}',
-  
-  A1: 'Panduan aksi menjembatani manifestasi fisik karakter ({card}): {advice}',
-  A2: 'Cara mengalirkan energi bakat tersembunyi ke esensi jiwa ({card}): {advice}',
-  A3: 'Langkah sinkronisasi ego mental dengan kebenaran batin ({card}): {advice}',
-  B1: 'Cara memperjelas visi idealis spiritual pelindungmu ({card}): {advice}',
-  B2: 'Langkah merespons panggilan batin untuk menyatu dengan jiwa ({card}): {advice}',
-  B3: 'Cara menyempurnakan misi penyembuhan energi internal ({card}): {advice}',
-  C1: 'Langkah konkret pembuka blokir gerbang rezeki ({card}): {advice}',
-  C2: 'Strategi meneruskan kestabilan potensi spiritual ke aset nyata ({card}): {advice}',
-  C3: 'Cara menyatukan kelimpahan materi dengan kepuasan batin ({card}): {advice}',
-  D1: 'Tindakan nyata sebagai katalis pengurai utang karma ({card}): {advice}',
-  D2: 'Cara menjaga stabilitas mental saat menghadapi ujian berulang ({card}): {advice}',
-  D3: 'Langkah pembersihan beban jiwa agar melangkah bebas ({card}): {advice}',
-  E1: 'Cara memperkuat koneksi spiritual kesadaran kolektif atas ({card}): {advice}',
-  E2: 'Panduan memanifestasikan kesehatan dan warisan fisik bawah ({card}): {advice}',
+
+  // Nasihat Solutif Kotak Leluhur
+  F: 'Nasihat penyeimbang Leluhur Ayah (Spiritual - {card}): Aktifkan kebijaksanaan maskulin spiritualmu dengan cara: {advice}',
+  G: 'Nasihat penyeimbang Leluhur Ibu (Spiritual - {card}): Dengarkan suara batin silsilah femininmu dengan langkah: {advice}',
+  H: 'Solusi tantangan Leluhur Ayah (Material - {card}): Langkah pembersihan hambatan finansial dan pemulihan karma kerja: {advice}',
+  I: 'Cara harmonisasi Leluhur Ibu (Material - {card}): Langkah konkret menyelaraskan ego fisik dengan kenyamanan emosional materi: {advice}',
+
+  // Inner Cross
+  J: 'Untuk mengaktifkan Bakat Tersembunyi dari simbol {card}, cara mengalirkan energinya ke esensi jiwa: {advice}',
+  K: 'Guna membangkitkan Kekuatan Batin dari getaran {card}, langkah merespons panggilan batin untuk menyatu dengan jiwa: {advice}',
+  L: 'Arah bimbingan potensi spiritual finansialmu ({card}), strategi meneruskan kestabilan ke aset nyata: {advice}',
+  M: 'Saran navigasi karier dan takdir keuanganmu ({card}), cara menjaga stabilitas mental saat menghadapi ujian berulang: {advice}',
+
+  // Nasihat Jalur Uang & Cinta yang Presisi
+  N: 'Untuk menjaga keseimbangan jembatan Cinta-Uang lewat getaran {card}, integrasikan harmoni hidupmu melalui langkah: {advice}',
+  O: 'Untuk mengurai sumbatan di Jalur Keuanganmu ({card}), magnet kemakmuranmu akan aktif maksimal jika kamu: {advice}',
+  P: 'Untuk menarik keharmonisan di Jalur Hubungan/Jodohmu ({card}), perbaiki kualitas interaksi asmaramu dengan: {advice}',
+
+  // Companions
+  Q: 'Cara menyelaraskan topeng ego publikmu ({card}), panduan aksi menjembatani manifestasi fisik karakter: {advice}',
+  R: 'Saran untuk memperkuat magnet penarik takdir makro ({card}), cara memperjelas visi idealis spiritual pelindungmu: {advice}',
+  S: 'Panduan memperkokoh pondasi material bawah ({card}), langkah konkret pembuka blokir gerbang rezeki: {advice}',
+  T: 'Cara mengintegrasikan tantangan karma masa lalu ({card}), tindakan nyata sebagai katalis pengurai utang karma: {advice}',
 };
+
+/**
+ * Peta alias untuk menyelaraskan nama key alternatif (seperti alias UI atau channel)
+ * ke key alfabet dasar (A - T)
+ */
+const ALIAS_KEY_MAP: Record<string, DestinyPointKey> = {
+  LM_Center: 'N',
+  Money: 'O',
+  Love: 'P',
+  A1: 'J',
+  B1: 'K',
+  C1: 'L',
+  D1: 'M',
+  SubA: 'Q',
+  SubB: 'R',
+  SubC: 'S',
+  SubD: 'T',
+};
+
+/**
+ * Normalisasi key ke DestinyPointKey standar
+ */
+function resolveCanonicalKey(key: DestinyPointKey | string): DestinyPointKey {
+  return ALIAS_KEY_MAP[key] ?? (key as DestinyPointKey);
+}
 
 /**
  * 1. Menghasilkan interpretasi deskriptif (Untuk Matrix Modal)
  */
 export function getPositionInterpretation(
-  key: DestinyPointKey,
+  key: DestinyPointKey | string,
   cardName: string | undefined,
-  meaningSnippet: string | undefined,
+  meaningSnippet: string | undefined
 ): string {
-  const template = POSITION_CONTEXTS[key] ?? '{card} hadir pada titik {key}. {meaning}';
+  const canonicalKey = resolveCanonicalKey(key);
+  const template = POSITION_CONTEXTS[canonicalKey] ?? '{card} hadir pada titik {key}. {meaning}';
   const safeCardName = cardName || 'Arcana Rahasia';
   const safeMeaning = meaningSnippet || 'Definisi sedang diproses.';
 
   return template
-    .replace('{card}', safeCardName)
-    .replace('{meaning}', safeMeaning)
-    .replace('{key}', key);
+    .replace(/{card}/g, safeCardName)
+    .replace(/{meaning}/g, safeMeaning)
+    .replace(/{key}/g, String(key));
 }
 
 /**
  * 2. Menghasilkan nasihat solutif khusus (Untuk Insight Screen)
  */
 export function getPositionAdvice(
-  key: DestinyPointKey,
+  key: DestinyPointKey | string,
   cardName: string | undefined,
-  adviceSnippet: string | undefined,
+  adviceSnippet: string | undefined
 ): string {
-  const template = POSITION_ADVICES[key] ?? 'Nasihat titik {key} ({card}): {advice}';
+  const canonicalKey = resolveCanonicalKey(key);
+  const template = POSITION_ADVICES[canonicalKey] ?? 'Nasihat titik {key} ({card}): {advice}';
   const safeCardName = cardName || 'Arcana Rahasia';
   const safeAdvice = adviceSnippet || 'Fokus pada kesadaran diri dan harmonisasi energi hari ini.';
 
   return template
-    .replace('{card}', safeCardName)
-    .replace('{advice}', safeAdvice)
-    .replace('{key}', key);
+    .replace(/{card}/g, safeCardName)
+    .replace(/{advice}/g, safeAdvice)
+    .replace(/{key}/g, String(key));
 }

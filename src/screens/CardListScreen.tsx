@@ -1,5 +1,13 @@
 import React, { useState } from 'react';
-import { Text, StyleSheet, FlatList, Image, useWindowDimensions, TouchableOpacity, ViewStyle } from 'react-native';
+import {
+  Text,
+  StyleSheet,
+  FlatList,
+  Image,
+  useWindowDimensions,
+  TouchableOpacity,
+  ViewStyle,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useThemeStore } from '@store/theme-store';
 import { getArcanaByNumber } from '@core/arcana';
@@ -11,12 +19,14 @@ import type { ArcanaDefinition } from '@core/arcana/types';
 import { PointDetailModal, type DetailablePoint } from '@components/ui/PointDetailModal';
 
 // Membuat array berisi 22 Major Arcana (0 - 21)
-const MAJOR_ARCANA = Array.from({ length: 22 }, (_, i) => getArcanaByNumber(i)).filter(Boolean) as ArcanaDefinition[];
+const MAJOR_ARCANA = Array.from({ length: 22 }, (_, i) => getArcanaByNumber(i)).filter(
+  Boolean
+) as ArcanaDefinition[];
 
 export function CardListScreen() {
   const colors = useThemeStore(state => state.getColors());
   const { width } = useWindowDimensions();
-  
+
   // State untuk mengontrol data modal yang aktif
   const [selectedPoint, setSelectedPoint] = useState<DetailablePoint | null>(null);
 
@@ -26,15 +36,18 @@ export function CardListScreen() {
   // Fungsi saat kartu ditekan untuk memicu modal muncul
   const handleCardPress = (item: ArcanaDefinition) => {
     setSelectedPoint({
-      key: item.id.toString(),    
-      label: 'Major Arcana',       
+      key: item.id.toString(),
+      label: 'Major Arcana',
       value: item.id === 0 ? 22 : item.id, // 🔮 INTERSEPTOR: Kirim ID 22 ke modal jika aslinya 0
-      arcana: item as any,         
+      arcana: item as any,
     });
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['bottom']}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.background }]}
+      edges={['bottom']}
+    >
       <FlatList
         // 🛡️ AMAN GESTURE: Mengubah key secara dinamis saat kolom berganti agar FlatList me-remount grid tanpa crash
         key={`flatlist-grid-${numColumns}`}
@@ -45,25 +58,27 @@ export function CardListScreen() {
         columnWrapperStyle={styles.row}
         renderItem={({ item }) => {
           const image = getArcanaImage(item.tarotName);
-          
+
           // 🔮 INTERSEPTOR VISUAL: Ubah ID 0 (The Fool) menjadi nomor tampilan #22 agar ramah dibaca pengguna
           const displayId = item.id === 0 ? 22 : item.id;
 
           return (
-            <TouchableOpacity 
+            <TouchableOpacity
               activeOpacity={0.8}
               onPress={() => handleCardPress(item)}
               style={[styles.card, { width: cardWidth, backgroundColor: colors.surface }]}
             >
               {image && (
-                <Image 
-                  source={image} 
-                  style={[styles.image, { width: cardWidth - 16, height: (cardWidth - 16) / 0.6 }]} 
-                  resizeMode="contain" 
+                <Image
+                  source={image}
+                  style={[styles.image, { width: cardWidth - 16, height: (cardWidth - 16) / 0.6 }]}
+                  resizeMode="contain"
                 />
               )}
               <Text style={[styles.cardNumber, { color: colors.primary }]}>#{displayId}</Text>
-              <Text style={[styles.tarotName, { color: colors.text }]} numberOfLines={1}>{item.tarotName}</Text>
+              <Text style={[styles.tarotName, { color: colors.text }]} numberOfLines={1}>
+                {item.tarotName}
+              </Text>
               <Text style={[styles.keywords, { color: colors.textSecondary }]} numberOfLines={2}>
                 {item.keywords.slice(0, 3).join(', ')}
               </Text>
@@ -73,10 +88,7 @@ export function CardListScreen() {
       />
 
       {/* Tampilkan modal secara kondisional tepat di bawah list */}
-      <PointDetailModal 
-        point={selectedPoint} 
-        onClose={() => setSelectedPoint(null)} 
-      />
+      <PointDetailModal point={selectedPoint} onClose={() => setSelectedPoint(null)} />
     </SafeAreaView>
   );
 }
@@ -89,14 +101,13 @@ const styles = StyleSheet.create({
     borderRadius: BORDER_RADIUS.xl,
     padding: SPACING.sm,
     alignItems: 'center',
-    ...(SHADOWS.md as ViewStyle), 
+    ...(SHADOWS.md as ViewStyle),
   },
   image: {
     borderRadius: BORDER_RADIUS.lg,
     marginBottom: SPACING.xs,
   },
   cardNumber: { fontSize: FONT_SIZE.xs, fontWeight: '700', marginBottom: 2 },
-  tarotName: { fontSize: FONT_SIZE.sm, fontWeight: '600', textAlign: 'center' }, 
+  tarotName: { fontSize: FONT_SIZE.sm, fontWeight: '600', textAlign: 'center' },
   keywords: { fontSize: 10, textAlign: 'center', marginTop: 2 },
 });
- 

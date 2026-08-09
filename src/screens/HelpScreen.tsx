@@ -1,78 +1,95 @@
-// src/screens/HelpScreen.tsx
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useThemeStore } from '@store/theme-store';
-import { SPACING, FONT_SIZE, BORDER_RADIUS } from '@constants/theme';
+import { SPACING, FONT_SIZE, BORDER_RADIUS, SHADOWS } from '@constants/theme';
 
 export function HelpScreen() {
   const colors = useThemeStore(state => state.getColors());
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <ScrollView contentContainerStyle={styles.content}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.background }]}
+      edges={['top', 'left', 'right']}
+    >
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <Text style={[styles.title, { color: colors.text }]}>📖 Panduan Penggunaan</Text>
 
-        <Section title="🔢 Memasukkan Tanggal Lahir" color={colors.text}>
-  Gunakan format DD/MM/YYYY. Setelah mengisi, tekan tombol &quot;Hitung Matriks&quot;.
-  Hasil perhitungan akan langsung ditampilkan di tab Matriks dan Insight.
-</Section>
-
-        <Section title="💎 Memahami Diagram Matriks" color={colors.text}>
-          Diagram berbentuk diamond menampilkan titik-titik energi (A-T dan A1-E2).
-          Setiap titik memiliki nilai 1-22 yang dipetakan ke kartu Arcana Mayor.
-          Tap titik mana pun untuk melihat detail artinya.
+        {/* 1. Tanggal Lahir */}
+        <Section title="🔢 Memasukkan Tanggal Lahir">
+          Gunakan format DD/MM/YYYY pada beranda. Setelah dihitung, cetak biru matriks takdirmu akan
+          langsung aktif dan bisa diakses secara mendalam di tab Matriks, Insight, Timeline, dan
+          Pasangan.
         </Section>
 
-        <Section title="🃏 Arti Setiap Titik" color={colors.text}>
-          - **A**: Hari Lahir – identitas dasar{'\n'}
-          - **B**: Bulan Lahir – respons emosi{'\n'}
-          - **C**: Garis Keturunan – energi leluhur{'\n'}
-          - **D**: Sintesis Pertama – arah hidup{'\n'}
-          - **E**: Titik Pusat – esensi jiwa{'\n'}
-          - **F**: Zona Nyaman{'\n'}
-          - **G**: Zona Sosial{'\n'}
-          - **H**: Zona Tantangan{'\n'}
-          - **I**: Zona Keseimbangan{'\n'}
-          - **J**: Bakat Tersembunyi{'\n'}
-          - **K**: Kekuatan Batin{'\n'}
-          - **L**: Potensi Spiritual{'\n'}
-          - **M**: Arah Perkembangan{'\n'}
-          - **N-T**: Ekstensi tambahan{'\n'}
-          - **A1-E2**: Titik pendukung yang memberi detail lebih dalam.
+        {/* 2. Memahami Diagram Matriks */}
+        <Section title="💎 Memahami Diagram Matriks">
+          Diagram Matriks Takdir memetakan{' '}
+          <Text style={styles.boldText}>20 koordinat energi jiwamu (A sampai T)</Text>. Setiap titik
+          memiliki nilai 1–22 yang dipetakan secara khusus ke dalam 22 Arketipe Arcana Mayor.
+          Tap/ketuk titik mana pun di diagram untuk membuka lembar analisis detail.
         </Section>
 
-        <Section title="🌟 Insight & Roda Takdir" color={colors.text}>
-          Tab Insight memberikan narasi personal berdasarkan elemen dominan dan kartu inti Anda.
-          Roda Takdir menunjukkan urutan kartu yang membentuk perjalanan spiritual Anda.
-          Ikuti langkahnya untuk mengembangkan potensi diri.
+        {/* 3. Panduan Peta 20 Titik Core */}
+        <Section title="🃏 Peta Koordinat Energi Utama (A–T)">
+          • <Text style={styles.boldText}>A</Text> : Hari Lahir (Karakter & Topeng Fisik){'\n'}•{' '}
+          <Text style={styles.boldText}>B</Text> : Bulan Lahir (Kekuatan Mental & Intuisi){'\n'}•{' '}
+          <Text style={styles.boldText}>C</Text> : Tahun Lahir (Kelimpahan & Finansial){'\n'}•{' '}
+          <Text style={styles.boldText}>D</Text> : Karma Masa Lalu (Akar Masalah Bawah Sadar){'\n'}•{' '}
+          <Text style={styles.boldText}>E</Text> : Titik Pusat (Inti Jiwa & Rumah Batin){'\n'}•{' '}
+          <Text style={styles.boldText}>F–M</Text> : Titik Karir, Ujian Karakter, & Potensi Talenta
+          {'\n'}• <Text style={styles.boldText}>N–T</Text> : Ekstensi Garis Takdir, Misi Hidup, &
+          Spiritualitas
         </Section>
 
-        <Section title="🕐 Timeline Arcana Tahunan" color={colors.text}>
-          Setiap tahun memiliki kartu yang memengaruhi energi Anda.
-          Gunakan tab Timeline untuk melihat arcana tahunan dari masa lalu hingga masa depan.
+        {/* 4. Insight & Alur Evolusi */}
+        <Section title="🌌 Insight & Refleksi Batin">
+          Tab Insight menyajikan intisari diri berdasarkan elemen dominan, statistik sebaran arcana,
+          hingga utang karma. Fitur <Text style={styles.boldText}>Alur Evolusi Jiwa</Text> membantu
+          mengukur apakah energimu sedang dalam kondisi{' '}
+          <Text style={styles.boldText}>Terhambat, Transisi,</Text> atau{' '}
+          <Text style={styles.boldText}>Mengalir Selaras (Flow)</Text>.
         </Section>
 
-        <Section title="💑 Compatibility" color={colors.text}>
-          Masukkan tanggal lahir pasangan untuk melihat skor kecocokan dan elemen dominan kalian.
+        {/* 5. Totem Sanctuary */}
+        <Section title="🦅 Totem Sanctuary (Aliansi 4 Pilar)">
+          20 koordinat energimu didistribusikan secara otomatis ke dalam 4 Pilar Penjaga Elemen:{' '}
+          <Text style={styles.boldText}>Malaikat (Udara)</Text>,{' '}
+          <Text style={styles.boldText}>Elang (Air)</Text>,{' '}
+          <Text style={styles.boldText}>Singa (Api)</Text>, dan{' '}
+          <Text style={styles.boldText}>Lembu (Bumi)</Text>. Gunakan seksi ini untuk melihat pilar
+          mana yang paling dominan menopang takdirmu.
+        </Section>
+
+        {/* 6. Timeline Arcana */}
+        <Section title="🕐 Timeline Arcana Tahunan">
+          Setiap fase usia dipengaruhi oleh siklus Arcana tertentu. Gunakan tab Timeline untuk
+          memetakan dinamika energi, peluang rezeki, dan potensi ujian dari tahun ke tahun.
+        </Section>
+
+        {/* 7. Compatibility / Pasangan */}
+        <Section title="💑 Compatibility & Composite Matrix">
+          Masukkan tanggal lahir pasangan untuk mengalkulasi skor keselarasan, elemen dominan, serta{' '}
+          <Text style={styles.boldText}>Arcana Pusat Komposit (Titik E Bersama)</Text> untuk
+          memahami dinamika dan tantangan karma hubungan kalian.
         </Section>
 
         <Text style={[styles.disclaimer, { color: colors.textMuted }]}>
-          Aplikasi ini adalah alat bantu refleksi diri. Tidak ada yang bersifat mutlak.
-          Gunakan dengan bijak dan selalu andalkan intuisi Anda sendiri.
+          Aplikasi ini adalah alat bantu refleksi dan pengenalan diri. Tidak ada yang bersifat
+          mutlak. Gunakan dengan bijak dan selalu andalkan intuisi serta doa kepada Tuhan.
         </Text>
       </ScrollView>
     </SafeAreaView>
   );
 }
 
-function Section({ title, children, color }: { title: string; children: React.ReactNode; color: string }) {
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  const colors = useThemeStore(state => state.getColors());
+
   return (
-    <View style={styles.section}>
-      <Text style={[styles.sectionTitle, { color }]}>{title}</Text>
-      <Text style={[styles.sectionText, { color: useThemeStore.getState().getColors().textSecondary }]}>
-        {children}
-      </Text>
+    <View style={[styles.section, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+      <Text style={[styles.sectionTitle, { color: colors.text }]}>{title}</Text>
+      <Text style={[styles.sectionText, { color: colors.textSecondary }]}>{children}</Text>
     </View>
   );
 }
@@ -80,14 +97,24 @@ function Section({ title, children, color }: { title: string; children: React.Re
 const styles = StyleSheet.create({
   container: { flex: 1 },
   content: { padding: SPACING.md, paddingBottom: SPACING.xxl },
-  title: { fontSize: FONT_SIZE['3xl'], fontWeight: '800', marginBottom: SPACING.lg },
+  title: { fontSize: FONT_SIZE.xxl, fontWeight: '800', marginBottom: SPACING.lg },
   section: {
-    marginBottom: SPACING.lg,
-    backgroundColor: 'rgba(255,255,255,0.05)',
+    marginBottom: SPACING.md,
     borderRadius: BORDER_RADIUS.xl,
     padding: SPACING.md,
+    borderWidth: 1,
+    ...SHADOWS.sm,
   },
-  sectionTitle: { fontSize: FONT_SIZE.lg, fontWeight: '700', marginBottom: SPACING.xs },
-  sectionText: { fontSize: FONT_SIZE.md, lineHeight: 24 },
-  disclaimer: { fontSize: FONT_SIZE.sm, fontStyle: 'italic', textAlign: 'center', marginTop: SPACING.xl },
+  sectionTitle: { fontSize: FONT_SIZE.md, fontWeight: '700', marginBottom: SPACING.xs },
+  sectionText: { fontSize: FONT_SIZE.sm, lineHeight: 22 },
+  boldText: { fontWeight: '700' },
+  disclaimer: {
+    fontSize: 11,
+    fontStyle: 'italic',
+    textAlign: 'center',
+    marginTop: SPACING.lg,
+    lineHeight: 18,
+  },
 });
+
+export default HelpScreen;

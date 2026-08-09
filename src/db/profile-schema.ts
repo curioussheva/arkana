@@ -8,7 +8,9 @@ export const destinyProfiles = sqliteTable('destiny_profiles', {
   id: text('id').primaryKey(),
   name: text('name').notNull(),
   birthDate: text('birth_date').notNull(),
-  createdAt: integer('created_at', { mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
+  createdAt: integer('created_at', { mode: 'timestamp' })
+    .notNull()
+    .$defaultFn(() => new Date()),
 });
 
 export type DestinyProfile = typeof destinyProfiles.$inferSelect;

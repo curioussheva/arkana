@@ -2,118 +2,74 @@
 
 import { parseBirthDate } from './utils';
 import { MATRIX_VERSION } from './constants';
-import { buildPoints } from './builders';
 
-import { analyzeNamedLines } from './lines';
-
-import { calculateMainPoints } from './calculator/main';
+import { analyzeNamedLines } from './analysis/named-lines';
+import { calculate37PointsMatrix } from './calculator/main';
 import { calculateBridgePoints } from './calculator/bridge';
-import { calculateMacroPoints } from './calculator/macro';
-import { calculateEnergyPoints } from './calculator/energy';
 import { calculateDestinyLevels } from './calculator/destiny';
 
-import type {
-  DestinyMatrix,
-  DestinyMatrixInput,
-} from './types';
+import type { DestinyMatrix, DestinyMatrixInput, DestinyMatrixPoints } from './types';
+import type { MainPoints } from './calculator/types';
 
 export class DestinyMatrixEngine {
+  calculate(input: DestinyMatrixInput): DestinyMatrix {
+    // 1. Validasi format string awal sebelum diurai demi keamanan runtime
+    if (!input.birthDate || typeof input.birthDate !== 'string') {
+      throw new Error('Tanggal lahir wajib diisi dengan format string YYYY-MM-DD.');
+    }
 
-  calculate(
-    input: DestinyMatrixInput,
-  ): DestinyMatrix {
+    // 2. Parse string tanggal lahir menjadi { day, month, year }
+    const birthDate = parseBirthDate(input.birthDate);
 
-    const birthDate = parseBirthDate(
-      input.birthDate,
+    if (!birthDate || isNaN(birthDate.day) || isNaN(birthDate.month) || isNaN(birthDate.year)) {
+      throw new Error(
+        `Format tanggal lahir tidak valid: "${input.birthDate}". Pastikan menggunakan standar ISO YYYY-MM-DD.`
+      );
+    }
+
+    // 3. Kalkulasi 37 titik utama (Main, Ancestral, Inner, Channels, Companions, Timeline)
+    const points: DestinyMatrixPoints = calculate37PointsMatrix(
+      birthDate.day,
+      birthDate.month,
+      birthDate.year
     );
 
-    // 1. Main Matrix
-    const main = calculateMainPoints(
-      birthDate,
-    );
-
-    // 2. Bridge Layer
-    const bridge = calculateBridgePoints(
-      main,
-    );
-
-    // 3. Macro Layer
-    const macro = calculateMacroPoints(
-      main,
-      bridge,
-    );
-
-    // 4. Energy Layer
-    const energy = calculateEnergyPoints(
-      main,
-      bridge,
-      macro,
-    );
-
-    // ─── 🎯 CORRECTION INTERCEPTOR LAYER ──────────────────────────────────
-    // Menggabungkan seluruh hasil kalkulasi mentah
-    const combinedRaw = {
-      ...main,
-      ...bridge,
-      ...macro,
-      ...energy,
+    // Ekstrak nilai numerik murni dari object DestinyPoint ke MainPoints primitif
+    // engine.ts:37-41
+    const numericMain: MainPoints = {
+      A: points.A!.value,
+      B: points.B!.value,
+      C: points.C!.value,
+      D: points.D!.value,
+      E: points.E!.value,
     };
 
-    // Peta Penyelaras: Memaksa properti Spasial (A1-E3) mengambil nilai 
-    // dari Alfabet Hitungan yang BENAR sesuai panduan Geometri Kompas Sejati.
-    const syncedRaw: Record<string, number> = { ...combinedRaw };
+    // 4. Kalkulasi sekunder struktural untuk melayani fungsi takdir tingkat lanjut
+    const bridge = calculateBridgePoints(numericMain);
 
-    // 1. Jalur Langit (Atas)
-    if (combinedRaw.Q !== undefined) syncedRaw['A1'] = combinedRaw.Q; // Satelit Atas (7)
-    if (combinedRaw.J !== undefined) syncedRaw['A2'] = combinedRaw.J; // Jembatan Tengah Atas (22) 👈 FIX UTAMA A2!
-    if (combinedRaw.I !== undefined) syncedRaw['A3'] = combinedRaw.I; // Diagonal Atas-Kiri (5)     👈 FIX UTAMA A3!
- 
-    // 2. Jalur Spiritual / Sosial (Kanan)
-    if (combinedRaw.R !== undefined) syncedRaw['B1'] = combinedRaw.R; // Satelit Kanan (8)
-    if (combinedRaw.K !== undefined) syncedRaw['B2'] = combinedRaw.K; // Jembatan Kanan (18)
-    if (combinedRaw.F !== undefined) syncedRaw['B3'] = combinedRaw.F; // Diagonal Atas-Kanan (20)
+    // 5. Hitung tingkat takdir (Personal, Social, Spiritual, Level 1-8) patuh pada pakem Natalia Ladini
+    const destinies = calculateDestinyLevels(numericMain, bridge);
 
-    // 3. Jalur Bumi / Finansial (Bawah)
-    if (combinedRaw.S !== undefined) syncedRaw['C1'] = combinedRaw.S; // Satelit Bawah (7)
-    if (combinedRaw.L !== undefined) syncedRaw['C2'] = combinedRaw.L; // Jembatan Bawah (4)
-    if (combinedRaw.G !== undefined) syncedRaw['C3'] = combinedRaw.G; // Diagonal Bawah-Kanan (11)
+    // 6. Ambil analisis pemetaan garis fungsional (Karmic Tail, Love, Money)
+    const namedLines = analyzeNamedLines(points);
 
-    // 4. Jalur Fisik / Karma (Kiri)
-    if (combinedRaw.T !== undefined) syncedRaw['D1'] = combinedRaw.T; // Satelit Kiri (20)
-    if (combinedRaw.M !== undefined) syncedRaw['D2'] = combinedRaw.M; // Jembatan Kiri (15)
-    if (combinedRaw.H !== undefined) syncedRaw['D3'] = combinedRaw.H; // Diagonal Bawah-Kiri (8)
-
-    // 5. Klaster Ekstensi Karmic Tail (Bawah-Kiri)
-    if (combinedRaw.N !== undefined) syncedRaw['E1'] = combinedRaw.N; // Satelit Internal (19)
-    if (combinedRaw.O !== undefined) syncedRaw['E2'] = combinedRaw.O; // Satelit Cyan Bawah (7)
-    if (combinedRaw.P !== undefined) syncedRaw['E3'] = combinedRaw.P; // Satelit Eksternal Kiri (5)
-
-    // 5. Build Point Collection (Gunakan objek syncedRaw yang sudah lurus)
-    const points = buildPoints(syncedRaw as any);
-
-    // 6. Destiny Levels (Sudah dibersihkan dari duplikasi baris)
-    const destinies = calculateDestinyLevels(
-      main,
-      energy,
-    );
+    // 7. Bentuk kode ringkas Karmic Tail untuk kebutuhan pencarian index database/konten (e.g., "18-6-15")
+    const karmicTailCode = namedLines.karmicTail.pattern;
 
     return {
       version: MATRIX_VERSION,
       calculatedAt: new Date().toISOString(),
-      birthDate: input.birthDate, 
+      birthDate: input.birthDate,
       input,
       points,
       destinies,
-      namedLines: analyzeNamedLines(
-        points,
-      ),
+      namedLines,
+      karmicTailCode,
     };
   }
 }
 
-/**
- * Singleton Instance
- */
+// Singleton instance pattern
 let defaultEngine: DestinyMatrixEngine | null = null;
 
 export function getDestinyMatrixEngine(): DestinyMatrixEngine {

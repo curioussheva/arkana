@@ -12,11 +12,8 @@ interface Props {
 export function YinYangGridCard({ data, onPress }: Props) {
   const colors = useThemeStore(state => state.getColors());
 
-  const dominantColor = data?.dominant === 'Yang'
-    ? '#ef4444'
-    : data?.dominant === 'Yin'
-    ? '#3b82f6'
-    : '#10b981';
+  const dominantColor =
+    data?.dominant === 'Yang' ? '#ef4444' : data?.dominant === 'Yin' ? '#3b82f6' : '#10b981';
 
   return (
     <TouchableOpacity
@@ -40,22 +37,22 @@ export function YinYangGridCard({ data, onPress }: Props) {
 
       {data ? (
         <View style={styles.miniBarContainer}>
-          <View style={[styles.miniYin, { flex: data.yinPercentage, backgroundColor: '#3b82f6' }]} />
-          <View style={[styles.miniYang, { flex: data.yangPercentage, backgroundColor: '#ef4444' }]} />
+          <View
+            style={[styles.miniYin, { flex: data.yinPercentage, backgroundColor: '#3b82f6' }]}
+          />
+          <View
+            style={[styles.miniYang, { flex: data.yangPercentage, backgroundColor: '#ef4444' }]}
+          />
         </View>
       ) : (
         <Text style={[styles.emptyText, { color: colors.textMuted }]}>Menunggu kalkulasi...</Text>
       )}
 
       <View style={[styles.badge, { backgroundColor: dominantColor + '20' }]}>
-        <Text style={[styles.badgeText, { color: dominantColor }]}>
-          {data?.dominant ?? '—'}
-        </Text>
+        <Text style={[styles.badgeText, { color: dominantColor }]}>{data?.dominant ?? '—'}</Text>
       </View>
 
-      <Text style={[styles.actionPrompt, { color: colors.primary }]}>
-        Lihat detail energi →
-      </Text>
+      <Text style={[styles.actionPrompt, { color: colors.primary }]}>Lihat detail energi →</Text>
     </TouchableOpacity>
   );
 }
@@ -77,20 +74,26 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.xs,
   },
   iconBadge: {
-    width: 32, height: 32, borderRadius: 16,
-    justifyContent: 'center', alignItems: 'center',
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   icon: { fontSize: 16 },
   tag: {
-    paddingHorizontal: 8, paddingVertical: 3,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
     borderRadius: BORDER_RADIUS.sm,
   },
   tagText: { fontSize: 9, fontWeight: '800', letterSpacing: 0.5 },
   title: { fontSize: FONT_SIZE.md, fontWeight: '700', marginTop: SPACING.xs },
   subtitle: { fontSize: 11, marginTop: 1 },
   miniBarContainer: {
-    flexDirection: 'row', height: 10,
-    borderRadius: BORDER_RADIUS.sm, overflow: 'hidden',
+    flexDirection: 'row',
+    height: 10,
+    borderRadius: BORDER_RADIUS.sm,
+    overflow: 'hidden',
     marginVertical: SPACING.sm,
   },
   miniYin: {},
@@ -99,10 +102,11 @@ const styles = StyleSheet.create({
   badge: {
     alignSelf: 'flex-start',
     borderRadius: BORDER_RADIUS.full,
-    paddingHorizontal: SPACING.sm, paddingVertical: 3,
+    paddingHorizontal: SPACING.sm,
+    paddingVertical: 3,
   },
   badgeText: { fontSize: 10, fontWeight: '700' },
   actionPrompt: { fontSize: 10, fontWeight: '700', marginTop: SPACING.md },
 });
 
-export default YinYangGridCard; 
+export default YinYangGridCard;

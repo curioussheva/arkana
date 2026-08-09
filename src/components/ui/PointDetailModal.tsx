@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   Modal,
   View,
@@ -8,12 +8,14 @@ import {
   TouchableOpacity,
   ScrollView,
   useWindowDimensions,
+  LayoutAnimation,
+  Platform,
 } from 'react-native';
 
 import { useThemeStore } from '@store/theme-store';
 import { SPACING, FONT_SIZE, BORDER_RADIUS, SHADOWS } from '@constants/theme';
 import { getArcanaImage } from '@constants/arcana-images';
-import type { ArcanaDefinition } from '@core/arcana/types'; // Menggunakan tipe data arcana yang tepat
+import type { ArcanaDefinition } from '@core/arcana/types';
 
 export interface DetailablePoint {
   key: string;
@@ -34,7 +36,6 @@ const ELEMENT_EMOJI: Record<string, string> = {
   Earth: '🌱',
 };
 
-// Peta nama cadangan jika properti nama dari database kosong/undefined saat runtime
 const ARCANA_NAMES_FALLBACK: Record<number, string> = {
   0: 'The Fool',
   1: 'The Magician',
@@ -58,86 +59,108 @@ const ARCANA_NAMES_FALLBACK: Record<number, string> = {
   19: 'The Sun',
   20: 'Judgement',
   21: 'The World',
-  22: 'The Fool', 
+  22: 'The Fool',
 };
 
 export function PointDetailModal({ point, onClose }: Props) {
   const { width, height } = useWindowDimensions();
   const colors = useThemeStore(state => state.getColors());
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
 
-  if (!point) return null;
+  const toggleSection = useCallback((sectionKey: string) => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setOpenSections(prev => ({
+      ...prev,
+      [sectionKey]: !prev[sectionKey],
+    }));
+  }, []);
 
-  // Safe fallback untuk objek arcana jika strukturnya berbeda di tingkat runtime tanpa menggunakan 'any'
-  const arcana: ArcanaDefinition = point.arcana || point;
+  if (!point?.arcana) return null;
 
-  // 1. RESOLVE ID/VALUE: Menggunakan nullish coalescing agar kartu bernilai 0 (The Fool) tidak hilang
-  const rawId: number = point.value ?? arcana.id ?? 0;
+  const arcana = point.arcana;
+  const rawId = point.value ?? arcana.id ?? 0;
   const cardId = String(rawId);
 
-  // 2. RESOLVE NAMA & GAMBAR: 
-  // Gunakan tarotName agar pemanggilan asset gambar klop 100% dengan loader getArcanaImage
   const tarotName = arcana.tarotName || ARCANA_NAMES_FALLBACK[rawId] || 'The Fool';
   const displayTitle = arcana.matrixName || tarotName;
-
-  // Ambil gambar berdasarkan tarotName (atau angka ID jika loader-mu mendukung ID)
   const image = getArcanaImage(tarotName);
 
-  // 3. RASIO KARTU TAROT STANDARD: Menggunakan rasio 1:1.5 yang presisi
   const cardWidth = Math.min(width - SPACING.lg * 4, 280);
   const imageHeight = cardWidth * 1.5;
 
-  const parseSafeText = (textData: string | string[] | undefined): string => {
-    if (Array.isArray(textData)) return textData.join(' ');
-    return textData || '';
+  // ===================== RENDER HELPERS =====================
+
+  const renderSummary = (text?: string) => {
+    if (!text) return null;
+    return (
+      <View style={styles.section}>
+        <Text style={[styles.sectionTitle, { color: colors.primary }]}>Ringkasan</Text>
+        <Text style={[styles.description, { color: colors.text }]}>{text}</Text>
+      </View>
+    );
   };
 
-  const renderSection = (title: string, items?: string[]) => {
+  const renderDropdownText = (sectionKey: string, title: string, text?: string) => {
+    if (!text) return null;
+    const isOpen = !!openSections[sectionKey];
+
+    return (
+      <View style={styles.section}>
+        <TouchableOpacity
+          style={styles.dropdownHeader}
+          onPress={() => toggleSection(sectionKey)}
+          activeOpacity={0.7}
+        >
+          <Text style={[styles.sectionTitle, { color: colors.primary }]}>{title}</Text>
+          <Text style={[styles.chevron, { color: colors.primary }]}>{isOpen ? '▲' : '▼'}</Text>
+        </TouchableOpacity>
+
+        {isOpen && (
+          <View style={styles.dropdownContent}>
+            <Text style={[styles.description, { color: colors.text }]}>{text}</Text>
+          </View>
+        )}
+      </View>
+    );
+  };
+
+  const renderDropdownList = (sectionKey: string, title: string, items?: string[]) => {
     if (!items || items.length === 0) return null;
+    const isOpen = !!openSections[sectionKey];
 
     return (
       <View style={styles.section}>
-        <Text style={[styles.sectionTitle, { color: colors.primary }]}>
-          {title}
-        </Text>
-        {items.map((item, index) => (
-          <Text key={`${title}-${index}`} style={[styles.item, { color: colors.text }]}>
-            • {item}
-          </Text>
-        ))}
+        <TouchableOpacity
+          style={styles.dropdownHeader}
+          onPress={() => toggleSection(sectionKey)}
+          activeOpacity={0.7}
+        >
+          <Text style={[styles.sectionTitle, { color: colors.primary }]}>{title}</Text>
+          <Text style={[styles.chevron, { color: colors.primary }]}>{isOpen ? '▲' : '▼'}</Text>
+        </TouchableOpacity>
+
+        {isOpen && (
+          <View style={styles.dropdownContent}>
+            {items.map((item, index) => (
+              <Text
+                key={`item-\( {sectionKey}- \){index}-${item.slice(0, 12)}`} // ← key lebih unik
+                style={[styles.item, { color: colors.text }]}
+              >
+                • {item}
+              </Text>
+            ))}
+          </View>
+        )}
       </View>
     );
   };
 
-  const renderText = (title: string, value?: string | string[]) => {
-    const safeText = parseSafeText(value);
-    if (!safeText) return null;
-
-    return (
-      <View style={styles.section}>
-        <Text style={[styles.sectionTitle, { color: colors.primary }]}>
-          {title}
-        </Text>
-        <Text style={[styles.description, { color: colors.text }]}>
-          {safeText}
-        </Text>
-      </View>
-    );
-  };
+  // ===================== MAIN RENDER =====================
 
   return (
-    <Modal
-      visible
-      transparent
-      animationType="fade"
-      onRequestClose={onClose}
-      statusBarTranslucent
-    >
+    <Modal visible transparent animationType="fade" onRequestClose={onClose} statusBarTranslucent>
       <View style={styles.container}>
-        <TouchableOpacity
-          style={styles.backdrop}
-          activeOpacity={1}
-          onPress={onClose}
-        />
+        <TouchableOpacity style={styles.backdrop} activeOpacity={1} onPress={onClose} />
 
         <View
           style={[
@@ -148,30 +171,38 @@ export function PointDetailModal({ point, onClose }: Props) {
             },
           ]}
         >
-          <ScrollView
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.content}
-          >
-            {/* Bagian Visual Gambar Kartu */}
+          <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
+            {/* Gambar Kartu */}
             {image ? (
-              <View style={[styles.imageContainer, { width: cardWidth, height: imageHeight, backgroundColor: colors.backgroundLight }]}>
+              <View
+                style={[
+                  styles.imageContainer,
+                  {
+                    width: cardWidth,
+                    height: imageHeight,
+                    backgroundColor: colors.backgroundLight,
+                  },
+                ]}
+              >
                 <Image
                   source={image}
                   style={{ width: cardWidth, height: imageHeight }}
-                  resizeMode="contain" 
+                  resizeMode="contain"
                 />
               </View>
             ) : (
-              <View style={[
-                styles.placeholder, 
-                { 
-                  width: cardWidth, 
-                  height: imageHeight, 
-                  backgroundColor: colors.backgroundLight,
-                  borderColor: colors.border + '40',
-                  borderWidth: 2
-                }
-              ]}>
+              <View
+                style={[
+                  styles.placeholder,
+                  {
+                    width: cardWidth,
+                    height: imageHeight,
+                    backgroundColor: colors.backgroundLight,
+                    borderColor: (colors.border || '#ccc') + '40',
+                    borderWidth: 2,
+                  },
+                ]}
+              >
                 <Text style={styles.placeholderEmoji}>🃏</Text>
                 <Text style={[styles.placeholderText, { color: colors.textSecondary }]}>
                   {tarotName}
@@ -179,65 +210,77 @@ export function PointDetailModal({ point, onClose }: Props) {
               </View>
             )}
 
-            {/* Judul Utama (Menggunakan nama indah Matrix) */}
-            <Text style={[styles.title, { color: colors.text }]}>
-              {displayTitle}
-            </Text>
+            {/* Judul */}
+            <Text style={[styles.title, { color: colors.text }]}>{displayTitle}</Text>
 
-            {/* Sub-judul Tarot (Menampilkan "Wheel of Fortune" di bawah nama Matrix) */}
-            {arcana.tarotName && arcana.tarotName !== displayTitle ? (
-              <Text style={[styles.matrixName, { color: colors.textSecondary, fontStyle: 'italic' }]}>
+            {arcana.tarotName && arcana.tarotName !== displayTitle && (
+              <Text
+                style={[styles.matrixName, { color: colors.textSecondary, fontStyle: 'italic' }]}
+              >
                 {arcana.tarotName}
               </Text>
-            ) : null}
+            )}
 
-            {/* Badges Info */}
+            {/* Badges */}
             <View style={styles.badges}>
-              {cardId !== '' ? (
-                <Text style={[styles.badge, { color: colors.primary }]}>
-                  #{cardId}
-                </Text>
-              ) : null}
+              <Text style={[styles.badge, { color: colors.primary }]}>#{cardId}</Text>
 
-              {arcana.element ? (
+              {!!arcana.element && (
                 <Text style={[styles.badge, { color: colors.primary }]}>
                   {ELEMENT_EMOJI[arcana.element] || '✨'} {arcana.element}
                 </Text>
-              ) : null}
+              )}
 
-              {arcana.polarity ? (
-                <Text style={[styles.badge, { color: colors.primary }]}>
-                  {arcana.polarity}
-                </Text>
-              ) : null}
+              {!!arcana.polarity && (
+                <Text style={[styles.badge, { color: colors.primary }]}>{arcana.polarity}</Text>
+              )}
+
+              {!!arcana.planet && (
+                <Text style={[styles.badge, { color: colors.primary }]}>{arcana.planet}</Text>
+              )}
+
+              {!!arcana.chakra && (
+                <Text style={[styles.badge, { color: colors.primary }]}>{arcana.chakra}</Text>
+              )}
             </View>
 
-            {/* Konten Interpretasi Tafsir Numerologi */}
-            {renderText('Ringkasan', arcana.summary)}
-            {renderText('Makna Upright', arcana.uprightMeaning)}
-            {renderText('Makna Reversed', arcana.reversedMeaning)}
-            {renderText('Nasihat Jiwa', arcana.advice)}
-            
-            {renderSection('Keywords', arcana.keywords)}
-            {renderSection('Karakter Positif', arcana.positiveTraits)}
-            {renderSection('Shadow / Tantangan', arcana.shadowTraits)}
-            {renderSection('Kekuatan', arcana.strengths)}
-            {renderSection('Kelemahan', arcana.weaknesses)}
-            {renderSection('Talenta', arcana.talents)}
-            {renderSection('Misi Hidup', arcana.lifeMission)}
-            {renderSection('Pelajaran Karma', arcana.karmicLessons)}
-            {renderSection('Pelajaran Spiritual', arcana.spiritualLessons)}
-            
-            {renderSection('Karier', arcana.career)}
-            {renderSection('Keuangan', arcana.finance)}
-            {renderSection('Hubungan', arcana.relationship)}
-            {renderSection('Kesehatan', arcana.health)}
-            
-            {renderSection('Gift', arcana.gifts)}
-            {renderSection('Ketakutan', arcana.fears)}
-            {renderSection('Afirmasi', arcana.affirmations)}
+            {/* ===== RINGKASAN (selalu terbuka) ===== */}
+            {renderSummary(arcana.summary || arcana.narrative?.overview)}
 
-            {/* Tombol Aksi Tutup */}
+            {/* ===== DROPDOWN SECTIONS ===== */}
+            {renderDropdownText('upright', 'Makna Upright', arcana.uprightMeaning)}
+            {renderDropdownText('reversed', 'Makna Reversed', arcana.reversedMeaning)}
+
+            {renderDropdownText('personality', 'Kepribadian', arcana.narrative?.personality)}
+            {renderDropdownText('challenge', 'Tantangan', arcana.narrative?.challenge)}
+            {renderDropdownText('potential', 'Potensi', arcana.narrative?.potential)}
+
+            {renderDropdownList('keywords', 'Keywords', arcana.keywords)}
+            {renderDropdownList('positive', 'Karakter Positif', arcana.positiveTraits)}
+            {renderDropdownList('shadow', 'Shadow / Tantangan', arcana.shadowTraits)}
+            {renderDropdownList('strengths', 'Kekuatan', arcana.strengths)}
+            {renderDropdownList('weaknesses', 'Kelemahan', arcana.weaknesses)}
+            {renderDropdownList('gifts', 'Gift', arcana.gifts)}
+            {renderDropdownList('fears', 'Ketakutan', arcana.fears)}
+
+            {renderDropdownList('talents', 'Talenta', arcana.talents)}
+            {renderDropdownList('mission', 'Misi Hidup', arcana.lifeMission)}
+            {renderDropdownList('karmic', 'Pelajaran Karma', arcana.karmicLessons)}
+            {renderDropdownList('spiritual', 'Pelajaran Spiritual', arcana.spiritualLessons)}
+
+            {renderDropdownList('career', 'Karier', arcana.career)}
+            {renderDropdownList('finance', 'Keuangan', arcana.finance)}
+            {renderDropdownList('relationship', 'Hubungan', arcana.relationship)}
+            {renderDropdownList('family', 'Keluarga', arcana.family)}
+            {renderDropdownList('friendship', 'Persahabatan', arcana.friendship)}
+            {renderDropdownList('health', 'Kesehatan', arcana.health)}
+
+            {renderDropdownList('advice', 'Nasihat', arcana.advice)}
+            {renderDropdownList('affirmations', 'Afirmasi', arcana.affirmations)}
+            {renderDropdownList('meditation', 'Meditasi', arcana.meditation)}
+            {renderDropdownList('daily', 'Praktik Harian', arcana.dailyPractice)}
+
+            {/* Tombol Tutup */}
             <TouchableOpacity
               style={[styles.closeButton, { backgroundColor: colors.primary }]}
               onPress={onClose}
@@ -317,10 +360,23 @@ const styles = StyleSheet.create({
   section: {
     marginTop: SPACING.md,
   },
+  dropdownHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 6,
+  },
   sectionTitle: {
     fontSize: FONT_SIZE.md,
     fontWeight: '700',
-    marginBottom: SPACING.xs,
+  },
+  chevron: {
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  dropdownContent: {
+    marginTop: 4,
+    paddingLeft: 4,
   },
   description: {
     fontSize: FONT_SIZE.md,
@@ -342,4 +398,3 @@ const styles = StyleSheet.create({
     fontSize: FONT_SIZE.md,
   },
 });
- 

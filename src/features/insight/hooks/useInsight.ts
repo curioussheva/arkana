@@ -4,7 +4,7 @@ import { useAppStore } from '@store/app-store';
 import { generateInsight, type DestinyPointKey } from '@core/destiny-matrix';
 import { ELEMENT_STYLES } from '@components/ui/ArkanaCard/types';
 import { getPositionAdvice } from '@core/destiny-matrix/analysis/positions';
-
+import type { DestinyMatrix, DestinyPoint } from '@core/destiny-matrix/types';
 // Gunakan path relatif yang aman untuk mematikan error TS2307
 import type { EvolutionPointsInput } from '../../../core/destiny-matrix/evolutionEngine';
 import type { AssessmentState } from '../../../core/assessment/assessmentEngine';
@@ -34,11 +34,26 @@ export function useInsight() {
 
     // Mendaftarkan seluruh alfabet mesin dari struktur Destiny Matrix
     const keys: DestinyPointKey[] = [
-      'A', 'B', 'C', 'D', 'E', // Pusat
-      'F', 'G', 'H', 'I',      // Diagonal / Jembatan luar
-      'J', 'K', 'L', 'M',      // Jembatan Linier internal
-      'N', 'O', 'P',           // Klaster Ekor Karma tambahan
-      'Q', 'R', 'S', 'T'       // Satelit Makro ujung luar
+      'A',
+      'B',
+      'C',
+      'D',
+      'E', // Pusat
+      'F',
+      'G',
+      'H',
+      'I', // Diagonal / Jembatan luar
+      'J',
+      'K',
+      'L',
+      'M', // Jembatan Linier internal
+      'N',
+      'O',
+      'P', // Klaster Ekor Karma tambahan
+      'Q',
+      'R',
+      'S',
+      'T', // Satelit Makro ujung luar
     ];
 
     return keys
@@ -47,7 +62,7 @@ export function useInsight() {
         if (!point || !point.arcana) return null;
 
         const rawAdvice = point.arcana.advice || point.arcana.uprightMeaning;
-        const safeAdviceText = Array.isArray(rawAdvice) ? rawAdvice.join(' ') : (rawAdvice || '');
+        const safeAdviceText = Array.isArray(rawAdvice) ? rawAdvice.join(' ') : rawAdvice || '';
 
         return {
           key,
@@ -55,11 +70,14 @@ export function useInsight() {
           arcanaName: point.arcana.matrixName || point.arcana.tarotName || 'Major Arcana',
           arcana: point.arcana,
           // Gunakan penanganan aman jika getPositionAdvice hanya mendukung kunci A-G lama
-          interpretation: getPositionAdvice(
-            key,
-            point.arcana.matrixName || point.arcana.tarotName,
-            safeAdviceText
-          ) || safeAdviceText || 'Analisis energi getaran spasial sedang diselaraskan...',
+          interpretation:
+            getPositionAdvice(
+              key,
+              point.arcana.matrixName || point.arcana.tarotName,
+              safeAdviceText
+            ) ||
+            safeAdviceText ||
+            'Analisis energi getaran spasial sedang diselaraskan...',
         };
       })
       .filter((item): item is NonNullable<typeof item> => item !== null);
@@ -68,10 +86,13 @@ export function useInsight() {
   const arcanaSequence = useMemo(() => {
     if (!matrix || !matrix.points) return [];
     const order: DestinyPointKey[] = ['A', 'J', 'E', 'L', 'C', 'F', 'H', 'I'];
-    return order
-      .map(key => matrix.points[key])
-      .filter(Boolean)
-      .map(point => point.arcana);
+    return (
+      order
+        .map(key => matrix.points[key])
+        // yin-yang.ts:20 dan useInsight.ts:92 — filter dulu sebelum map, lebih aman dari assertion buta
+        .filter((p): p is DestinyPoint => p !== undefined)
+        .map(point => point.value)
+    ); // atau point.arcana;
   }, [matrix]);
 
   const matrixPoints = useMemo<EvolutionPointsInput | null>(() => {
@@ -102,11 +123,11 @@ export function useInsight() {
       content: { paddingBottom: 24 },
     });
   }, []);
-Object.entries(matrix?.points ?? {}).forEach(([key, point]) => { 
-  if (!point?.arcana?.element) {
-    console.log('❌ Titik bermasalah:', key, point?.arcana);
-  }
-}); 
+  Object.entries(matrix?.points ?? {}).forEach(([key, point]) => {
+    if (!point?.arcana?.element) {
+      console.log('❌ Titik bermasalah:', key, point?.arcana);
+    }
+  });
   return {
     matrix,
     profileName,

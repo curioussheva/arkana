@@ -52,12 +52,14 @@ export function getAge(birthDate: string): number {
   return age;
 }
 
-export function getLifePathPeriods(birthDate: string): { start: number; end: number; number: number }[] {
+export function getLifePathPeriods(
+  birthDate: string
+): { start: number; end: number; number: number }[] {
   const age = getAge(birthDate);
 
   return [
     { start: 0, end: Math.min(age, 30), number: 1 },
     { start: 30, end: Math.min(age, 60), number: 2 },
     { start: 60, end: age, number: 3 },
-  ].filter((p) => p.start <= age);
+  ].filter(p => p.start <= age);
 }

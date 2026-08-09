@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
+import { ImageSourcePropType } from 'react-native';
 
-export const ARCANA_CARD_IMAGES: Record<string, number> = {
+export const ARCANA_CARD_IMAGES: Record<string, ImageSourcePropType> = {
   'The Fool': require('../../assets/images/cards/the_fool.jpg'),
   'The Magician': require('../../assets/images/cards/the_magician.jpg'),
   'The High Priestess': require('../../assets/images/cards/the_high_priestess.jpg'),
@@ -25,7 +26,13 @@ export const ARCANA_CARD_IMAGES: Record<string, number> = {
   'The World': require('../../assets/images/cards/the_world.jpg'),
 };
 
-// Nama fungsi disesuaikan menggunakan huruf 'C'
-export function getArcanaImage(cardName: string): number | null {
-  return ARCANA_CARD_IMAGES[cardName] ?? null;
+// Urutan Major Arcana standar (id 0-21) mengikuti urutan insersi di atas
+const ARCANA_ID_ORDER: string[] = Object.keys(ARCANA_CARD_IMAGES);
+
+export function getArcanaImage(cardNameOrId: string | number): ImageSourcePropType | undefined {
+  if (typeof cardNameOrId === 'number') {
+    const name = ARCANA_ID_ORDER[cardNameOrId];
+    return name ? ARCANA_CARD_IMAGES[name] : undefined;
+  }
+  return ARCANA_CARD_IMAGES[cardNameOrId] ?? undefined;
 }

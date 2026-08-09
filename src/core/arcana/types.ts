@@ -1,14 +1,8 @@
 // src/core/arcana/types.ts
 
-export type ArcanaElement =
-  | 'Fire'
-  | 'Water'
-  | 'Air'
-  | 'Earth';
+export type ArcanaElement = 'Fire' | 'Water' | 'Air' | 'Earth';
 
-export type ArcanaPolarity =
-  | 'Yin'
-  | 'Yang';
+export type ArcanaPolarity = 'Yin' | 'Yang';
 
 export interface ArcanaNarrative {
   overview: string;
@@ -165,4 +159,3 @@ export interface BirthDateInput {
   month: number;
   year: number;
 }
- 
